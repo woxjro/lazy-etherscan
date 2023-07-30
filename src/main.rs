@@ -7,6 +7,32 @@ use crossterm::{
 };
 use ratatui::{prelude::*, widgets::*};
 
+struct App<'a> {
+    pub sidebar_items: Vec<&'a str>,
+    pub focus: usize,
+}
+
+impl<'a> App<'a> {
+    fn new() -> App<'a> {
+        App {
+            sidebar_items: vec!["Top", "Middle", "Bottom"],
+            focus: 0,
+        }
+    }
+
+    pub fn next(&mut self) {
+        self.focus = (self.focus + 1) % self.sidebar_items.len();
+    }
+
+    pub fn previous(&mut self) {
+        if self.focus > 0 {
+            self.focus -= 1;
+        } else {
+            self.focus = self.sidebar_items.len() - 1;
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
@@ -16,7 +42,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // create app and run it
-    let res = run_app(&mut terminal);
+    let app = App::new();
+    let res = run_app(&mut terminal, app);
 
     // restore terminal
     disable_raw_mode()?;
@@ -35,34 +62,32 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     loop {
-        terminal.draw(ui)?;
+        terminal.draw(|f| ui(f, &app))?;
 
         if event::poll(Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
                 if let KeyCode::Char('q') = key.code {
                     return Ok(());
                 }
+                if let KeyCode::Tab = key.code {
+                    app.next()
+                }
             }
         }
     }
 }
 
-fn ui<B: Backend>(f: &mut Frame<B>) {
+fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
     // Wrapping block for a group
     // Just draw the block and the group on the same area and build the group
     let outer = f.size();
-    let outer_block = Block::default()
-        .borders(Borders::ALL)
-        .title(block::Title::from(" lazy-etherscan ").alignment(Alignment::Center))
-        .border_type(BorderType::Rounded);
-    let inner = outer_block.inner(outer);
 
     let [sidebar, detail] = *Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Ratio(1,3), Constraint::Ratio(2,3)].as_ref())
-        .split(inner)
+        .split(outer)
     else {
         return;
     };
@@ -76,33 +101,35 @@ fn ui<B: Backend>(f: &mut Frame<B>) {
         return;
     };
 
+    let sidebar_items = [top, middle, bottom];
+
+    let blocks = (0..(app.sidebar_items.len()))
+        .map(|i| {
+            if app.focus == i {
+                Block::default()
+                    .title(app.sidebar_items[i])
+                    .border_style(Style::default().fg(Color::Green))
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Plain)
+            } else {
+                Block::default()
+                    .title(app.sidebar_items[i])
+                    .border_style(Style::default())
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Plain)
+            }
+        })
+        .collect::<Vec<_>>();
+
+    for i in 0..(app.sidebar_items.len()) {
+        f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
+    }
+
     let detail_block = Block::default()
         .title("Detail")
         .border_style(Style::default())
         .borders(Borders::ALL)
         .border_type(BorderType::Plain);
 
-    let top_block = Block::default()
-        .title("Top")
-        .border_style(Style::default())
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain);
-
-    let middle_block = Block::default()
-        .title("Middle")
-        .border_style(Style::default())
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain);
-
-    let bottom_block = Block::default()
-        .title("Bottom")
-        .border_style(Style::default())
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain);
-
-    f.render_widget(top_block, top);
-    f.render_widget(middle_block, middle);
-    f.render_widget(bottom_block, bottom);
     f.render_widget(detail_block, detail);
-    f.render_widget(outer_block, outer);
 }
