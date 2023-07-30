@@ -1,0 +1,13 @@
+[package]
+name = "lazy-etherscan"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ratatui = { version = "0.22.0", features = ["all-widgets"] }
+
+[dependencies.crossterm]
+version = "0.23"
+features = ["event-stream"]
