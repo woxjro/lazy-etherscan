@@ -1,11 +1,10 @@
-use std::{error::Error, io, time::Duration};
-
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{prelude::*, widgets::*};
+use std::{error::Error, io, time::Duration};
 
 enum Field {
     LatestBlocks,

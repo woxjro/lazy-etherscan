@@ -6,7 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ethers-core = "2.0.8"
+ethers-providers = "2.0.8"
+futures = "0.3.28"
 ratatui = { version = "0.22.0", features = ["all-widgets"] }
+serde_json = "1.0.104"
+tokio = { version = "1.29.1", features = ["full"] }
 
 [dependencies.crossterm]
 version = "0.23"
