@@ -7,21 +7,71 @@ use crossterm::{
 };
 use ratatui::{prelude::*, widgets::*};
 
+enum Field {
+    LatestBlocks,
+    LatestTransactions,
+    Bottom,
+    Details,
+}
+
+#[derive(Debug)]
+enum SidebarCategory {
+    LatestBlocks,
+    LatestTransactions,
+    Bottom,
+}
+
+impl From<usize> for SidebarCategory {
+    fn from(id: usize) -> Self {
+        if id == 0 {
+            Self::LatestBlocks
+        } else if id == 1 {
+            Self::LatestTransactions
+        } else if id == 2 {
+            Self::Bottom
+        } else {
+            panic!()
+        }
+    }
+}
+
+impl Field {
+    fn get_index(&self) -> usize {
+        match self {
+            Self::LatestBlocks => 0,
+            Self::LatestTransactions => 1,
+            Self::Bottom => 2,
+            Self::Details => 3,
+        }
+    }
+}
+
 struct App<'a> {
     pub sidebar_items: Vec<&'a str>,
     pub focus: usize,
+    pub details_about: Option<SidebarCategory>,
 }
 
 impl<'a> App<'a> {
     fn new() -> App<'a> {
         App {
-            sidebar_items: vec!["Top", "Middle", "Bottom"],
+            sidebar_items: vec!["Latest Blocks", "Latest Transactions", "Bottom"],
             focus: 0,
+            details_about: None,
         }
     }
 
     pub fn next(&mut self) {
         self.focus = (self.focus + 1) % self.sidebar_items.len();
+    }
+
+    pub fn set(&mut self, focus: usize) {
+        if focus < 3 {
+            self.details_about = None;
+        } else if focus == 3 {
+            self.details_about = Some(SidebarCategory::from(self.focus));
+        }
+        self.focus = focus;
     }
 
     pub fn previous(&mut self) {
@@ -68,11 +118,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
 
         if event::poll(Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
-                if let KeyCode::Char('q') = key.code {
-                    return Ok(());
-                }
-                if let KeyCode::Tab = key.code {
-                    app.next()
+                match key.code {
+                    KeyCode::Char('q') => {
+                        return Ok(());
+                    }
+                    KeyCode::Char('1') => app.set(0),
+                    KeyCode::Char('2') => app.set(1),
+                    KeyCode::Char('3') => app.set(2),
+                    KeyCode::Enter => app.set(3),
+                    _ => {}
                 }
             }
         }
@@ -125,11 +179,22 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
     }
 
-    let detail_block = Block::default()
-        .title("Detail")
-        .border_style(Style::default())
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain);
+    let detail_block = if app.focus == Field::Details.get_index() {
+        Block::default()
+            .title(format!(
+                "Details about {:?}",
+                app.details_about.as_ref().unwrap()
+            ))
+            .border_style(Style::default().fg(Color::Green))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Plain)
+    } else {
+        Block::default()
+            .title("Details")
+            .border_style(Style::default())
+            .borders(Borders::ALL)
+            .border_type(BorderType::Plain)
+    };
 
     f.render_widget(detail_block, detail);
 }
