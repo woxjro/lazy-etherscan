@@ -4,19 +4,11 @@ mod ui;
 use app::App;
 use route::Route;
 
-use cfonts::Options;
 use crossterm::{event, execute, terminal};
 use ratatui::prelude::*;
 use std::{error::Error, io, time::Duration};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _title = cfonts::render(Options {
-        text: String::from("lazy| etherscan"),
-        font: cfonts::Fonts::FontBlock,
-        ..Options::default()
-    });
-
-    //println!("{}", title.text);
     // setup terminal
     terminal::enable_raw_mode()?;
     let mut stdout = io::stdout();
