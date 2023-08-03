@@ -1,4 +1,5 @@
 use crate::route::Route;
+use ethers_core::types::{Block, Transaction};
 
 pub enum Field {
     LatestBlocks,
@@ -44,6 +45,8 @@ pub struct App<'a> {
     pub sidebar_items: Vec<&'a str>,
     pub focus: usize,
     pub details_about: Option<SidebarCategory>,
+    pub latest_blocks: Option<Vec<Block<Transaction>>>,
+    pub latest_transactions: Option<Vec<Transaction>>,
 }
 
 impl<'a> App<'a> {
@@ -53,6 +56,8 @@ impl<'a> App<'a> {
             sidebar_items: vec!["Latest Blocks", "Latest Transactions", "Bottom"],
             focus: 0,
             details_about: None,
+            latest_blocks: None,
+            latest_transactions: None,
         }
     }
 

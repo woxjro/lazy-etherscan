@@ -1,4 +1,5 @@
 //use ethers_core::types::Address;
+#[derive(PartialEq)]
 pub enum Route {
     Home,
     Search,
