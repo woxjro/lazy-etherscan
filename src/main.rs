@@ -47,6 +47,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
             Route::Home => {
                 terminal.draw(|f| ui::ui_home(f, &app))?;
             }
+            Route::Search => {
+                terminal.draw(|f| ui::ui_search(f, &app))?;
+            }
+            Route::Blocks => {
+                terminal.draw(|f| ui::ui_blocks(f, &app))?;
+            }
+            Route::Transactions => {
+                terminal.draw(|f| ui::ui_transations(f, &app))?;
+            }
         };
 
         if event::poll(Duration::from_millis(250))? {
@@ -55,10 +64,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     event::KeyCode::Char('q') => {
                         return Ok(());
                     }
-                    event::KeyCode::Char('1') => app.set(0),
-                    event::KeyCode::Char('2') => app.set(1),
-                    event::KeyCode::Char('3') => app.set(2),
-                    event::KeyCode::Enter => app.set(3),
+                    event::KeyCode::Char('s') => app.set_route(Route::Search),
+                    event::KeyCode::Char('1') => app.set_route(Route::Blocks),
+                    event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                    //event::KeyCode::Char('3') => app.set(2),
+                    //event::KeyCode::Enter => app.set(3),
                     _ => {}
                 }
             }

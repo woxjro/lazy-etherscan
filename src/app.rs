@@ -56,13 +56,8 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn set(&mut self, focus: usize) {
-        if focus < 3 {
-            self.details_about = None;
-        } else if focus == 3 {
-            self.details_about = Some(SidebarCategory::from(self.focus));
-        }
-        self.focus = focus;
+    pub fn set_route(&mut self, route: Route) {
+        self.route = route;
     }
 
     /*
