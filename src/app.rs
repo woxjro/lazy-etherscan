@@ -1,5 +1,7 @@
+use crate::network::IoEvent;
 use crate::route::Route;
 use ethers_core::types::{Block, Transaction};
+use std::sync::mpsc::Sender;
 
 pub enum Field {
     LatestBlocks,
@@ -40,20 +42,26 @@ impl From<usize> for SidebarCategory {
     }
 }
 
-pub struct App<'a> {
+pub struct App {
     pub route: Route,
-    pub sidebar_items: Vec<&'a str>,
+    io_tx: Option<Sender<IoEvent>>,
+    pub sidebar_items: Vec<String>,
     pub focus: usize,
     pub details_about: Option<SidebarCategory>,
     pub latest_blocks: Option<Vec<Block<Transaction>>>,
     pub latest_transactions: Option<Vec<Transaction>>,
 }
 
-impl<'a> App<'a> {
-    pub fn new() -> App<'a> {
+impl App {
+    pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
             route: Route::Home,
-            sidebar_items: vec!["Latest Blocks", "Latest Transactions", "Bottom"],
+            io_tx: Some(io_tx),
+            sidebar_items: vec![
+                "Latest Blocks".to_string(),
+                "Latest Transactions".to_string(),
+                "Bottom".to_string(),
+            ],
             focus: 0,
             details_about: None,
             latest_blocks: None,

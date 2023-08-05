@@ -118,7 +118,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     let mut blocks = (0..(app.sidebar_items.len()))
         .map(|i| {
             Block::default()
-                .title(app.sidebar_items[i])
+                .title(app.sidebar_items[i].to_owned())
                 .border_style(Style::default())
                 .borders(Borders::ALL)
                 .border_type(BorderType::Plain)

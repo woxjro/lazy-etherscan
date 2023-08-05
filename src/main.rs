@@ -1,14 +1,18 @@
 mod app;
+mod network;
 mod route;
 mod ui;
 use app::App;
-use route::Route;
-
 use crossterm::{event, execute, terminal};
+use network::{IoEvent, Network};
 use ratatui::prelude::*;
+use route::Route;
+use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
+use tokio::sync::Mutex;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
     terminal::enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -20,9 +24,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
+    let (sync_io_tx, sync_io_rx) = std::sync::mpsc::channel::<IoEvent>();
+
     // create app and run it
-    let app = App::new();
-    let res = run_app(&mut terminal, app);
+    let app = Arc::new(Mutex::new(App::new(sync_io_tx)));
+    let cloned_app = Arc::clone(&app);
+
+    std::thread::spawn(move || {
+        let mut network = Network::new(&app);
+        start_tokio(sync_io_rx, &mut network);
+    });
+
+    let res = start_ui(&mut terminal, &cloned_app).await;
 
     // restore terminal
     terminal::disable_raw_mode()?;
@@ -41,8 +54,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+async fn start_ui<B: Backend>(
+    terminal: &mut Terminal<B>,
+    app: &Arc<Mutex<App>>,
+) -> Result<(), Box<dyn Error>> {
     loop {
+        let mut app = app.lock().await;
         match app.route {
             Route::Home => {
                 terminal.draw(|f| ui::ui_home(f, &app))?;
@@ -73,5 +90,12 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                 }
             }
         }
+    }
+}
+
+#[tokio::main]
+async fn start_tokio<'a>(io_rx: std::sync::mpsc::Receiver<IoEvent>, network: &mut Network) {
+    while let Ok(io_event) = io_rx.recv() {
+        dbg!(format!("called"));
     }
 }
