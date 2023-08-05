@@ -58,6 +58,8 @@ async fn start_ui<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &Arc<Mutex<App>>,
 ) -> Result<(), Box<dyn Error>> {
+    let mut is_first_render = true;
+
     loop {
         let mut app = app.lock().await;
         match app.route {
@@ -90,12 +92,17 @@ async fn start_ui<B: Backend>(
                 }
             }
         }
+
+        if is_first_render {
+            app.dispatch(IoEvent::GetLatestBlocks);
+            is_first_render = false;
+        }
     }
 }
 
 #[tokio::main]
 async fn start_tokio<'a>(io_rx: std::sync::mpsc::Receiver<IoEvent>, network: &mut Network) {
     while let Ok(io_event) = io_rx.recv() {
-        dbg!(format!("called"));
+        network.handle_network_event(io_event).await;
     }
 }
