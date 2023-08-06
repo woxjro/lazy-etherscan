@@ -3,34 +3,11 @@ use crate::route::Route;
 use ethers_core::types::{Block, Transaction, H256};
 use std::sync::mpsc::Sender;
 
-#[derive(Debug)]
-pub enum SidebarCategory {
-    LatestBlocks,
-    LatestTransactions,
-    Bottom,
-}
-
-impl From<usize> for SidebarCategory {
-    fn from(id: usize) -> Self {
-        if id == 0 {
-            Self::LatestBlocks
-        } else if id == 1 {
-            Self::LatestTransactions
-        } else if id == 2 {
-            Self::Bottom
-        } else {
-            panic!()
-        }
-    }
-}
-
 pub struct App {
     pub route: Route,
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
     pub sidebar_items: Vec<String>,
-    pub focus: usize,
-    pub details_about: Option<SidebarCategory>,
     pub latest_blocks: Option<Vec<Block<H256>>>,
     pub latest_transactions: Option<Vec<Transaction>>,
 }
@@ -44,10 +21,7 @@ impl App {
             sidebar_items: vec![
                 "Latest Blocks".to_string(),
                 "Latest Transactions".to_string(),
-                "Bottom".to_string(),
             ],
-            focus: 0,
-            details_about: None,
             latest_blocks: None,
             latest_transactions: None,
         }

@@ -19,18 +19,13 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
         };
 
     let searchbar_block = if let Route::Search = app.route {
-        Block::default()
-            .title("Serach by Address / Txn Hash / Block / Token / Domain Name")
-            .border_style(Style::default().fg(Color::Green))
-            .borders(Borders::ALL)
-            .border_type(BorderType::Plain)
+        Block::default().border_style(Style::default().fg(Color::Green))
     } else {
-        Block::default()
-            .title("Serach by Address / Txn Hash / Block / Token / Domain Name")
-            .border_style(Style::default())
-            .borders(Borders::ALL)
-            .border_type(BorderType::Plain)
-    };
+        Block::default().border_style(Style::default())
+    }
+    .title("Serach by Address / Txn Hash / Block / Token / Domain Name")
+    .borders(Borders::ALL)
+    .border_type(BorderType::Plain);
 
     f.render_widget(searchbar_block, searchbar);
 
@@ -150,15 +145,15 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     let block_list = if let Some(latest_blocks) = app.latest_blocks.to_owned() {
         let mut res = vec![
             ListItem::new(format!(
-                " {:^11} | {:^11} | {:^12} | {:^12} |",
+                " {:^11} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
                 "Block Height", "Hash", "Transactions", "Time"
             )),
-            ListItem::new("-".repeat(59)),
+            ListItem::new("-".repeat(59)), //TODO: remove this magic number
         ];
 
         for block in latest_blocks {
             res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>7} txns | {:>3} secs ago |",
+                "{:>13} | {:>12} | {:>7} txns | {:>3} secs ago |", //TODO: remove this magic number
                 block.number.unwrap(),
                 block.hash.unwrap(),
                 block.transactions.len(),
@@ -169,10 +164,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     } else {
         List::new([
             ListItem::new(format!(
-                " {:^11} | {:^11} | {:^12} | {:^12} |",
+                " {:^11} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
                 "Block Height", "Hash", "Transactions", "Time"
             )),
-            ListItem::new("-".repeat(59)),
+            ListItem::new("-".repeat(59)), //TODO: remove this magic number
             ListItem::new("is loading..."),
         ])
     }
@@ -200,7 +195,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     f.render_widget(transaction_list, middle);
 
-    for i in 0..(app.sidebar_items.len() - 1) {
+    for i in 0..app.sidebar_items.len() {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
     }
 
