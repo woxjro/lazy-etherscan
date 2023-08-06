@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::widget::StatefulList;
 use ethers_core::types::{Block, Transaction, H256};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
@@ -26,13 +27,13 @@ impl<'a> Network<'a> {
             IoEvent::GetLatestBlocks => {
                 let mut app = self.app.lock().await;
                 let blocks = get_latest_blocks().await.unwrap();
-                app.latest_blocks = Some(blocks);
+                app.latest_blocks = Some(StatefulList::with_items(blocks));
                 app.is_loading = false;
             }
             IoEvent::GetLatestTransactions => {
                 let mut app = self.app.lock().await;
                 let transactions = get_latest_transactions().await.unwrap();
-                app.latest_transactions = Some(transactions);
+                app.latest_transactions = Some(StatefulList::with_items(transactions));
                 app.is_loading = false;
             }
         }

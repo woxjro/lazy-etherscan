@@ -5,7 +5,7 @@ use chrono::Utc;
 use ratatui::{prelude::*, widgets::*};
 
 /// /home
-pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
+pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // Wrapping block for a group
     // Just draw the block and the group on the same area and build the group
     let outer = f.size();
@@ -142,16 +142,22 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     let blocks = blocks;
 
-    let block_list = if let Some(latest_blocks) = app.latest_blocks.to_owned() {
+    let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
         let mut res = vec![
             ListItem::new(format!(
-                " {:^11} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
+                " {:^12} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
                 "Block Height", "Hash", "Transactions", "Time"
             )),
-            ListItem::new("-".repeat(59)), //TODO: remove this magic number
+            ListItem::new(format!(
+                "{}+{}+{}+{}|",
+                "-".repeat(14),
+                "-".repeat(13),
+                "-".repeat(14),
+                "-".repeat(14),
+            )), //TODO: remove this magic number
         ];
 
-        for block in latest_blocks {
+        for block in latest_blocks.items.to_owned() {
             res.push(ListItem::new(format!(
                 "{:>13} | {:>12} | {:>7} txns | {:>3} secs ago |", //TODO: remove this magic number
                 block.number.unwrap(),
@@ -167,22 +173,41 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
                 " {:^11} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
                 "Block Height", "Hash", "Transactions", "Time"
             )),
-            ListItem::new("-".repeat(59)), //TODO: remove this magic number
+            ListItem::new(format!(
+                "{}+{}+{}+{}|",
+                "-".repeat(14),
+                "-".repeat(13),
+                "-".repeat(14),
+                "-".repeat(14),
+            )), //TODO: remove this magic number
             ListItem::new("is loading..."),
         ])
     }
     .block(blocks[0].to_owned())
     .style(Style::default().fg(Color::White))
-    .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-    .highlight_symbol(">>");
+    .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
-    f.render_widget(block_list, top);
+    if let Some(_) = app.latest_blocks {
+        f.render_stateful_widget(
+            block_list,
+            top,
+            &mut app.latest_blocks.as_mut().unwrap().state,
+        );
+    } else {
+        f.render_stateful_widget(block_list, top, &mut ListState::default());
+    }
 
-    let transaction_list = if let Some(latest_transactions) = app.latest_transactions.to_owned() {
+    let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
         let mut res = vec![];
 
-        for tx in latest_transactions {
-            res.push(ListItem::new(format!("{}", tx.hash)));
+        for tx in latest_transactions.items.to_owned() {
+            res.push(ListItem::new(format!(
+                "{} | {} | {} | {}",
+                tx.hash,
+                tx.from,
+                tx.to.unwrap(),
+                tx.value
+            )));
         }
         List::new(res)
     } else {
@@ -190,8 +215,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     }
     .block(blocks[1].to_owned())
     .style(Style::default().fg(Color::White))
-    .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-    .highlight_symbol(">>");
+    .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
     f.render_widget(transaction_list, middle);
 

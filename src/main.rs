@@ -2,6 +2,7 @@ mod app;
 mod network;
 mod route;
 mod ui;
+mod widget;
 use app::App;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
@@ -64,16 +65,16 @@ async fn start_ui<B: Backend>(
         let mut app = app.lock().await;
         match app.route {
             Route::Home => {
-                terminal.draw(|f| ui::ui_home(f, &app))?;
+                terminal.draw(|f| ui::ui_home(f, &mut app))?;
             }
             Route::Search => {
-                terminal.draw(|f| ui::ui_search(f, &app))?;
+                terminal.draw(|f| ui::ui_search(f, &mut app))?;
             }
             Route::Blocks => {
-                terminal.draw(|f| ui::ui_blocks(f, &app))?;
+                terminal.draw(|f| ui::ui_blocks(f, &mut app))?;
             }
             Route::Transactions => {
-                terminal.draw(|f| ui::ui_transations(f, &app))?;
+                terminal.draw(|f| ui::ui_transations(f, &mut app))?;
             }
         };
 
@@ -86,6 +87,22 @@ async fn start_ui<B: Backend>(
                     event::KeyCode::Char('s') => app.set_route(Route::Search),
                     event::KeyCode::Char('1') => app.set_route(Route::Blocks),
                     event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                    event::KeyCode::Char('j') => match app.route {
+                        Route::Home | Route::Blocks => {
+                            if let Some(latest_blocks) = app.latest_blocks.as_mut() {
+                                latest_blocks.next();
+                            }
+                        }
+                        _ => {}
+                    },
+                    event::KeyCode::Char('k') => match app.route {
+                        Route::Home | Route::Blocks => {
+                            if let Some(latest_blocks) = app.latest_blocks.as_mut() {
+                                latest_blocks.previous();
+                            }
+                        }
+                        _ => {}
+                    },
                     //event::KeyCode::Char('3') => app.set(2),
                     //event::KeyCode::Enter => app.set(3),
                     _ => {}

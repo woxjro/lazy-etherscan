@@ -1,5 +1,6 @@
 use crate::network::IoEvent;
 use crate::route::Route;
+use crate::widget::StatefulList;
 use ethers_core::types::{Block, Transaction, H256};
 use std::sync::mpsc::Sender;
 
@@ -8,8 +9,8 @@ pub struct App {
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
     pub sidebar_items: Vec<String>,
-    pub latest_blocks: Option<Vec<Block<H256>>>,
-    pub latest_transactions: Option<Vec<Transaction>>,
+    pub latest_blocks: Option<StatefulList<Block<H256>>>,
+    pub latest_transactions: Option<StatefulList<Transaction>>,
 }
 
 impl App {
@@ -43,19 +44,4 @@ impl App {
             };
         }
     }
-
-    /*
-    pub fn next(&mut self) {
-        self.focus = (self.focus + 1) % self.sidebar_items.len();
-    }
-
-
-    pub fn previous(&mut self) {
-        if self.focus > 0 {
-            self.focus -= 1;
-        } else {
-            self.focus = self.sidebar_items.len() - 1;
-        }
-    }
-    */
 }
