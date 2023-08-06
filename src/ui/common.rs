@@ -148,16 +148,20 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     let blocks = blocks;
 
     let block_list = if let Some(latest_blocks) = app.latest_blocks.to_owned() {
-        let mut res = vec![ListItem::new(format!(
-            " {:^11} | {:^11} | {:^12} |",
-            "Block Height", "Hash", "Time"
-        ))];
+        let mut res = vec![
+            ListItem::new(format!(
+                " {:^11} | {:^11} | {:^12} | {:^12} |",
+                "Block Height", "Hash", "Transactions", "Time"
+            )),
+            ListItem::new("-".repeat(59)),
+        ];
 
         for block in latest_blocks {
             res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>3} secs ago |",
+                "{:>13} | {:>12} | {:>7} txns | {:>3} secs ago |",
                 block.number.unwrap(),
                 block.hash.unwrap(),
+                block.transactions.len(),
                 (Utc::now() - block.time().unwrap()).num_seconds()
             )));
         }
@@ -165,9 +169,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
     } else {
         List::new([
             ListItem::new(format!(
-                " {:^11} | {:^11} | {:^12} |",
-                "Block Height", "Hash", "Time"
+                " {:^11} | {:^11} | {:^12} | {:^12} |",
+                "Block Height", "Hash", "Transactions", "Time"
             )),
+            ListItem::new("-".repeat(59)),
             ListItem::new("is loading..."),
         ])
     }
@@ -178,14 +183,16 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     f.render_widget(block_list, top);
 
-    let transaction_list = List::new([
-        ListItem::new("Transaction 1"),
-        ListItem::new("Transaction 2"),
-        ListItem::new("Transaction 3"),
-        ListItem::new("Transaction 4"),
-        ListItem::new("Transaction 5"),
-        ListItem::new("Transaction 6"),
-    ])
+    let transaction_list = if let Some(latest_transactions) = app.latest_transactions.to_owned() {
+        let mut res = vec![];
+
+        for tx in latest_transactions {
+            res.push(ListItem::new(format!("{}", tx.hash)));
+        }
+        List::new(res)
+    } else {
+        List::new([ListItem::new("is loading...")])
+    }
     .block(blocks[1].to_owned())
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::ITALIC))

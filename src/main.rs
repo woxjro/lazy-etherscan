@@ -95,6 +95,7 @@ async fn start_ui<B: Backend>(
 
         if is_first_render {
             app.dispatch(IoEvent::GetLatestBlocks);
+            app.dispatch(IoEvent::GetLatestTransactions);
             is_first_render = false;
         }
     }
