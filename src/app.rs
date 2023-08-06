@@ -3,24 +3,6 @@ use crate::route::Route;
 use ethers_core::types::{Block, Transaction, H256};
 use std::sync::mpsc::Sender;
 
-pub enum Field {
-    LatestBlocks,
-    LatestTransactions,
-    Bottom,
-    Details,
-}
-
-impl Field {
-    pub fn get_index(&self) -> usize {
-        match self {
-            Self::LatestBlocks => 0,
-            Self::LatestTransactions => 1,
-            Self::Bottom => 2,
-            Self::Details => 3,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub enum SidebarCategory {
     LatestBlocks,

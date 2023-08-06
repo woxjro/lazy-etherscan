@@ -1,4 +1,4 @@
-use crate::app::{App, Field};
+use crate::app::App;
 use crate::route::Route;
 use cfonts::Options;
 use chrono::Utc;
@@ -204,22 +204,11 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
     }
 
-    let detail_block = if app.focus == Field::Details.get_index() {
-        Block::default()
-            .title(format!(
-                "Details about {:?}",
-                app.details_about.as_ref().unwrap()
-            ))
-            .border_style(Style::default().fg(Color::Green))
-            .borders(Borders::ALL)
-            .border_type(BorderType::Plain)
-    } else {
-        Block::default()
-            .title("Welcome")
-            .border_style(Style::default())
-            .borders(Borders::ALL)
-            .border_type(BorderType::Plain)
-    };
+    let welcome_block = Block::default()
+        .title("Welcome")
+        .border_style(Style::default())
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain);
 
     let [detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
@@ -237,10 +226,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
         })
         .text,
     ))
-    .block(detail_block.to_owned())
+    .block(welcome_block.to_owned())
     .wrap(Wrap { trim: false })
     .alignment(Alignment::Center);
 
     f.render_widget(banner, detail_rect);
-    f.render_widget(detail_block, detail);
+    f.render_widget(welcome_block, detail);
 }
