@@ -27,13 +27,13 @@ impl<'a> Network<'a> {
                 let mut app = self.app.lock().await;
                 let blocks = get_latest_blocks().await.unwrap();
                 app.latest_blocks = Some(blocks);
+                app.is_loading = false;
             }
             IoEvent::GetLatestTransactions => todo!(),
         }
     }
 }
 
-//#[tokio::main]
 async fn get_latest_blocks() -> Result<Vec<Block<H256>>, Box<dyn Error>> {
     let provider = Provider::<Http>::try_from("https://eth.llamarpc.com")?;
 

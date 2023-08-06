@@ -1,6 +1,7 @@
 use crate::app::{App, Field};
 use crate::route::Route;
 use cfonts::Options;
+use chrono::Utc;
 use ratatui::{prelude::*, widgets::*};
 
 /// /home
@@ -146,14 +147,30 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     let blocks = blocks;
 
-    let block_list = List::new([
-        ListItem::new("Block 1"),
-        ListItem::new("Block 2"),
-        ListItem::new("Block 3"),
-        ListItem::new("Block 4"),
-        ListItem::new("Block 5"),
-        ListItem::new("Block 6"),
-    ])
+    let block_list = if let Some(latest_blocks) = app.latest_blocks.to_owned() {
+        let mut res = vec![ListItem::new(format!(
+            " {:^11} | {:^11} | {:^12} |",
+            "Block Height", "Hash", "Time"
+        ))];
+
+        for block in latest_blocks {
+            res.push(ListItem::new(format!(
+                "{:>13} | {:>12} | {:>3} secs ago |",
+                block.number.unwrap(),
+                block.hash.unwrap(),
+                (Utc::now() - block.time().unwrap()).num_seconds()
+            )));
+        }
+        List::new(res)
+    } else {
+        List::new([
+            ListItem::new(format!(
+                " {:^11} | {:^11} | {:^12} |",
+                "Block Height", "Hash", "Time"
+            )),
+            ListItem::new("is loading..."),
+        ])
+    }
     .block(blocks[0].to_owned())
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
