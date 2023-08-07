@@ -12,6 +12,8 @@ use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
 use tokio::sync::Mutex;
 
+const ENDPOINT: &'static str = "https://eth.llamarpc.com";
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // setup terminal
@@ -32,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let cloned_app = Arc::clone(&app);
 
     std::thread::spawn(move || {
-        let mut network = Network::new(&app);
+        let mut network = Network::new(&app, ENDPOINT);
         start_tokio(sync_io_rx, &mut network);
     });
 
