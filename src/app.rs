@@ -16,7 +16,7 @@ pub struct App {
 impl App {
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
-            route: Route::Home,
+            route: Route::Search,
             is_loading: false,
             io_tx: Some(io_tx),
             sidebar_items: vec![

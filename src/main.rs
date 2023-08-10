@@ -95,6 +95,11 @@ async fn start_ui<B: Backend>(
                                 latest_blocks.next();
                             }
                         }
+                        Route::Transactions => {
+                            if let Some(latest_transactions) = app.latest_transactions.as_mut() {
+                                latest_transactions.next();
+                            }
+                        }
                         _ => {}
                     },
                     event::KeyCode::Char('k') => match app.route {
@@ -103,10 +108,13 @@ async fn start_ui<B: Backend>(
                                 latest_blocks.previous();
                             }
                         }
+                        Route::Transactions => {
+                            if let Some(latest_transactions) = app.latest_transactions.as_mut() {
+                                latest_transactions.previous();
+                            }
+                        }
                         _ => {}
                     },
-                    //event::KeyCode::Char('3') => app.set(2),
-                    //event::KeyCode::Enter => app.set(3),
                     _ => {}
                 }
             }

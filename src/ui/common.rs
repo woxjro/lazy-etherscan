@@ -142,20 +142,21 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let blocks = blocks;
 
+    let header = vec![
+        ListItem::new(format!(
+            " {:^12} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
+            "Block Height", "Hash", "Transactions", "Time"
+        )),
+        ListItem::new(format!(
+            "{}+{}+{}+{}|",
+            "-".repeat(14),
+            "-".repeat(13),
+            "-".repeat(14),
+            "-".repeat(14),
+        )), //TODO: remove this magic number
+    ];
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
-        let mut res = vec![
-            ListItem::new(format!(
-                " {:^12} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
-                "Block Height", "Hash", "Transactions", "Time"
-            )),
-            ListItem::new(format!(
-                "{}+{}+{}+{}|",
-                "-".repeat(14),
-                "-".repeat(13),
-                "-".repeat(14),
-                "-".repeat(14),
-            )), //TODO: remove this magic number
-        ];
+        let mut res = header;
 
         for block in latest_blocks.items.to_owned() {
             res.push(ListItem::new(format!(
@@ -168,20 +169,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         }
         List::new(res)
     } else {
-        List::new([
-            ListItem::new(format!(
-                " {:^11} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
-                "Block Height", "Hash", "Transactions", "Time"
-            )),
-            ListItem::new(format!(
-                "{}+{}+{}+{}|",
-                "-".repeat(14),
-                "-".repeat(13),
-                "-".repeat(14),
-                "-".repeat(14),
-            )), //TODO: remove this magic number
-            ListItem::new("is loading..."),
-        ])
+        let mut res = header.to_owned();
+        res.push(ListItem::new("loading..."));
+        List::new(res)
     }
     .block(blocks[0].to_owned())
     .style(Style::default().fg(Color::White))
@@ -197,27 +187,50 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         f.render_stateful_widget(block_list, top, &mut ListState::default());
     }
 
+    let header = vec![
+        ListItem::new(format!(
+            " {:^11} | {:^11} | {:^11} | {:^19} |", //TODO: remove this magic number
+            "Hash", "From", "To", "Value"
+        )),
+        ListItem::new(format!(
+            "{}+{}+{}+{}|",
+            "-".repeat(13),
+            "-".repeat(13),
+            "-".repeat(13),
+            "-".repeat(21),
+        )),
+    ];
     let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
-        let mut res = vec![];
+        let mut res = header.to_owned();
 
         for tx in latest_transactions.items.to_owned() {
             res.push(ListItem::new(format!(
-                "{} | {} | {} | {}",
+                " {:^11} | {:^11} | {:^11} | {:>19} |",
                 tx.hash,
                 tx.from,
                 tx.to.unwrap(),
-                tx.value
+                tx.value.to_string()
             )));
         }
         List::new(res)
     } else {
-        List::new([ListItem::new("is loading...")])
+        let mut res = header.to_owned();
+        res.push(ListItem::new("loading..."));
+        List::new(res)
     }
     .block(blocks[1].to_owned())
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
-    f.render_widget(transaction_list, middle);
+    if let Some(_) = app.latest_transactions {
+        f.render_stateful_widget(
+            transaction_list,
+            middle,
+            &mut app.latest_transactions.as_mut().unwrap().state,
+        );
+    } else {
+        f.render_stateful_widget(transaction_list, middle, &mut ListState::default());
+    }
 
     for i in 0..app.sidebar_items.len() {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
