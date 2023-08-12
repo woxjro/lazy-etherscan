@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, InputMode};
 use crate::route::Route;
 use cfonts::Options;
 use chrono::Utc;
@@ -23,11 +23,37 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     } else {
         Block::default().border_style(Style::default())
     }
-    .title("Serach by Address / Txn Hash / Block / Token / Domain Name")
+    .title(format!(
+        "Serach by Address / Txn Hash / Block / Token / Domain Name ({})",
+        match app.input_mode {
+            InputMode::Normal => "Press 'q' to exit, 'i' to start editing.",
+            InputMode::Editing => "Press 'Esc' to stop editing, 'Enter' to search.",
+        }
+    ))
     .borders(Borders::ALL)
     .border_type(BorderType::Plain);
 
-    f.render_widget(searchbar_block, searchbar);
+    let input = Paragraph::new(app.input.as_str())
+        .style(Style::default())
+        .block(searchbar_block);
+    f.render_widget(input, searchbar);
+
+    match app.input_mode {
+        InputMode::Normal =>
+            // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
+            {}
+        InputMode::Editing => {
+            // Make the cursor visible and ask ratatui to put it at the specified coordinates after
+            // rendering
+            f.set_cursor(
+                // Draw the cursor at the current position in the input field.
+                // This position is can be controlled via the left and right arrow key
+                searchbar.x + app.cursor_position as u16 + 1,
+                // Move one line down, from the border to the input line
+                searchbar.y + 1,
+            )
+        }
+    }
 
     let [sidebar, detail] = *Layout::default()
             .direction(Direction::Horizontal)
@@ -170,7 +196,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         List::new(res)
     } else {
         let mut res = header.to_owned();
-        res.push(ListItem::new("loading..."));
+        res.push(ListItem::new("Loading..."));
         List::new(res)
     }
     .block(blocks[0].to_owned())
@@ -215,7 +241,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         List::new(res)
     } else {
         let mut res = header.to_owned();
-        res.push(ListItem::new("loading..."));
+        res.push(ListItem::new("Loading..."));
         List::new(res)
     }
     .block(blocks[1].to_owned())

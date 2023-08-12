@@ -3,7 +3,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::App;
+use app::{App, InputMode};
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
@@ -81,42 +81,97 @@ async fn start_ui<B: Backend>(
         };
 
         if event::poll(Duration::from_millis(250))? {
-            if let event::Event::Key(key) = event::read()? {
-                match key.code {
-                    event::KeyCode::Char('q') => {
-                        return Ok(());
+            match event::read()? {
+                event::Event::Key(key) => {
+                    if let Route::Search = app.route {
+                        match app.input_mode {
+                            InputMode::Normal => match key.code {
+                                event::KeyCode::Char('i') => {
+                                    app.input_mode = InputMode::Editing;
+                                }
+                                event::KeyCode::Char('q') => {
+                                    return Ok(());
+                                }
+                                event::KeyCode::Char('1') => app.set_route(Route::Blocks),
+                                event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                                _ => {}
+                            },
+                            InputMode::Editing if key.kind == event::KeyEventKind::Press => {
+                                match key.code {
+                                    event::KeyCode::Enter => app.submit_message(),
+                                    event::KeyCode::Char(to_insert) => {
+                                        app.enter_char(to_insert);
+                                    }
+                                    event::KeyCode::Backspace => {
+                                        app.delete_char();
+                                    }
+                                    event::KeyCode::Left => {
+                                        app.move_cursor_left();
+                                    }
+                                    event::KeyCode::Right => {
+                                        app.move_cursor_right();
+                                    }
+                                    event::KeyCode::Esc => {
+                                        app.input_mode = InputMode::Normal;
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            _ => {}
+                        }
+                    } else {
+                        match key.code {
+                            event::KeyCode::Char('q') => {
+                                return Ok(());
+                            }
+                            event::KeyCode::Char('s') => app.set_route(Route::Search),
+                            event::KeyCode::Char('1') => app.set_route(Route::Blocks),
+                            event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                            event::KeyCode::Char('j') => match app.route {
+                                Route::Home | Route::Blocks => {
+                                    if let Some(latest_blocks) = app.latest_blocks.as_mut() {
+                                        latest_blocks.next();
+                                    }
+                                }
+                                Route::Transactions => {
+                                    if let Some(latest_transactions) =
+                                        app.latest_transactions.as_mut()
+                                    {
+                                        latest_transactions.next();
+                                    }
+                                }
+                                _ => {}
+                            },
+                            event::KeyCode::Char('k') => match app.route {
+                                Route::Home | Route::Blocks => {
+                                    if let Some(latest_blocks) = app.latest_blocks.as_mut() {
+                                        latest_blocks.previous();
+                                    }
+                                }
+                                Route::Transactions => {
+                                    if let Some(latest_transactions) =
+                                        app.latest_transactions.as_mut()
+                                    {
+                                        latest_transactions.previous();
+                                    }
+                                }
+                                _ => {}
+                            },
+                            _ => {}
+                        }
                     }
-                    event::KeyCode::Char('s') => app.set_route(Route::Search),
-                    event::KeyCode::Char('1') => app.set_route(Route::Blocks),
-                    event::KeyCode::Char('2') => app.set_route(Route::Transactions),
-                    event::KeyCode::Char('j') => match app.route {
-                        Route::Home | Route::Blocks => {
-                            if let Some(latest_blocks) = app.latest_blocks.as_mut() {
-                                latest_blocks.next();
-                            }
-                        }
-                        Route::Transactions => {
-                            if let Some(latest_transactions) = app.latest_transactions.as_mut() {
-                                latest_transactions.next();
-                            }
-                        }
-                        _ => {}
-                    },
-                    event::KeyCode::Char('k') => match app.route {
-                        Route::Home | Route::Blocks => {
-                            if let Some(latest_blocks) = app.latest_blocks.as_mut() {
-                                latest_blocks.previous();
-                            }
-                        }
-                        Route::Transactions => {
-                            if let Some(latest_transactions) = app.latest_transactions.as_mut() {
-                                latest_transactions.previous();
-                            }
-                        }
-                        _ => {}
-                    },
-                    _ => {}
                 }
+                event::Event::Paste(data) => {
+                    if let Route::Search = app.route {
+                        match app.input_mode {
+                            InputMode::Normal => {}
+                            InputMode::Editing => {
+                                app.paste(data);
+                            }
+                        }
+                    }
+                }
+                _ => {}
             }
         }
 

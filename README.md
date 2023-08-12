@@ -47,10 +47,10 @@ In the current state of this project, I plan to implement the following function
     - [ ] Display statistics about Ethereum.
     - [ ] Latest Blocks
         - [x] Display a list of the latest blocks.
-        - [ ] Display details of a block being Focused.
+        - [ ] Display details of a block being focused.
     - [ ] Latest Transactions
         - [x] Display a list of the latest transactions.
-        - [ ] Display details of a transaction being Focused.
+        - [ ] Display details of a transaction being focused.
 - [ ] Search Functionality
     - [ ] by Address
         - [ ] Implement search results screen.
