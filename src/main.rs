@@ -122,7 +122,7 @@ async fn start_ui<B: Backend>(
                                     if let Some(blocks) = latest_blocks {
                                         if let Some(i) = blocks.get_selected_item_index() {
                                             app.set_route(Route::Home(HomeRoute::Block(
-                                                blocks.items[i].number.unwrap(),
+                                                blocks.items[i].to_owned(),
                                             )));
                                         }
                                     }
