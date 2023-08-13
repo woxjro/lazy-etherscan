@@ -1,11 +1,16 @@
 use ethers_core::types::U64;
-#[derive(PartialEq)]
+
+#[derive(PartialEq, Clone)]
 pub enum Route {
-    Home,
+    Home(HomeRoute),
+}
+
+#[derive(PartialEq, Clone)]
+pub enum HomeRoute {
+    Root,
     Search,
-    //Address(Address),
+    LatestBlocks,
+    LatestTransactions,
     Block(U64),
-    Blocks,
     //Transaction(usize),
-    Transactions,
 }

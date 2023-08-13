@@ -1,5 +1,5 @@
 use crate::network::IoEvent;
-use crate::route::Route;
+use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
 use ethers_core::types::{Block, Transaction, H256};
 use std::sync::mpsc::Sender;
@@ -26,7 +26,7 @@ pub struct App {
 impl App {
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
-            route: Route::Search,
+            route: Route::Home(HomeRoute::Search),
             is_loading: false,
             io_tx: Some(io_tx),
             sidebar_items: vec![

@@ -7,7 +7,7 @@ use app::{App, InputMode};
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
-use route::Route;
+use route::{HomeRoute, Route};
 use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
 use tokio::sync::Mutex;
@@ -65,28 +65,16 @@ async fn start_ui<B: Backend>(
 
     loop {
         let mut app = app.lock().await;
-        match app.route {
-            Route::Home => {
+        match app.route.to_owned() {
+            Route::Home(_) => {
                 terminal.draw(|f| ui::ui_home(f, &mut app))?;
-            }
-            Route::Search => {
-                terminal.draw(|f| ui::ui_search(f, &mut app))?;
-            }
-            Route::Blocks => {
-                terminal.draw(|f| ui::ui_blocks(f, &mut app))?;
-            }
-            Route::Transactions => {
-                terminal.draw(|f| ui::ui_transations(f, &mut app))?;
-            }
-            Route::Block(_) => {
-                terminal.draw(|f| ui::ui_block(f, &mut app))?;
             }
         };
 
         if event::poll(Duration::from_millis(250))? {
             match event::read()? {
                 event::Event::Key(key) => {
-                    if let Route::Search = app.route {
+                    if let Route::Home(HomeRoute::Search) = app.route {
                         match app.input_mode {
                             InputMode::Normal => match key.code {
                                 event::KeyCode::Char('i') => {
@@ -95,8 +83,12 @@ async fn start_ui<B: Backend>(
                                 event::KeyCode::Char('q') => {
                                     return Ok(());
                                 }
-                                event::KeyCode::Char('1') => app.set_route(Route::Blocks),
-                                event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                                event::KeyCode::Char('1') => {
+                                    app.set_route(Route::Home(HomeRoute::LatestBlocks))
+                                }
+                                event::KeyCode::Char('2') => {
+                                    app.set_route(Route::Home(HomeRoute::LatestTransactions))
+                                }
                                 _ => {}
                             },
                             InputMode::Editing if key.kind == event::KeyEventKind::Press => {
@@ -125,13 +117,13 @@ async fn start_ui<B: Backend>(
                     } else {
                         match key.code {
                             event::KeyCode::Enter => match app.route {
-                                Route::Blocks => {
+                                Route::Home(HomeRoute::LatestBlocks) => {
                                     let latest_blocks = app.latest_blocks.clone();
                                     if let Some(blocks) = latest_blocks {
                                         if let Some(i) = blocks.get_selected_item_index() {
-                                            app.set_route(Route::Block(
+                                            app.set_route(Route::Home(HomeRoute::Block(
                                                 blocks.items[i].number.unwrap(),
-                                            ));
+                                            )));
                                         }
                                     }
                                 }
@@ -140,16 +132,23 @@ async fn start_ui<B: Backend>(
                             event::KeyCode::Char('q') => {
                                 return Ok(());
                             }
-                            event::KeyCode::Char('s') => app.set_route(Route::Search),
-                            event::KeyCode::Char('1') => app.set_route(Route::Blocks),
-                            event::KeyCode::Char('2') => app.set_route(Route::Transactions),
+                            event::KeyCode::Char('s') => {
+                                app.set_route(Route::Home(HomeRoute::Search))
+                            }
+                            event::KeyCode::Char('1') => {
+                                app.set_route(Route::Home(HomeRoute::LatestBlocks))
+                            }
+                            event::KeyCode::Char('2') => {
+                                app.set_route(Route::Home(HomeRoute::LatestTransactions))
+                            }
                             event::KeyCode::Char('j') => match app.route {
-                                Route::Home | Route::Blocks => {
+                                Route::Home(HomeRoute::Root)
+                                | Route::Home(HomeRoute::LatestBlocks) => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.next();
                                     }
                                 }
-                                Route::Transactions => {
+                                Route::Home(HomeRoute::LatestTransactions) => {
                                     if let Some(latest_transactions) =
                                         app.latest_transactions.as_mut()
                                     {
@@ -159,12 +158,13 @@ async fn start_ui<B: Backend>(
                                 _ => {}
                             },
                             event::KeyCode::Char('k') => match app.route {
-                                Route::Home | Route::Blocks => {
+                                Route::Home(HomeRoute::Root)
+                                | Route::Home(HomeRoute::LatestBlocks) => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.previous();
                                     }
                                 }
-                                Route::Transactions => {
+                                Route::Home(HomeRoute::LatestTransactions) => {
                                     if let Some(latest_transactions) =
                                         app.latest_transactions.as_mut()
                                     {
@@ -178,7 +178,7 @@ async fn start_ui<B: Backend>(
                     }
                 }
                 event::Event::Paste(data) => {
-                    if let Route::Search = app.route {
+                    if let Route::Home(HomeRoute::Search) = app.route {
                         match app.input_mode {
                             InputMode::Normal => {}
                             InputMode::Editing => {

@@ -1,11 +1,17 @@
 use crate::app::{App, InputMode};
-use crate::route::Route;
+use crate::route::{HomeRoute, Route};
 use cfonts::Options;
 use chrono::Utc;
 use ratatui::{prelude::*, widgets::*};
 
 /// /home
 pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+    //TODO
+    //if let Route::Home(_) = app.route.to_owned() {
+    //} else {
+    //  panic!()
+    //}
+
     // Wrapping block for a group
     // Just draw the block and the group on the same area and build the group
     let outer = f.size();
@@ -18,7 +24,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             return;
         };
 
-    let searchbar_block = if let Route::Search = app.route {
+    let searchbar_block = if let Route::Home(HomeRoute::Search) = app.route {
         Block::default().border_style(Style::default().fg(Color::Green))
     } else {
         Block::default().border_style(Style::default())
@@ -148,17 +154,17 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .collect::<Vec<_>>();
 
     match app.route {
-        Route::Home => {
+        Route::Home(HomeRoute::Root) => {
             blocks[0] = blocks[0]
                 .to_owned()
                 .border_style(Style::default().fg(Color::Green));
         }
-        Route::Blocks => {
+        Route::Home(HomeRoute::LatestBlocks) => {
             blocks[0] = blocks[0]
                 .to_owned()
                 .border_style(Style::default().fg(Color::Green));
         }
-        Route::Transactions => {
+        Route::Home(HomeRoute::LatestTransactions) => {
             blocks[1] = blocks[1]
                 .to_owned()
                 .border_style(Style::default().fg(Color::Green));
@@ -264,7 +270,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let welcome_block = Block::default()
         .title("Welcome")
-        .border_style(if let Route::Block(_) = app.route {
+        .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
             Style::default().fg(Color::Green)
         } else {
             Style::default()
