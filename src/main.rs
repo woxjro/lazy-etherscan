@@ -78,6 +78,9 @@ async fn start_ui<B: Backend>(
             Route::Transactions => {
                 terminal.draw(|f| ui::ui_transations(f, &mut app))?;
             }
+            Route::Block(_) => {
+                terminal.draw(|f| ui::ui_block(f, &mut app))?;
+            }
         };
 
         if event::poll(Duration::from_millis(250))? {
@@ -121,6 +124,19 @@ async fn start_ui<B: Backend>(
                         }
                     } else {
                         match key.code {
+                            event::KeyCode::Enter => match app.route {
+                                Route::Blocks => {
+                                    let latest_blocks = app.latest_blocks.clone();
+                                    if let Some(blocks) = latest_blocks {
+                                        if let Some(i) = blocks.get_selected_item_index() {
+                                            app.set_route(Route::Block(
+                                                blocks.items[i].number.unwrap(),
+                                            ));
+                                        }
+                                    }
+                                }
+                                _ => {}
+                            },
                             event::KeyCode::Char('q') => {
                                 return Ok(());
                             }

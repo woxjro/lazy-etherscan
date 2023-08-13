@@ -1,10 +1,10 @@
-//use ethers_core::types::Address;
+use ethers_core::types::U64;
 #[derive(PartialEq)]
 pub enum Route {
     Home,
     Search,
     //Address(Address),
-    //Block(usize),
+    Block(U64),
     Blocks,
     //Transaction(usize),
     Transactions,

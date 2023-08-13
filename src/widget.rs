@@ -1,5 +1,6 @@
 use ratatui::widgets::ListState;
 
+#[derive(Clone)]
 pub struct StatefulList<T> {
     pub state: ListState,
     pub items: Vec<T>,
@@ -41,6 +42,13 @@ impl<T> StatefulList<T> {
             None => 0 + self.header_size,
         };
         self.state.select(Some(i));
+    }
+
+    pub fn get_selected_item_index(&self) -> Option<usize> {
+        match self.state.selected() {
+            Some(state) => Some(state - self.header_size),
+            None => None,
+        }
     }
 
     /*

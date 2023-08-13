@@ -18,3 +18,7 @@ pub fn ui_blocks<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 pub fn ui_transations<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     common::render_home_layout(f, app);
 }
+
+pub fn ui_block<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+    common::render_home_layout(f, app);
+}

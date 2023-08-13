@@ -264,7 +264,11 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let welcome_block = Block::default()
         .title("Welcome")
-        .border_style(Style::default())
+        .border_style(if let Route::Block(_) = app.route {
+            Style::default().fg(Color::Green)
+        } else {
+            Style::default()
+        })
         .borders(Borders::ALL)
         .border_type(BorderType::Plain);
 
