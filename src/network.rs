@@ -26,16 +26,16 @@ impl<'a> Network<'a> {
     pub async fn handle_network_event(&mut self, io_event: IoEvent) {
         match io_event {
             IoEvent::GetLatestBlocks { n } => {
-                let mut app = self.app.lock().await;
                 let blocks = Self::get_latest_blocks(self.endpoint, n).await.unwrap();
+                let mut app = self.app.lock().await;
                 app.latest_blocks = Some(StatefulList::with_items(blocks));
                 app.is_loading = false;
             }
             IoEvent::GetLatestTransactions { n } => {
-                let mut app = self.app.lock().await;
                 let transactions = Self::get_latest_transactions(self.endpoint, n)
                     .await
                     .unwrap();
+                let mut app = self.app.lock().await;
                 app.latest_transactions = Some(StatefulList::with_items(transactions));
                 app.is_loading = false;
             }
