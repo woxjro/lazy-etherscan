@@ -127,6 +127,16 @@ async fn start_ui<B: Backend>(
                                         }
                                     }
                                 }
+                                Route::Home(HomeRoute::LatestTransactions) => {
+                                    let latest_transactions = app.latest_transactions.clone();
+                                    if let Some(transactions) = latest_transactions {
+                                        if let Some(i) = transactions.get_selected_item_index() {
+                                            app.set_route(Route::Home(HomeRoute::Transaction(
+                                                transactions.items[i].to_owned(),
+                                            )));
+                                        }
+                                    }
+                                }
                                 _ => {}
                             },
                             event::KeyCode::Char('q') => {

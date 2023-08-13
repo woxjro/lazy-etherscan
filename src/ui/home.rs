@@ -1,4 +1,5 @@
 mod block;
+mod transaction;
 mod welcome;
 use crate::app::{App, InputMode};
 use crate::route::{HomeRoute, Route};
@@ -274,17 +275,33 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             HomeRoute::Block(block) => {
                 block::render(f, app, block, detail);
             }
+            HomeRoute::Transaction(transaction) => {
+                transaction::render(f, app, transaction, detail);
+            }
             HomeRoute::LatestBlocks => {
                 if let Some(blocks) = app.latest_blocks.to_owned() {
                     if let Some(i) = blocks.get_selected_item_index() {
                         block::render(f, app, blocks.items[i].to_owned(), detail);
                     } else {
-                        welcome::render(f, app, detail);
+                        welcome::render(f, detail);
                     }
+                } else {
+                    welcome::render(f, detail);
+                }
+            }
+            HomeRoute::LatestTransactions => {
+                if let Some(transactions) = app.latest_transactions.to_owned() {
+                    if let Some(i) = transactions.get_selected_item_index() {
+                        transaction::render(f, app, transactions.items[i].to_owned(), detail);
+                    } else {
+                        welcome::render(f, detail);
+                    }
+                } else {
+                    welcome::render(f, detail);
                 }
             }
             _ => {
-                welcome::render(f, app, detail);
+                welcome::render(f, detail);
             }
         },
     }

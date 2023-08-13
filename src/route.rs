@@ -1,4 +1,4 @@
-use ethers_core::types::{Block, H256};
+use ethers_core::types::{Block, Transaction, H256};
 
 #[derive(PartialEq, Clone)]
 pub enum Route {
@@ -12,5 +12,5 @@ pub enum HomeRoute {
     LatestBlocks,
     LatestTransactions,
     Block(Block<H256>),
-    //Transaction(usize),
+    Transaction(Transaction),
 }

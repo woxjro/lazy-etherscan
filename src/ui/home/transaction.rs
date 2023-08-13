@@ -1,12 +1,12 @@
 use crate::app::App;
 use crate::route::{HomeRoute, Route};
-use ethers_core::types::{Block as EBlock, H256};
+use ethers_core::types::Transaction;
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<H256>, rect: Rect) {
+pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, transaction: Transaction, rect: Rect) {
     let detail_block = Block::default()
-        .title(format!("Block #{}", block.number.unwrap()))
-        .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
+        .title("Transaction Details")
+        .border_style(if let Route::Home(HomeRoute::Transaction(_)) = app.route {
             Style::default().fg(Color::Green)
         } else {
             Style::default()
@@ -23,13 +23,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<H256>, 
         };
 
     let lines = [
-        format!("{:<13}: {}", "Block Height", block.number.unwrap()),
-        format!("{:<13}: {}", "Block Hash", block.hash.unwrap()),
-        format!("{:<13}: {}", "Timestamp", block.time().unwrap().to_string()),
-        format!("{:<13}: {}", "Transactions ", block.transactions.len()),
-        format!("{:<13}: {}", "Size", block.size.unwrap()),
-        format!("{:<13}: {}", "Gas Used", block.gas_used),
-        format!("{:<13}: {}", "Gas Limit", block.gas_limit),
+        format!("{:<10}: #{}", "Block", transaction.block_number.unwrap()),
+        format!("{:<10}: {}", "Txn Hash", transaction.hash),
+        format!("{:<10}: {}", "From", transaction.from),
+        format!("{:<10}: {}", "To", transaction.to.unwrap()),
+        format!("{:<10}: {}", "Value", transaction.value),
+        format!("{:<10}: {}", "Type", transaction.transaction_type.unwrap()),
+        format!("{:<10}: {}", "Gas", transaction.gas),
+        format!("{:<10}: {}", "Gas Price", transaction.gas_price.unwrap()),
     ];
 
     let lines = lines
