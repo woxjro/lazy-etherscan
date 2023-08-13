@@ -1,16 +1,10 @@
-use crate::app::App;
-use crate::route::{HomeRoute, Route};
 use cfonts::Options;
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
+pub fn render<B: Backend>(f: &mut Frame<B>, rect: Rect) {
     let welcome_block = Block::default()
         .title("Welcome")
-        .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
-            Style::default().fg(Color::Green)
-        } else {
-            Style::default()
-        })
+        .border_style(Style::default())
         .borders(Borders::ALL)
         .border_type(BorderType::Plain);
 
