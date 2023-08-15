@@ -3,6 +3,7 @@ mod transaction;
 mod welcome;
 use crate::app::{App, InputMode};
 use crate::route::{HomeRoute, Route};
+use crate::widget::Spinner;
 use chrono::Utc;
 use ethers_core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
@@ -205,7 +206,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         List::new(res)
     } else {
         let mut res = header.to_owned();
-        res.push(ListItem::new("Loading..."));
+        res.push(ListItem::new(format!(
+            "Loading {}",
+            Spinner::default().to_string()
+        )));
         List::new(res)
     }
     .block(blocks[0].to_owned())
@@ -250,7 +254,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         List::new(res)
     } else {
         let mut res = header.to_owned();
-        res.push(ListItem::new("Loading..."));
+        res.push(ListItem::new(format!(
+            "Loading {}",
+            Spinner::default().to_string()
+        )));
         List::new(res)
     }
     .block(blocks[1].to_owned())
