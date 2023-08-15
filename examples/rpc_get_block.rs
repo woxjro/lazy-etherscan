@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{}", block_number);
 
     let mut blocks = vec![];
-    for i in 0..10 {
+    for i in 0..1 {
         let block = provider.get_block(block_number - i);
         blocks.push(block);
     }
@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //let addr = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359".parse::<Address>()?;
     //let code = provider.get_code(addr, None).await?;
     for block in blocks {
-        println!("{:?}", block.unwrap().unwrap().transactions.len());
+        println!("{:?}", block.unwrap().unwrap());
     }
     Ok(())
 }

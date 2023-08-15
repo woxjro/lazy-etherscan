@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::route::{HomeRoute, Route};
 use ethers_core::types::Transaction;
+use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, transaction: Transaction, rect: Rect) {
@@ -27,10 +28,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, transaction: Transact
         format!("{:<10}: {}", "Txn Hash", transaction.hash),
         format!("{:<10}: {}", "From", transaction.from),
         format!("{:<10}: {}", "To", transaction.to.unwrap()),
-        format!("{:<10}: {}", "Value", transaction.value),
+        format!("{:<10}: {} ETH", "Value", format_ether(transaction.value)),
         format!("{:<10}: {}", "Type", transaction.transaction_type.unwrap()),
         format!("{:<10}: {}", "Gas", transaction.gas),
-        format!("{:<10}: {}", "Gas Price", transaction.gas_price.unwrap()),
+        format!(
+            "{:<10}: {} Gwei",
+            "Gas Price",
+            format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
+        ),
     ];
 
     let lines = lines

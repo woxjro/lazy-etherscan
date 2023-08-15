@@ -4,6 +4,7 @@ mod welcome;
 use crate::app::{App, InputMode};
 use crate::route::{HomeRoute, Route};
 use chrono::Utc;
+use ethers_core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
 
 /// /home
@@ -223,15 +224,15 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^11} | {:^11} | {:^11} | {:^19} |", //TODO: remove this magic number
-            "Hash", "From", "To", "Value"
+            " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove this magic number
+            "Hash", "From", "To", "Value (ETH)"
         )),
         ListItem::new(format!(
             "{}+{}+{}+{}|",
             "-".repeat(13),
             "-".repeat(13),
             "-".repeat(13),
-            "-".repeat(21),
+            "-".repeat(22),
         )),
     ];
     let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
@@ -243,7 +244,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 tx.hash,
                 tx.from,
                 tx.to.unwrap(),
-                tx.value.to_string()
+                format_ether(tx.value)
             )));
         }
         List::new(res)
