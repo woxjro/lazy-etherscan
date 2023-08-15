@@ -179,7 +179,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^12} | {:^11} | {:^12} | {:^12} |", //TODO: remove this magic number
+            " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove this magic number
             "Block Height", "Hash", "Transactions", "Time"
         )),
         ListItem::new(format!(
@@ -187,7 +187,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             "-".repeat(14),
             "-".repeat(13),
             "-".repeat(14),
-            "-".repeat(14),
+            "-".repeat(15),
         )), //TODO: remove this magic number
     ];
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
@@ -195,7 +195,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
         for block in latest_blocks.items.to_owned() {
             res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>7} txns | {:>3} secs ago |", //TODO: remove this magic number
+                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove this magic number
                 block.number.unwrap(),
                 block.hash.unwrap(),
                 block.transactions.len(),
