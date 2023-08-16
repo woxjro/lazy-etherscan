@@ -1,7 +1,7 @@
 use crate::network::IoEvent;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, Transaction, H256, U64};
+use ethers_core::types::{Block, Transaction, U64};
 use std::sync::mpsc::Sender;
 
 pub enum InputMode {
@@ -14,7 +14,7 @@ pub struct App {
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
     pub sidebar_items: Vec<String>,
-    pub latest_blocks: Option<StatefulList<Block<H256>>>,
+    pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
     pub latest_transactions: Option<StatefulList<Transaction>>,
     //Search
     pub input_mode: InputMode,

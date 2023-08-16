@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, Transaction, H256, U64};
+use ethers_core::types::{Block, Transaction, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -57,16 +57,16 @@ impl<'a> Network<'a> {
     async fn get_block(
         endpoint: &'a str,
         number: U64,
-    ) -> Result<Option<Block<H256>>, Box<dyn Error>> {
+    ) -> Result<Option<Block<Transaction>>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
-        let block = provider.get_block(number).await?;
+        let block = provider.get_block_with_txs(number).await?;
         Ok(block)
     }
 
     async fn get_latest_blocks(
         endpoint: &'a str,
         n: usize,
-    ) -> Result<Vec<Block<H256>>, Box<dyn Error>> {
+    ) -> Result<Vec<Block<Transaction>>, Box<dyn Error>> {
         if n == 0 {
             Ok(vec![])
         } else {
@@ -75,7 +75,7 @@ impl<'a> Network<'a> {
 
             let mut blocks = vec![];
             for i in 0..n {
-                let block = provider.get_block(block_number - i);
+                let block = provider.get_block_with_txs(block_number - i);
                 blocks.push(block);
             }
 

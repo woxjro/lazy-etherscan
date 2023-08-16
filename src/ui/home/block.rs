@@ -1,10 +1,10 @@
 use crate::app::App;
 use crate::route::{HomeRoute, Route};
-use ethers_core::types::{Block as EBlock, H256};
+use ethers_core::types::{Block as EBlock, Transaction};
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<H256>, rect: Rect) {
+pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transaction>, rect: Rect) {
     let detail_block = Block::default()
         .title(format!("Block #{}", block.number.unwrap()))
         .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
