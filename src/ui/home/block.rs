@@ -47,7 +47,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<H256>, 
             "Total Difficulty",
             block.total_difficulty.unwrap()
         ),
-        format!("{:<20}: {}", "Size", block.size.unwrap()),
+        format!("{:<20}: {} bytes", "Size", block.size.unwrap()),
         format!(
             "{:<20}: {}({}%)",
             "Gas Used",

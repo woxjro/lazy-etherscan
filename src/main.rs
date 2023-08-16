@@ -93,7 +93,9 @@ async fn start_ui<B: Backend>(
                             },
                             InputMode::Editing if key.kind == event::KeyEventKind::Press => {
                                 match key.code {
-                                    event::KeyCode::Enter => app.submit_message(),
+                                    event::KeyCode::Enter => {
+                                        app.submit_message();
+                                    }
                                     event::KeyCode::Char(to_insert) => {
                                         app.enter_char(to_insert);
                                     }

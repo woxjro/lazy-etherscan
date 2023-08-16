@@ -1,7 +1,7 @@
 use crate::network::IoEvent;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, Transaction, H256};
+use ethers_core::types::{Block, Transaction, H256, U64};
 use std::sync::mpsc::Sender;
 
 pub enum InputMode {
@@ -112,6 +112,10 @@ impl App {
     }
 
     pub fn submit_message(&mut self) {
+        if let Ok(i) = self.input.to_string().parse::<u64>() {
+            let number = U64::from(i);
+            self.dispatch(IoEvent::GetBlock { number });
+        }
         self.input.clear();
         self.reset_cursor();
     }

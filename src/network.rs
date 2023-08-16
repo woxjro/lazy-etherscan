@@ -1,6 +1,7 @@
 use crate::app::App;
+use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, Transaction, H256};
+use ethers_core::types::{Block, Transaction, H256, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -8,6 +9,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 pub enum IoEvent {
+    GetBlock { number: U64 },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
 }
@@ -25,6 +27,16 @@ impl<'a> Network<'a> {
 
     pub async fn handle_network_event(&mut self, io_event: IoEvent) {
         match io_event {
+            IoEvent::GetBlock { number } => {
+                let res = Self::get_block(self.endpoint, number).await;
+                let mut app = self.app.lock().await;
+                if let Ok(some) = res {
+                    if let Some(block) = some {
+                        app.set_route(Route::Home(HomeRoute::Block(block)));
+                    }
+                }
+                app.is_loading = false;
+            }
             IoEvent::GetLatestBlocks { n } => {
                 let blocks = Self::get_latest_blocks(self.endpoint, n).await.unwrap();
                 let mut app = self.app.lock().await;
@@ -40,6 +52,15 @@ impl<'a> Network<'a> {
                 app.is_loading = false;
             }
         }
+    }
+
+    async fn get_block(
+        endpoint: &'a str,
+        number: U64,
+    ) -> Result<Option<Block<H256>>, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let block = provider.get_block(number).await?;
+        Ok(block)
     }
 
     async fn get_latest_blocks(
