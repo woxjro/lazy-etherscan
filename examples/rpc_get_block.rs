@@ -1,6 +1,6 @@
 //use ethers_core::types::Address;
+use ethers_core::types::BlockNumber;
 use ethers_providers::{Http, Middleware, Provider};
-use futures::future::join_all;
 use std::error::Error;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -9,18 +9,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let block_number = provider.get_block_number().await?;
     println!("{}", block_number);
 
-    let mut blocks = vec![];
-    for i in 0..1 {
-        let block = provider.get_block(block_number - i);
-        blocks.push(block);
-    }
-
-    let blocks = join_all(blocks).await;
+    let finalized_block = provider.get_block_with_txs(BlockNumber::Finalized).await?;
+    let safe_block = provider.get_block(BlockNumber::Safe).await?;
 
     //let addr = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359".parse::<Address>()?;
     //let code = provider.get_code(addr, None).await?;
-    for block in blocks {
-        println!("{:?}", block.unwrap().unwrap());
+    let transactions = finalized_block.unwrap().transactions;
+
+    for tx in transactions {
+        println!("{:?}", tx.value);
     }
+
+    //println!("{:?}", safe_block.unwrap().number.unwrap());
     Ok(())
 }
