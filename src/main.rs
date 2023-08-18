@@ -205,13 +205,17 @@ async fn start_ui<B: Backend>(
         }
 
         if is_first_render {
+            app.dispatch(IoEvent::GetStatistics);
+
             let height = terminal.size().unwrap().height as usize;
             app.dispatch(IoEvent::GetLatestBlocks {
                 n: (height - 3 * 4) / 2 - 4,
             });
+
             app.dispatch(IoEvent::GetLatestTransactions {
                 n: (height - 3 * 4) / 2 - 4,
             });
+
             is_first_render = false;
         }
     }

@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{App, Statistics};
 use crate::ethers::types::TransactionWithReceipt;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
@@ -11,6 +11,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 pub enum IoEvent {
+    GetStatistics,
     GetBlock { number: U64 },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
@@ -29,6 +30,14 @@ impl<'a> Network<'a> {
 
     pub async fn handle_network_event(&mut self, io_event: IoEvent) {
         match io_event {
+            IoEvent::GetStatistics => {
+                let res = Self::get_statistics(self.endpoint).await;
+                let mut app = self.app.lock().await;
+                if let Ok(statistics) = res {
+                    app.statistics = statistics;
+                }
+                app.is_loading = false;
+            }
             IoEvent::GetBlock { number } => {
                 let res = Self::get_block(self.endpoint, number).await;
                 let mut app = self.app.lock().await;
@@ -139,5 +148,23 @@ impl<'a> Network<'a> {
 
             Ok(result)
         }
+    }
+
+    async fn get_statistics(endpoint: &'a str) -> Result<Statistics, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let res = join_all([
+            provider.get_block_with_txs(BlockNumber::Safe),
+            provider.get_block_with_txs(BlockNumber::Finalized),
+        ])
+        .await;
+
+        Ok(Statistics {
+            ether_price: None,
+            market_cap: None,
+            transactions: None,
+            med_gas_price: None,
+            last_safe_block: res[0].as_ref().unwrap().to_owned(),
+            last_finalized_block: res[1].as_ref().unwrap().to_owned(),
+        })
     }
 }

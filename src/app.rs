@@ -5,6 +5,52 @@ use crate::widget::StatefulList;
 use ethers_core::types::{Block, Transaction, U64};
 use std::sync::mpsc::Sender;
 
+#[derive(Clone, Debug)]
+pub struct Statistics {
+    pub ether_price: Option<U64>,
+    pub market_cap: Option<U64>,
+    pub transactions: Option<U64>,
+    pub med_gas_price: Option<U64>,
+    pub last_safe_block: Option<Block<Transaction>>,
+    pub last_finalized_block: Option<Block<Transaction>>,
+}
+
+impl Statistics {
+    fn new() -> Self {
+        Self {
+            ether_price: None,
+            market_cap: None,
+            transactions: None,
+            med_gas_price: None,
+            last_safe_block: None,
+            last_finalized_block: None,
+        }
+    }
+
+    /*
+    pub fn get_ether_price_index() -> usize {
+        0
+    }
+    pub fn get_transactions_index() -> usize {
+        1
+    }
+    */
+    pub fn get_last_safe_block_index() -> usize {
+        2
+    }
+    /*
+    pub fn get_market_cap_index() -> usize {
+        3
+    }
+    pub fn get_med_gas_price_index() -> usize {
+        4
+    }
+    */
+    pub fn get_last_finalized_block_index() -> usize {
+        5
+    }
+}
+
 pub enum InputMode {
     Normal,
     Editing,
@@ -14,6 +60,7 @@ pub struct App {
     pub route: Route,
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
+    pub statistics: Statistics,
     pub sidebar_items: Vec<String>,
     pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
     pub latest_transactions: Option<StatefulList<TransactionWithReceipt>>,
@@ -30,6 +77,7 @@ impl App {
             route: Route::Home(HomeRoute::Search),
             is_loading: false,
             io_tx: Some(io_tx),
+            statistics: Statistics::new(),
             sidebar_items: vec![
                 "Latest Blocks".to_string(),
                 "Latest Transactions".to_string(),
