@@ -9,10 +9,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transac
     let [detail_rect, transactions_rect] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length((height - 12)/2 + 10), Constraint::Length((height - 12)/2 + 2)].as_ref())
-            .split(rect)
-        else {
-            return;
-        };
+            .split(rect) else { return; };
 
     let detail_block = Block::default()
         .title(format!("Block #{}", block.number.unwrap()))

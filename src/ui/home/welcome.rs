@@ -1,4 +1,3 @@
-use cfonts::Options;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(f: &mut Frame<B>, rect: Rect) {
@@ -11,16 +10,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, rect: Rect) {
     let [detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Ratio(1,1)].as_ref())
-            .split(rect)
-        else {
-            return;
-        };
+            .split(rect) else { return; };
 
     let banner = Paragraph::new(Text::from(
-        cfonts::render(Options {
+        cfonts::render(cfonts::Options {
             text: String::from("lazy|etherscan"),
             font: cfonts::Fonts::FontBlock,
-            ..Options::default()
+            ..cfonts::Options::default()
         })
         .text,
     ))

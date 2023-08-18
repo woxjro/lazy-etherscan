@@ -28,10 +28,7 @@ pub fn render<B: Backend>(
     let [detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Ratio(1,1)].as_ref())
-            .split(rect)
-        else {
-            return;
-        };
+            .split(rect) else { return; };
 
     let lines = [
         format!("{:<15}: {}", "Txn Hash", transaction.hash),

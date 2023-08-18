@@ -24,10 +24,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let [searchbar, rest] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Max(3), Constraint::Min(0)].as_ref())
-            .split(outer)
-        else {
-            return;
-        };
+            .split(outer) else { return; };
 
     let searchbar_block = if let Route::Home(HomeRoute::Search) = app.route {
         Block::default().border_style(Style::default().fg(Color::Green))
@@ -69,19 +66,13 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let [sidebar, detail] = *Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Ratio(1,3), Constraint::Ratio(2,3)].as_ref())
-            .split(rest)
-        else {
-            return;
-        };
+            .split(rest) else { return; };
 
     let [statistics, latest_status] = *Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Min(9), Constraint::Min(0)].as_ref())
-            .split(sidebar)
-        else {
-            return;
-        };
+            .split(sidebar) else { return; };
 
     statistics::render(f, app, statistics);
 
@@ -89,10 +80,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Ratio(1,2), Constraint::Ratio(1,2)].as_ref())
-            .split(latest_status)
-        else {
-            return;
-        };
+            .split(latest_status) else { return; };
 
     let sidebar_items = [top, middle];
 
