@@ -1,10 +1,20 @@
 use crate::app::App;
+use crate::ethers::types::TransactionWithReceipt;
 use crate::route::{HomeRoute, Route};
-use ethers_core::types::Transaction;
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, transaction: Transaction, rect: Rect) {
+pub fn render<B: Backend>(
+    f: &mut Frame<B>,
+    app: &mut App,
+    transaction_with_receipt: TransactionWithReceipt,
+    rect: Rect,
+) {
+    let TransactionWithReceipt {
+        transaction,
+        transaction_receipt,
+    } = transaction_with_receipt;
+
     let detail_block = Block::default()
         .title("Transaction Details")
         .border_style(if let Route::Home(HomeRoute::Transaction(_)) = app.route {
@@ -24,15 +34,20 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, transaction: Transact
         };
 
     let lines = [
-        format!("{:<10}: #{}", "Block", transaction.block_number.unwrap()),
-        format!("{:<10}: {}", "Txn Hash", transaction.hash),
-        format!("{:<10}: {}", "From", transaction.from),
-        format!("{:<10}: {}", "To", transaction.to.unwrap()),
-        format!("{:<10}: {} ETH", "Value", format_ether(transaction.value)),
-        format!("{:<10}: {}", "Type", transaction.transaction_type.unwrap()),
-        format!("{:<10}: {}", "Gas", transaction.gas),
+        format!("{:<15}: {}", "Txn Hash", transaction.hash),
+        format!("{:<15}: #{}", "Block", transaction.block_number.unwrap()),
+        format!("{:<15}: {}", "From", transaction.from),
+        format!("{:<15}: {}", "To", transaction.to.unwrap()),
+        format!("{:<15}: {}", "Type", transaction.transaction_type.unwrap()),
+        format!("{:<15}: {}", "Gas", transaction.gas),
+        format!("{:<15}: {} ETH", "Value", format_ether(transaction.value)),
         format!(
-            "{:<10}: {} Gwei",
+            "{:<15}: {} ETH",
+            "Transaction Fee",
+            format_ether(transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap())
+        ),
+        format!(
+            "{:<15}: {} Gwei",
             "Gas Price",
             format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
         ),

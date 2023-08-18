@@ -194,10 +194,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         for tx in latest_transactions.items.to_owned() {
             res.push(ListItem::new(format!(
                 " {:^11} | {:^11} | {:^11} | {:>19} |",
-                tx.hash,
-                tx.from,
-                tx.to.unwrap(),
-                format_ether(tx.value)
+                tx.transaction.hash,
+                tx.transaction.from,
+                tx.transaction.to.unwrap(),
+                format_ether(tx.transaction.value)
             )));
         }
         List::new(res)

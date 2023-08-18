@@ -1,3 +1,4 @@
+use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
@@ -15,7 +16,7 @@ pub struct App {
     pub is_loading: bool,
     pub sidebar_items: Vec<String>,
     pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
-    pub latest_transactions: Option<StatefulList<Transaction>>,
+    pub latest_transactions: Option<StatefulList<TransactionWithReceipt>>,
     //Search
     pub input_mode: InputMode,
     pub input: String,

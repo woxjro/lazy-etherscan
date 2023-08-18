@@ -1,6 +1,8 @@
 use crate::app::App;
+use crate::ethers::types::TransactionWithReceipt;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
+use ethers_core::types::BlockNumber;
 use ethers_core::types::{Block, Transaction, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
@@ -92,17 +94,15 @@ impl<'a> Network<'a> {
     async fn get_latest_transactions(
         endpoint: &'a str,
         n: usize,
-    ) -> Result<Vec<Transaction>, Box<dyn Error>> {
+    ) -> Result<Vec<TransactionWithReceipt>, Box<dyn Error>> {
         if n == 0 {
             Ok(vec![])
         } else {
             let provider = Provider::<Http>::try_from(endpoint)?;
 
-            let block_number = provider.get_block_number().await?;
+            let block = provider.get_block(BlockNumber::Latest).await?;
 
-            let block = provider.get_block(block_number).await?;
-
-            let txs = if let Some(block) = block {
+            let transaction_futures = if let Some(block) = block {
                 block
                     .transactions
                     .iter()
@@ -113,15 +113,31 @@ impl<'a> Network<'a> {
                 vec![]
             };
 
-            let txs = join_all(txs).await;
+            let transactions = join_all(transaction_futures).await;
+            let transactions = transactions
+                .iter()
+                .filter_map(|tx| tx.as_ref().ok().and_then(|tx| tx.clone()))
+                .collect::<Vec<_>>();
 
-            let mut res = vec![];
+            let receipt_futures = transactions
+                .iter()
+                .map(|tx| provider.get_transaction_receipt(tx.hash))
+                .collect::<Vec<_>>();
+            let receipts = join_all(receipt_futures).await;
+            let receipts = receipts
+                .iter()
+                .filter_map(|tx| tx.as_ref().ok().and_then(|receipt| receipt.clone()))
+                .collect::<Vec<_>>();
 
-            for tx in txs {
-                res.push(tx.unwrap().unwrap());
+            let mut result = vec![];
+            for i in 0..receipts.len() {
+                result.push(TransactionWithReceipt {
+                    transaction: transactions[i].to_owned(),
+                    transaction_receipt: receipts[i].to_owned(),
+                });
             }
 
-            Ok(res)
+            Ok(result)
         }
     }
 }
