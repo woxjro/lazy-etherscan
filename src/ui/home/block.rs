@@ -18,6 +18,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transac
         } else {
             Style::default()
         })
+        .padding(Padding::new(2, 2, 1, 1))
         .borders(Borders::ALL)
         .border_type(BorderType::Plain);
 
