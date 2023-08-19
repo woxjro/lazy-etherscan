@@ -28,7 +28,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transac
         "Type",
         "From",
         "To",
-        "Value",
+        "Value (ETH)",
         "Fee",
         "Gas Price (Gwei)",
     ]
