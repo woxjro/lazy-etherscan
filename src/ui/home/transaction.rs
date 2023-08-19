@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::ethers::types::TransactionWithReceipt;
 use crate::route::{HomeRoute, Route};
+use ethers_core::types::U64;
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
@@ -32,20 +33,29 @@ pub fn render<B: Backend>(
             .split(rect) else { return; };
 
     let lines = [
-        format!("{:<15}: {}", "Txn Hash", transaction.hash),
-        format!("{:<15}: #{}", "Block", transaction.block_number.unwrap()),
-        format!("{:<15}: {}", "From", transaction.from),
-        format!("{:<15}: {}", "To", transaction.to.unwrap()),
-        format!("{:<15}: {}", "Type", transaction.transaction_type.unwrap()),
-        format!("{:<15}: {}", "Gas", transaction.gas),
-        format!("{:<15}: {} ETH", "Value", format_ether(transaction.value)),
+        format!("{:<17}: {}", "Txn Hash", transaction.hash),
         format!(
-            "{:<15}: {} ETH",
+            "{:<17}: {}",
+            "Status",
+            if transaction_receipt.status.unwrap() == U64::from(0) {
+                "Failure"
+            } else {
+                "Success"
+            }
+        ),
+        format!("{:<17}: #{}", "Block", transaction.block_number.unwrap()),
+        format!("{:<17}: {}", "From", transaction.from),
+        format!("{:<17}: {}", "To", transaction.to.unwrap()),
+        format!("{:<17}: {}", "Type", transaction.transaction_type.unwrap()),
+        format!("{:<17}: {}", "Gas", transaction.gas),
+        format!("{:<17}: {} ETH", "Value", format_ether(transaction.value)),
+        format!(
+            "{:<17}: {} ETH",
             "Transaction Fee",
             format_ether(transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap())
         ),
         format!(
-            "{:<15}: {} Gwei",
+            "{:<17}: {} Gwei",
             "Gas Price",
             format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
         ),

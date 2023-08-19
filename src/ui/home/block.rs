@@ -5,7 +5,6 @@ mod transactions;
 use crate::app::App;
 use crate::route::{HomeRoute, Route};
 use ethers_core::types::{Block as EBlock, Transaction};
-use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transaction>, rect: Rect) {
