@@ -39,12 +39,13 @@ pub fn render<B: Backend>(
         ))),
         Line::from(vec![
             Span::raw(format!("{:<17}: ", "Status")),
-            //TODO: EIP-658, remove unwrap()
-            if transaction_receipt.status.unwrap() == U64::from(0) {
-                Span::styled("Failure", Style::default().fg(Color::Red))
-            } else {
-                Span::styled("Success", Style::default().fg(Color::Green))
-            },
+            transaction_receipt.status.map_or(Span::raw(""), |status| {
+                if status == U64::from(0) {
+                    Span::styled("Failure", Style::default().fg(Color::Red))
+                } else {
+                    Span::styled("Success", Style::default().fg(Color::Green))
+                }
+            }),
         ]),
         Line::from(Span::raw(format!(
             "{:<17}: #{}",
@@ -55,12 +56,18 @@ pub fn render<B: Backend>(
         Line::from(Span::raw(format!(
             "{:<17}: {}",
             "To",
-            transaction.to.unwrap()
+            transaction.to.map_or("".to_owned(), |to| format!("{to}")),
         ))),
         Line::from(Span::raw(format!(
             "{:<17}: {}",
-            "Type",
-            transaction.transaction_type.unwrap()
+            "Txn Type",
+            transaction.transaction_type.map_or("Legacy", |ty| {
+                if ty == U64::from(1) {
+                    "1"
+                } else {
+                    "2(EIP-1559)"
+                }
+            })
         ))),
         Line::from(Span::raw(format!("{:<17}: {}", "Gas", transaction.gas))),
         Line::from(Span::raw(format!(

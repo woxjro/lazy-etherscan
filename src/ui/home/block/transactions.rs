@@ -48,11 +48,7 @@ pub fn render<B: Backend>(
                     }
                 ),
                 format!("{}", tx.from),
-                if let Some(to) = tx.to {
-                    format!("{to}")
-                } else {
-                    format!("")
-                },
+                tx.to.map_or("".to_owned(), |to| format!("{to}")),
                 format!("{}", format_ether(tx.value)),
                 //TODO:format!( "{}", format_ether(tx.gas_price.unwrap() * tx_receipt.gas_used)),
                 //transaction_receipt.gas_usedが必要

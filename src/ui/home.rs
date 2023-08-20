@@ -184,7 +184,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 " {:^11} | {:^11} | {:^11} | {:>19} |",
                 tx.transaction.hash,
                 tx.transaction.from,
-                tx.transaction.to.unwrap(),
+                tx.transaction
+                    .to
+                    .map_or("".to_owned(), |to| format!("{to}")),
                 format_ether(tx.transaction.value)
             )));
         }
