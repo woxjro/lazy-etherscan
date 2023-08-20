@@ -1,0 +1,3 @@
+[submodule "ratatui-tree-widget"]
+	path = ratatui-tree-widget
+	url = https://github.com/woxjro/ratatui-tree-widget
