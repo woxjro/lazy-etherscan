@@ -32,39 +32,53 @@ pub fn render<B: Backend>(
             .constraints([Constraint::Ratio(1,1)].as_ref())
             .split(rect) else { return; };
 
-    let lines = [
-        format!("{:<17}: {}", "Txn Hash", transaction.hash),
-        format!(
+    let lines = vec![
+        Line::from(Span::raw(format!(
             "{:<17}: {}",
-            "Status",
+            "Txn Hash", transaction.hash
+        ))),
+        Line::from(vec![
+            Span::raw(format!("{:<17}: ", "Status")),
+            //TODO: EIP-658, remove unwrap()
             if transaction_receipt.status.unwrap() == U64::from(0) {
-                "Failure"
+                Span::styled("Failure", Style::default().fg(Color::Red))
             } else {
-                "Success"
-            }
-        ),
-        format!("{:<17}: #{}", "Block", transaction.block_number.unwrap()),
-        format!("{:<17}: {}", "From", transaction.from),
-        format!("{:<17}: {}", "To", transaction.to.unwrap()),
-        format!("{:<17}: {}", "Type", transaction.transaction_type.unwrap()),
-        format!("{:<17}: {}", "Gas", transaction.gas),
-        format!("{:<17}: {} ETH", "Value", format_ether(transaction.value)),
-        format!(
+                Span::styled("Success", Style::default().fg(Color::Green))
+            },
+        ]),
+        Line::from(Span::raw(format!(
+            "{:<17}: #{}",
+            "Block",
+            transaction.block_number.unwrap()
+        ))),
+        Line::from(Span::raw(format!("{:<17}: {}", "From", transaction.from))),
+        Line::from(Span::raw(format!(
+            "{:<17}: {}",
+            "To",
+            transaction.to.unwrap()
+        ))),
+        Line::from(Span::raw(format!(
+            "{:<17}: {}",
+            "Type",
+            transaction.transaction_type.unwrap()
+        ))),
+        Line::from(Span::raw(format!("{:<17}: {}", "Gas", transaction.gas))),
+        Line::from(Span::raw(format!(
+            "{:<17}: {} ETH",
+            "Value",
+            format_ether(transaction.value)
+        ))),
+        Line::from(Span::raw(format!(
             "{:<17}: {} ETH",
             "Transaction Fee",
             format_ether(transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap())
-        ),
-        format!(
+        ))),
+        Line::from(Span::raw(format!(
             "{:<17}: {} Gwei",
             "Gas Price",
             format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
-        ),
+        ))),
     ];
-
-    let lines = lines
-        .iter()
-        .map(|row| Line::from(Span::raw(row)))
-        .collect::<Vec<_>>();
 
     let paragraph = Paragraph::new(lines)
         .block(detail_block.to_owned())
