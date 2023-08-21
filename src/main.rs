@@ -5,6 +5,7 @@ mod route;
 mod ui;
 mod widget;
 use app::{App, InputMode};
+use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
@@ -13,7 +14,13 @@ use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
 use tokio::sync::Mutex;
 
-const ENDPOINT: &'static str = "https://eth.llamarpc.com";
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Json-RPC URL
+    #[arg(short, long, default_value = "https://eth.llamarpc.com")]
+    endpoint: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -34,8 +41,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let app = Arc::new(Mutex::new(App::new(sync_io_tx)));
     let cloned_app = Arc::clone(&app);
 
+    let args = Args::parse();
     std::thread::spawn(move || {
-        let mut network = Network::new(&app, ENDPOINT);
+        let mut network = Network::new(&app, &args.endpoint);
         start_tokio(sync_io_rx, &mut network);
     });
 
