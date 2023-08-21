@@ -77,76 +77,68 @@ impl<'a> Network<'a> {
         endpoint: &'a str,
         n: usize,
     ) -> Result<Vec<Block<Transaction>>, Box<dyn Error>> {
-        if n == 0 {
-            Ok(vec![])
-        } else {
-            let provider = Provider::<Http>::try_from(endpoint)?;
-            let block_number = provider.get_block_number().await?;
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let block_number = provider.get_block_number().await?;
 
-            let mut blocks = vec![];
-            for i in 0..n {
-                let block = provider.get_block_with_txs(block_number - i);
-                blocks.push(block);
-            }
-
-            let blocks = join_all(blocks).await;
-
-            let mut res = vec![];
-            for block in blocks {
-                res.push(block.unwrap().unwrap());
-            }
-            Ok(res)
+        let mut blocks = vec![];
+        for i in 0..n {
+            let block = provider.get_block_with_txs(block_number - i);
+            blocks.push(block);
         }
+
+        let blocks = join_all(blocks).await;
+
+        let mut res = vec![];
+        for block in blocks {
+            res.push(block.unwrap().unwrap());
+        }
+        Ok(res)
     }
 
     async fn get_latest_transactions(
         endpoint: &'a str,
         n: usize,
     ) -> Result<Vec<TransactionWithReceipt>, Box<dyn Error>> {
-        if n == 0 {
-            Ok(vec![])
+        let provider = Provider::<Http>::try_from(endpoint)?;
+
+        let block = provider.get_block(BlockNumber::Latest).await?;
+
+        let transaction_futures = if let Some(block) = block {
+            block
+                .transactions
+                .iter()
+                .take(n)
+                .map(|&tx| provider.get_transaction(tx))
+                .collect::<Vec<_>>()
         } else {
-            let provider = Provider::<Http>::try_from(endpoint)?;
+            vec![]
+        };
 
-            let block = provider.get_block(BlockNumber::Latest).await?;
+        let transactions = join_all(transaction_futures).await;
+        let transactions = transactions
+            .iter()
+            .filter_map(|tx| tx.as_ref().ok().and_then(|tx| tx.clone()))
+            .collect::<Vec<_>>();
 
-            let transaction_futures = if let Some(block) = block {
-                block
-                    .transactions
-                    .iter()
-                    .take(n)
-                    .map(|&tx| provider.get_transaction(tx))
-                    .collect::<Vec<_>>()
-            } else {
-                vec![]
-            };
+        let receipt_futures = transactions
+            .iter()
+            .map(|tx| provider.get_transaction_receipt(tx.hash))
+            .collect::<Vec<_>>();
+        let receipts = join_all(receipt_futures).await;
+        let receipts = receipts
+            .iter()
+            .filter_map(|tx| tx.as_ref().ok().and_then(|receipt| receipt.clone()))
+            .collect::<Vec<_>>();
 
-            let transactions = join_all(transaction_futures).await;
-            let transactions = transactions
-                .iter()
-                .filter_map(|tx| tx.as_ref().ok().and_then(|tx| tx.clone()))
-                .collect::<Vec<_>>();
-
-            let receipt_futures = transactions
-                .iter()
-                .map(|tx| provider.get_transaction_receipt(tx.hash))
-                .collect::<Vec<_>>();
-            let receipts = join_all(receipt_futures).await;
-            let receipts = receipts
-                .iter()
-                .filter_map(|tx| tx.as_ref().ok().and_then(|receipt| receipt.clone()))
-                .collect::<Vec<_>>();
-
-            let mut result = vec![];
-            for i in 0..receipts.len() {
-                result.push(TransactionWithReceipt {
-                    transaction: transactions[i].to_owned(),
-                    transaction_receipt: receipts[i].to_owned(),
-                });
-            }
-
-            Ok(result)
+        let mut result = vec![];
+        for i in 0..receipts.len() {
+            result.push(TransactionWithReceipt {
+                transaction: transactions[i].to_owned(),
+                transaction_receipt: receipts[i].to_owned(),
+            });
         }
+
+        Ok(result)
     }
 
     async fn get_statistics(endpoint: &'a str) -> Result<Statistics, Box<dyn Error>> {

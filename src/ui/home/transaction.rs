@@ -35,7 +35,7 @@ pub fn render<B: Backend>(
     let lines = vec![
         Line::from(Span::raw(format!(
             "{:<17}: {}",
-            "Txn Hash", transaction.hash
+            "Transaction Hash", transaction.hash
         ))),
         Line::from(vec![
             Span::raw(format!("{:<17}: ", "Status")),
@@ -60,7 +60,7 @@ pub fn render<B: Backend>(
         ))),
         Line::from(Span::raw(format!(
             "{:<17}: {}",
-            "Txn Type",
+            "Transaction Type",
             transaction.transaction_type.map_or("Legacy", |ty| {
                 if ty == U64::from(1) {
                     "1"
