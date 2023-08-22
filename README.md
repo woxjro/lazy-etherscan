@@ -6,7 +6,7 @@
     <a href="https://github.com/woxjro/lazy-etherscan/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/woxjro/lazy-etherscan?style=for-the-badge" height="20"></a>
 </div>
 
-![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/a20392eb-1155-4328-9d73-076c2afb9ec6)
+![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/6815f766-70dd-457e-85d7-4cf3790ff94e)
 
 <details>
  <summary><strong>Table of contents</strong></summary>
