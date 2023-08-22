@@ -20,7 +20,7 @@ pub fn render<B: Backend>(
         .borders(Borders::BOTTOM)
         .border_type(BorderType::Plain);
 
-    let lines = [
+    let mut lines = vec![
         format!("{:<20}: {}", "Block Height", block.number.unwrap()),
         //format!("{:<20}: {}", "Status", TODO),
         format!("{:<20}: {}", "Timestamp", block.time().unwrap().to_string()),
@@ -30,12 +30,16 @@ pub fn render<B: Backend>(
             "Transactions ",
             block.transactions.len()
         ),
-        format!(
+    ];
+
+    //if past Shanghai
+    if let Some(withdrawals) = block.withdrawals.as_ref() {
+        lines.push(format!(
             "{:<20}: {} withdrawals in this block",
             "Withdrawals",
-            block.withdrawals.as_ref().unwrap().len()
-        ),
-    ];
+            withdrawals.len()
+        ));
+    }
 
     let lines = lines
         .iter()

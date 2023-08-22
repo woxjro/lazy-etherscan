@@ -11,7 +11,6 @@ pub fn render<B: Backend>(
     rect: Rect,
 ) {
     let detail_block = Block::default()
-        //.title(format!("Block #{}", block.number.unwrap()))
         .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
             Style::default().fg(Color::Green)
         } else {
@@ -21,7 +20,7 @@ pub fn render<B: Backend>(
         .borders(Borders::NONE)
         .border_type(BorderType::Plain);
 
-    let lines = [
+    let mut lines = vec![
         format!(
             "{:<20}: {}({}%)",
             "Gas Used",
@@ -29,25 +28,33 @@ pub fn render<B: Backend>(
             block.gas_used * 100 / block.gas_limit
         ),
         format!("{:<20}: {}", "Gas Limit", block.gas_limit),
-        format!(
+    ];
+
+    // if past London
+    if let Some(base_fee_per_gas) = block.base_fee_per_gas {
+        lines.push(format!(
             "{:<20}: {} ETH ({} Gwei)",
             "Base Fee Per Gas",
-            format_ether(block.base_fee_per_gas.unwrap()),
-            format_units(block.base_fee_per_gas.unwrap(), "gwei").unwrap()
-        ),
+            format_ether(base_fee_per_gas),
+            format_units(base_fee_per_gas, "gwei").unwrap()
+        ));
+    }
+
+    lines.append(&mut vec![
         //format!("{:<20}: {}", "Burnt Fees", TODO),
         //format!("{:<20}: {}", "Extra Data", TODO),
         format!("More Details"),
         format!("{:<20}: {}", "Hash", block.hash.unwrap()),
         format!("{:<20}: {}", "Parent Hash", block.parent_hash),
         format!("{:<20}: {}", "StateRoot", block.state_root),
-        format!(
-            "{:<20}: {}",
-            "WithdrawalsRoot",
-            block.withdrawals_root.unwrap()
-        ),
-        format!("{:<20}: {}", "Nonce", block.nonce.unwrap()),
-    ];
+    ]);
+
+    // if past Shanghai
+    if let Some(withdrawals_root) = block.withdrawals_root {
+        lines.push(format!("{:<20}: {}", "WithdrawalsRoot", withdrawals_root));
+    }
+
+    lines.push(format!("{:<20}: {}", "Nonce", block.nonce.unwrap()));
 
     let lines = lines
         .iter()
