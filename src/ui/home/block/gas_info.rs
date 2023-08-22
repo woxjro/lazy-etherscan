@@ -44,17 +44,20 @@ pub fn render<B: Backend>(
         //format!("{:<20}: {}", "Burnt Fees", TODO),
         //format!("{:<20}: {}", "Extra Data", TODO),
         format!("More Details"),
-        format!("{:<20}: {}", "Hash", block.hash.unwrap()),
-        format!("{:<20}: {}", "Parent Hash", block.parent_hash),
-        format!("{:<20}: {}", "StateRoot", block.state_root),
+        format!("{:<20}: {:#x}", "Hash", block.hash.unwrap()),
+        format!("{:<20}: {:#x}", "Parent Hash", block.parent_hash),
+        format!("{:<20}: {:#x}", "StateRoot", block.state_root),
     ]);
 
     // if past Shanghai
     if let Some(withdrawals_root) = block.withdrawals_root {
-        lines.push(format!("{:<20}: {}", "WithdrawalsRoot", withdrawals_root));
+        lines.push(format!(
+            "{:<20}: {:#x}",
+            "WithdrawalsRoot", withdrawals_root
+        ));
     }
 
-    lines.push(format!("{:<20}: {}", "Nonce", block.nonce.unwrap()));
+    lines.push(format!("{:<20}: {:#x}", "Nonce", block.nonce.unwrap()));
 
     let lines = lines
         .iter()

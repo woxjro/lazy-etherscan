@@ -25,7 +25,7 @@ pub fn render<B: Backend>(
             "{:<20}: {}",
             "Fee Recipient",
             if let Some(addr) = block.author {
-                format!("{addr}")
+                format!("{:#x}", addr)
             } else {
                 format!("pending...")
             }

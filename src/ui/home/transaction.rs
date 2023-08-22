@@ -34,7 +34,7 @@ pub fn render<B: Backend>(
 
     let mut details = vec![
         Line::from(Span::raw(format!(
-            "{:<17}: {}",
+            "{:<17}: {:#x}",
             "Transaction Hash", transaction.hash
         ))),
         Line::from(vec![
@@ -52,11 +52,16 @@ pub fn render<B: Backend>(
             "Block",
             transaction.block_number.unwrap()
         ))),
-        Line::from(Span::raw(format!("{:<17}: {}", "From", transaction.from))),
+        Line::from(Span::raw(format!(
+            "{:<17}: {:#x}",
+            "From", transaction.from
+        ))),
         Line::from(Span::raw(format!(
             "{:<17}: {}",
             "To",
-            transaction.to.map_or("".to_owned(), |to| format!("{to}")),
+            transaction
+                .to
+                .map_or("".to_owned(), |to| format!("{:#x}", to)),
         ))),
         Line::from(Span::raw(format!(
             "{:<17}: {}",
