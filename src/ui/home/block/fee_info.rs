@@ -10,7 +10,6 @@ pub fn render<B: Backend>(
     rect: Rect,
 ) {
     let detail_block = Block::default()
-        //.title(format!("Block #{}", block.number.unwrap()))
         .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
             Style::default().fg(Color::Green)
         } else {
@@ -20,32 +19,36 @@ pub fn render<B: Backend>(
         .borders(Borders::BOTTOM)
         .border_type(BorderType::Plain);
 
-    let lines = [
-        format!(
-            "{:<20}: {}",
-            "Fee Recipient",
-            if let Some(addr) = block.author {
-                format!("{:#x}", addr)
-            } else {
-                format!("pending...")
-            }
-        ),
+    let details = vec![
+        Line::from(vec![
+            Span::raw(format!("{:<20}: ", "Fee Recipient")),
+            Span::styled(
+                format!(
+                    "{}",
+                    if let Some(addr) = block.author {
+                        format!("{:#x}", addr)
+                    } else {
+                        format!("pending...")
+                    }
+                ),
+                Style::default().fg(Color::Cyan),
+            ),
+        ]),
         //ref: https://docs.alchemy.com/docs/how-to-calculate-ethereum-miner-rewards#calculate-a-miner-reward
         //format!("Block Reward: {} ETH", /* TODO */):
-        format!(
+        Line::from(Span::raw(format!(
             "{:<20}: {}",
             "Total Difficulty",
             block.total_difficulty.unwrap()
-        ),
-        format!("{:<20}: {} bytes", "Size", block.size.unwrap()),
+        ))),
+        Line::from(Span::raw(format!(
+            "{:<20}: {} bytes",
+            "Size",
+            block.size.unwrap()
+        ))),
     ];
 
-    let lines = lines
-        .iter()
-        .map(|row| Line::from(Span::raw(row)))
-        .collect::<Vec<_>>();
-
-    let paragraph = Paragraph::new(lines)
+    let paragraph = Paragraph::new(details)
         .block(detail_block.to_owned())
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true });

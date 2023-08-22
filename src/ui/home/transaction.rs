@@ -50,19 +50,29 @@ pub fn render<B: Backend>(
         Line::from(Span::raw(format!(
             "{:<17}: #{}",
             "Block",
-            transaction.block_number.unwrap()
-        ))),
-        Line::from(Span::raw(format!(
-            "{:<17}: {:#x}",
-            "From", transaction.from
-        ))),
-        Line::from(Span::raw(format!(
-            "{:<17}: {}",
-            "To",
             transaction
-                .to
-                .map_or("".to_owned(), |to| format!("{:#x}", to)),
+                .block_number
+                .map_or("pending...".to_owned(), |number| number.to_string())
         ))),
+        Line::from(vec![
+            Span::raw(format!("{:<17}: ", "From")),
+            Span::styled(
+                format!("{:#x}", transaction.from),
+                Style::default().fg(Color::Cyan),
+            ),
+        ]),
+        Line::from(vec![
+            Span::raw(format!("{:<17}: ", "To")),
+            Span::styled(
+                format!(
+                    "{}",
+                    transaction
+                        .to
+                        .map_or("".to_owned(), |to| format!("{:#x}", to)),
+                ),
+                Style::default().fg(Color::Cyan),
+            ),
+        ]),
         Line::from(Span::raw(format!(
             "{:<17}: {}",
             "Transaction Type",

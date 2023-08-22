@@ -20,51 +20,66 @@ pub fn render<B: Backend>(
         .borders(Borders::NONE)
         .border_type(BorderType::Plain);
 
-    let mut lines = vec![
-        format!(
+    let mut details = vec![
+        Line::from(Span::raw(format!(
             "{:<20}: {}({}%)",
             "Gas Used",
             block.gas_used,
             block.gas_used * 100 / block.gas_limit
-        ),
-        format!("{:<20}: {}", "Gas Limit", block.gas_limit),
+        ))),
+        Line::from(Span::raw(format!(
+            "{:<20}: {}",
+            "Gas Limit", block.gas_limit
+        ))),
     ];
 
     // if past London
     if let Some(base_fee_per_gas) = block.base_fee_per_gas {
-        lines.push(format!(
+        details.push(Line::from(Span::raw(format!(
             "{:<20}: {} ETH ({} Gwei)",
             "Base Fee Per Gas",
             format_ether(base_fee_per_gas),
             format_units(base_fee_per_gas, "gwei").unwrap()
-        ));
+        ))));
     }
 
-    lines.append(&mut vec![
+    details.append(&mut vec![
         //format!("{:<20}: {}", "Burnt Fees", TODO),
         //format!("{:<20}: {}", "Extra Data", TODO),
-        format!("More Details"),
-        format!("{:<20}: {:#x}", "Hash", block.hash.unwrap()),
-        format!("{:<20}: {:#x}", "Parent Hash", block.parent_hash),
-        format!("{:<20}: {:#x}", "StateRoot", block.state_root),
+        Line::from(Span::raw(format!("More Details"))),
+        Line::from(Span::raw(format!(
+            "{:<20}: {:#x}",
+            "Hash",
+            block.hash.unwrap()
+        ))),
+        Line::from(vec![
+            Span::raw(format!("{:<20}: ", "Parent Hash")),
+            Span::styled(
+                format!("{:#x}", block.parent_hash),
+                Style::default().fg(Color::Cyan),
+            ),
+        ]),
+        Line::from(Span::raw(format!(
+            "{:<20}: {:#x}",
+            "StateRoot", block.state_root
+        ))),
     ]);
 
     // if past Shanghai
     if let Some(withdrawals_root) = block.withdrawals_root {
-        lines.push(format!(
+        details.push(Line::from(Span::raw(format!(
             "{:<20}: {:#x}",
             "WithdrawalsRoot", withdrawals_root
-        ));
+        ))));
     }
 
-    lines.push(format!("{:<20}: {:#x}", "Nonce", block.nonce.unwrap()));
+    details.push(Line::from(Span::raw(format!(
+        "{:<20}: {:#x}",
+        "Nonce",
+        block.nonce.unwrap()
+    ))));
 
-    let lines = lines
-        .iter()
-        .map(|row| Line::from(Span::raw(row)))
-        .collect::<Vec<_>>();
-
-    let paragraph = Paragraph::new(lines)
+    let paragraph = Paragraph::new(details)
         .block(detail_block.to_owned())
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true });
