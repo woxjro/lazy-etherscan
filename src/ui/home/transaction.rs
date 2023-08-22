@@ -4,6 +4,7 @@ use crate::route::{HomeRoute, Route};
 use ethers_core::types::U64;
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
+use ratatui_tree_widget::{Tree, TreeItem};
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
@@ -32,7 +33,7 @@ pub fn render<B: Backend>(
             .constraints([Constraint::Ratio(1,1)].as_ref())
             .split(rect) else { return; };
 
-    let lines = vec![
+    let mut details = vec![
         Line::from(Span::raw(format!(
             "{:<17}: {}",
             "Transaction Hash", transaction.hash
@@ -87,11 +88,31 @@ pub fn render<B: Backend>(
         ))),
     ];
 
-    let paragraph = Paragraph::new(lines)
+    let input_data = transaction
+        .input
+        .to_string()
+        .chars()
+        .collect::<Vec<_>>()
+        .chunks(64)
+        .map(|window| window.iter().collect::<String>())
+        .collect::<Vec<String>>();
+
+    for (i, row) in input_data.iter().enumerate() {
+        if i == 0 {
+            details.push(Line::from(Span::raw(format!(
+                "{:<17}: {}",
+                "Input Data", row
+            ))));
+        } else {
+            details.push(Line::from(Span::raw(format!("{:<19}{}", "", row))));
+        }
+    }
+
+    let details = Paragraph::new(details)
         .block(detail_block.to_owned())
         .alignment(Alignment::Left)
-        .wrap(Wrap { trim: true });
+        .wrap(Wrap { trim: false });
 
-    f.render_widget(paragraph, detail_rect);
+    f.render_widget(details, detail_rect);
     f.render_widget(detail_block, rect);
 }
