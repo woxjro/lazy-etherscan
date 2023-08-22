@@ -4,7 +4,6 @@ use crate::route::{HomeRoute, Route};
 use ethers_core::types::U64;
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
-use ratatui_tree_widget::{Tree, TreeItem};
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,

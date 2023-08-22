@@ -163,8 +163,7 @@ async fn start_ui<B: Backend>(
                                 app.set_route(Route::Home(HomeRoute::LatestTransactions))
                             }
                             event::KeyCode::Char('j') => match app.route {
-                                Route::Home(HomeRoute::Root)
-                                | Route::Home(HomeRoute::LatestBlocks) => {
+                                Route::Home(HomeRoute::LatestBlocks) => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.next();
                                     }
@@ -179,8 +178,7 @@ async fn start_ui<B: Backend>(
                                 _ => {}
                             },
                             event::KeyCode::Char('k') => match app.route {
-                                Route::Home(HomeRoute::Root)
-                                | Route::Home(HomeRoute::LatestBlocks) => {
+                                Route::Home(HomeRoute::LatestBlocks) => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.previous();
                                     }

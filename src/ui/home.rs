@@ -95,11 +95,6 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .collect::<Vec<_>>();
 
     match app.route {
-        Route::Home(HomeRoute::Root) => {
-            blocks[0] = blocks[0]
-                .to_owned()
-                .border_style(Style::default().fg(Color::Green));
-        }
         Route::Home(HomeRoute::LatestBlocks) => {
             blocks[0] = blocks[0]
                 .to_owned()
