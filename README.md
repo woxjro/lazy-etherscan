@@ -6,7 +6,7 @@
     <a href="https://github.com/woxjro/lazy-etherscan/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/woxjro/lazy-etherscan?style=for-the-badge" height="20"></a>
 </div>
 
-![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/6815f766-70dd-457e-85d7-4cf3790ff94e)
+![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/da2d1662-1c49-433c-b32e-bb4460977a56)
 
 <details>
  <summary><strong>Table of contents</strong></summary>
@@ -14,7 +14,7 @@
 
 - [lazy-etherscan](#lazy-etherscan)
   - [Build](#build)
-  - [Usage](#usage)
+  - [Configurations & Usage](#configurations--usage)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [Acknowledgement](#acknowledgement)
@@ -28,12 +28,18 @@ This software has been tested and verified to work correctly on the following op
 - `Ubuntu 22.04.2 LTS`
 
 ```sh
-$ git clone https://github.com/woxjro/lazy-etherscan
+$ git clone https://github.com/woxjro/lazy-etherscan --recursive
 $ cd lazy-etherscan
-$ cargo run
+$ cargo run --
 ```
 
-## Usage
+## Configurations & Usage
+Please check the various settings such as endpoints using the following command:
+```sh
+cargo run -- --help
+```
+
+The basic usage is as follows:
 - Press `q` to exit `lazy-etherscan`.
 - Press `s` to focus on the search bar, where you can perform searches for addresses, blocks, transactions, and more.
 - Press `1` to navigate to the "Latest Blocks" panel. Use `j` to move to a block below and `k` to an above block.
