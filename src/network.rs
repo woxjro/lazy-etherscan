@@ -2,7 +2,7 @@ use crate::app::{App, Statistics};
 use crate::ethers::types::TransactionWithReceipt;
 use crate::route::{HomeRoute, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, BlockNumber, Transaction, U64};
+use ethers_core::types::{Block, BlockNumber, Transaction, TxHash, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -12,6 +12,7 @@ use tokio::sync::Mutex;
 pub enum IoEvent {
     GetStatistics,
     GetBlock { number: U64 },
+    GetTransactionWithReceipt { transaction_hash: TxHash },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
 }
@@ -47,6 +48,16 @@ impl<'a> Network<'a> {
                 }
                 app.is_loading = false;
             }
+            IoEvent::GetTransactionWithReceipt { transaction_hash } => {
+                let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
+                let mut app = self.app.lock().await;
+                if let Ok(some) = res {
+                    if let Some(transaction) = some {
+                        app.set_route(Route::Home(HomeRoute::Transaction(transaction)));
+                    }
+                }
+                app.is_loading = false;
+            }
             IoEvent::GetLatestBlocks { n } => {
                 let blocks = Self::get_latest_blocks(self.endpoint, n).await.unwrap();
                 let mut app = self.app.lock().await;
@@ -71,6 +82,27 @@ impl<'a> Network<'a> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let block = provider.get_block_with_txs(number).await?;
         Ok(block)
+    }
+
+    async fn get_transaction_with_receipt(
+        endpoint: &'a str,
+        transaction_hash: TxHash,
+    ) -> Result<Option<TransactionWithReceipt>, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let transaction = provider.get_transaction(transaction_hash).await?;
+        let transaction_receipt = provider.get_transaction_receipt(transaction_hash).await?;
+        if let Some(transaction) = transaction {
+            if let Some(transaction_receipt) = transaction_receipt {
+                Ok(Some(TransactionWithReceipt {
+                    transaction,
+                    transaction_receipt,
+                }))
+            } else {
+                Ok(None)
+            }
+        } else {
+            Ok(None)
+        }
     }
 
     async fn get_latest_blocks(
