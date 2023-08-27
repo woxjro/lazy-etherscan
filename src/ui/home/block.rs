@@ -3,11 +3,19 @@ mod fee_info;
 mod gas_info;
 mod transactions;
 use crate::app::App;
-use crate::route::{HomeRoute, Route};
+use crate::route::ActiveBlock;
 use ethers_core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transaction>, rect: Rect) {
+pub fn render<B: Backend>(
+    f: &mut Frame<B>,
+    app: &mut App,
+    block: Option<EBlock<Transaction>>,
+    rect: Rect,
+) {
+    //TODO: remove unwrap()
+    let block = block.unwrap();
+
     let height = rect.height;
     let [detail_rect, transactions_rect] = *Layout::default()
             .direction(Direction::Vertical)
@@ -23,7 +31,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, block: EBlock<Transac
 
     let detail_block = Block::default()
         .title(format!("Block #{}", block.number.unwrap()))
-        .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
+        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
             Style::default().fg(Color::Green)
         } else {
             Style::default()

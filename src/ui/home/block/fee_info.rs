@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::route::{HomeRoute, Route};
+use crate::route::ActiveBlock;
 use ethers_core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
 
@@ -10,7 +10,7 @@ pub fn render<B: Backend>(
     rect: Rect,
 ) {
     let detail_block = Block::default()
-        .border_style(if let Route::Home(HomeRoute::Block(_)) = app.route {
+        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
             Style::default().fg(Color::Green)
         } else {
             Style::default()

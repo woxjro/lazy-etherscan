@@ -3,7 +3,7 @@ mod statistics;
 mod transaction;
 mod welcome;
 use crate::app::{App, InputMode};
-use crate::route::{HomeRoute, Route};
+use crate::route::{ActiveBlock, RouteId};
 use crate::widget::Spinner;
 use chrono::Utc;
 use ethers_core::utils::format_ether;
@@ -26,7 +26,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .constraints([Constraint::Max(3), Constraint::Min(0)].as_ref())
             .split(outer) else { return; };
 
-    let searchbar_block = if let Route::Home(HomeRoute::Search) = app.route {
+    let searchbar_block = if let ActiveBlock::SearchBar = app.route.get_active_block() {
         Block::default().border_style(Style::default().fg(Color::Green))
     } else {
         Block::default().border_style(Style::default())
@@ -94,13 +94,13 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         })
         .collect::<Vec<_>>();
 
-    match app.route {
-        Route::Home(HomeRoute::LatestBlocks) => {
+    match app.route.get_active_block() {
+        ActiveBlock::LatestBlocks => {
             blocks[0] = blocks[0]
                 .to_owned()
                 .border_style(Style::default().fg(Color::Green));
         }
-        Route::Home(HomeRoute::LatestTransactions) => {
+        ActiveBlock::LatestTransactions => {
             blocks[1] = blocks[1]
                 .to_owned()
                 .border_style(Style::default().fg(Color::Green));
@@ -212,39 +212,15 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
     }
 
-    match app.route.to_owned() {
-        Route::Home(home_route) => match home_route {
-            HomeRoute::Block(block) => {
-                block::render(f, app, block, detail);
-            }
-            HomeRoute::Transaction(transaction) => {
-                transaction::render(f, app, transaction, detail);
-            }
-            HomeRoute::LatestBlocks => {
-                if let Some(blocks) = app.latest_blocks.to_owned() {
-                    if let Some(i) = blocks.get_selected_item_index() {
-                        block::render(f, app, blocks.items[i].to_owned(), detail);
-                    } else {
-                        welcome::render(f, detail);
-                    }
-                } else {
-                    welcome::render(f, detail);
-                }
-            }
-            HomeRoute::LatestTransactions => {
-                if let Some(transactions) = app.latest_transactions.to_owned() {
-                    if let Some(i) = transactions.get_selected_item_index() {
-                        transaction::render(f, app, transactions.items[i].to_owned(), detail);
-                    } else {
-                        welcome::render(f, detail);
-                    }
-                } else {
-                    welcome::render(f, detail);
-                }
-            }
-            _ => {
-                welcome::render(f, detail);
-            }
-        },
+    match app.route.get_id() {
+        RouteId::Block(block) => {
+            block::render(f, app, block, detail);
+        }
+        RouteId::Transaction(transaction) => {
+            transaction::render(f, app, transaction, detail);
+        }
+        RouteId::Welcome => {
+            welcome::render(f, detail);
+        }
     }
 }

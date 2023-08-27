@@ -1,6 +1,6 @@
 use crate::app::App;
 use crate::ethers::types::TransactionWithReceipt;
-use crate::route::{HomeRoute, Route};
+use crate::route::ActiveBlock;
 use ethers_core::types::U64;
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
@@ -8,9 +8,11 @@ use ratatui::{prelude::*, widgets::*};
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
     app: &mut App,
-    transaction_with_receipt: TransactionWithReceipt,
+    transaction_with_receipt: Option<TransactionWithReceipt>,
     rect: Rect,
 ) {
+    //TODO: remove unwrap()
+    let transaction_with_receipt = transaction_with_receipt.unwrap();
     let TransactionWithReceipt {
         transaction,
         transaction_receipt,
@@ -18,7 +20,7 @@ pub fn render<B: Backend>(
 
     let detail_block = Block::default()
         .title("Transaction Details")
-        .border_style(if let Route::Home(HomeRoute::Transaction(_)) = app.route {
+        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
             Style::default().fg(Color::Green)
         } else {
             Style::default()

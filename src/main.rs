@@ -9,7 +9,7 @@ use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
-use route::{HomeRoute, Route};
+use route::{ActiveBlock, Route, RouteId};
 use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
 use tokio::sync::Mutex;
@@ -74,8 +74,9 @@ async fn start_ui<B: Backend>(
 
     loop {
         let mut app = app.lock().await;
-        match app.route.to_owned() {
-            Route::Home(_) => {
+        match app.route.get_id() {
+            //TODO
+            _ => {
                 terminal.draw(|f| ui::ui_home(f, &mut app))?;
             }
         };
@@ -83,7 +84,7 @@ async fn start_ui<B: Backend>(
         if event::poll(Duration::from_millis(250))? {
             match event::read()? {
                 event::Event::Key(key) => {
-                    if let Route::Home(HomeRoute::Search) = app.route {
+                    if let ActiveBlock::SearchBar = app.route.get_active_block() {
                         match app.input_mode {
                             InputMode::Normal => match key.code {
                                 event::KeyCode::Char('i') => {
@@ -93,10 +94,10 @@ async fn start_ui<B: Backend>(
                                     return Ok(());
                                 }
                                 event::KeyCode::Char('1') => {
-                                    app.set_route(Route::Home(HomeRoute::LatestBlocks))
+                                    app.change_active_block(ActiveBlock::LatestBlocks);
                                 }
                                 event::KeyCode::Char('2') => {
-                                    app.set_route(Route::Home(HomeRoute::LatestTransactions))
+                                    app.change_active_block(ActiveBlock::LatestTransactions);
                                 }
                                 _ => {}
                             },
@@ -127,24 +128,30 @@ async fn start_ui<B: Backend>(
                         }
                     } else {
                         match key.code {
-                            event::KeyCode::Enter => match app.route {
-                                Route::Home(HomeRoute::LatestBlocks) => {
+                            event::KeyCode::Enter => match app.route.get_active_block() {
+                                ActiveBlock::LatestBlocks => {
                                     let latest_blocks = app.latest_blocks.clone();
                                     if let Some(blocks) = latest_blocks {
                                         if let Some(i) = blocks.get_selected_item_index() {
-                                            app.set_route(Route::Home(HomeRoute::Block(
-                                                blocks.items[i].to_owned(),
-                                            )));
+                                            app.set_route(Route {
+                                                id: RouteId::Block(Some(
+                                                    blocks.items[i].to_owned(),
+                                                )),
+                                                active_block: ActiveBlock::Main,
+                                            });
                                         }
                                     }
                                 }
-                                Route::Home(HomeRoute::LatestTransactions) => {
+                                ActiveBlock::LatestTransactions => {
                                     let latest_transactions = app.latest_transactions.clone();
                                     if let Some(transactions) = latest_transactions {
                                         if let Some(i) = transactions.get_selected_item_index() {
-                                            app.set_route(Route::Home(HomeRoute::Transaction(
-                                                transactions.items[i].to_owned(),
-                                            )));
+                                            app.set_route(Route {
+                                                id: RouteId::Transaction(Some(
+                                                    transactions.items[i].to_owned(),
+                                                )),
+                                                active_block: ActiveBlock::Main,
+                                            });
                                         }
                                     }
                                 }
@@ -154,40 +161,86 @@ async fn start_ui<B: Backend>(
                                 return Ok(());
                             }
                             event::KeyCode::Char('s') => {
-                                app.set_route(Route::Home(HomeRoute::Search))
+                                app.change_active_block(ActiveBlock::SearchBar);
                             }
                             event::KeyCode::Char('1') => {
-                                app.set_route(Route::Home(HomeRoute::LatestBlocks))
+                                app.change_active_block(ActiveBlock::LatestBlocks);
                             }
                             event::KeyCode::Char('2') => {
-                                app.set_route(Route::Home(HomeRoute::LatestTransactions))
+                                app.change_active_block(ActiveBlock::LatestTransactions);
                             }
-                            event::KeyCode::Char('j') => match app.route {
-                                Route::Home(HomeRoute::LatestBlocks) => {
+                            event::KeyCode::Char('j') => match app.route.get_active_block() {
+                                ActiveBlock::LatestBlocks => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.next();
+                                        let latest_blocks = app.latest_blocks.clone();
+                                        if let Some(blocks) = latest_blocks {
+                                            if let Some(i) = blocks.get_selected_item_index() {
+                                                app.set_route(Route {
+                                                    id: RouteId::Block(Some(
+                                                        blocks.items[i].to_owned(),
+                                                    )),
+                                                    active_block: ActiveBlock::LatestBlocks,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
-                                Route::Home(HomeRoute::LatestTransactions) => {
+                                ActiveBlock::LatestTransactions => {
                                     if let Some(latest_transactions) =
                                         app.latest_transactions.as_mut()
                                     {
                                         latest_transactions.next();
+                                        let latest_transactions = app.latest_transactions.clone();
+                                        if let Some(transactions) = latest_transactions {
+                                            if let Some(i) = transactions.get_selected_item_index()
+                                            {
+                                                app.set_route(Route {
+                                                    id: RouteId::Transaction(Some(
+                                                        transactions.items[i].to_owned(),
+                                                    )),
+                                                    active_block: ActiveBlock::LatestTransactions,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
                                 _ => {}
                             },
-                            event::KeyCode::Char('k') => match app.route {
-                                Route::Home(HomeRoute::LatestBlocks) => {
+                            event::KeyCode::Char('k') => match app.route.get_active_block() {
+                                ActiveBlock::LatestBlocks => {
                                     if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                         latest_blocks.previous();
+                                        let latest_blocks = app.latest_blocks.clone();
+                                        if let Some(blocks) = latest_blocks {
+                                            if let Some(i) = blocks.get_selected_item_index() {
+                                                app.set_route(Route {
+                                                    id: RouteId::Block(Some(
+                                                        blocks.items[i].to_owned(),
+                                                    )),
+                                                    active_block: ActiveBlock::LatestBlocks,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
-                                Route::Home(HomeRoute::LatestTransactions) => {
+                                ActiveBlock::LatestTransactions => {
                                     if let Some(latest_transactions) =
                                         app.latest_transactions.as_mut()
                                     {
                                         latest_transactions.previous();
+                                        let latest_transactions = app.latest_transactions.clone();
+                                        if let Some(transactions) = latest_transactions {
+                                            if let Some(i) = transactions.get_selected_item_index()
+                                            {
+                                                app.set_route(Route {
+                                                    id: RouteId::Transaction(Some(
+                                                        transactions.items[i].to_owned(),
+                                                    )),
+                                                    active_block: ActiveBlock::LatestTransactions,
+                                                });
+                                            }
+                                        }
                                     }
                                 }
                                 _ => {}
@@ -197,7 +250,7 @@ async fn start_ui<B: Backend>(
                     }
                 }
                 event::Event::Paste(data) => {
-                    if let Route::Home(HomeRoute::Search) = app.route {
+                    if let ActiveBlock::SearchBar = app.route.get_active_block() {
                         match app.input_mode {
                             InputMode::Normal => {}
                             InputMode::Editing => {
