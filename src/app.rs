@@ -1,6 +1,6 @@
 use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
-use crate::route::{HomeRoute, Route};
+use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
 use ethers_core::types::{Block, Transaction, TxHash, U64};
 use std::sync::mpsc::Sender;
@@ -74,7 +74,7 @@ pub struct App {
 impl App {
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
-            route: Route::Home(HomeRoute::Search),
+            route: Route::default(),
             is_loading: false,
             io_tx: Some(io_tx),
             statistics: Statistics::new(),
@@ -92,6 +92,13 @@ impl App {
 
     pub fn set_route(&mut self, route: Route) {
         self.route = route;
+    }
+
+    pub fn change_active_block(&mut self, active_block: ActiveBlock) {
+        self.route = Route {
+            id: self.route.get_id(),
+            active_block,
+        };
     }
 
     // Send a network event to the network thread
