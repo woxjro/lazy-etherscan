@@ -1,6 +1,6 @@
 use crate::app::{App, Statistics};
 use crate::ethers::types::TransactionWithReceipt;
-use crate::route::{HomeRoute, Route};
+use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
 use ethers_core::types::{Block, BlockNumber, Transaction, TxHash, U64};
 use ethers_providers::{Http, Middleware, Provider};
@@ -42,9 +42,10 @@ impl<'a> Network<'a> {
                 let res = Self::get_block(self.endpoint, number).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
-                    if let Some(block) = some {
-                        app.set_route(Route::Home(HomeRoute::Block(block)));
-                    }
+                    app.set_route(Route {
+                        id: RouteId::Block(some),
+                        active_block: ActiveBlock::Main,
+                    });
                 }
                 app.is_loading = false;
             }
@@ -52,9 +53,10 @@ impl<'a> Network<'a> {
                 let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
-                    if let Some(transaction) = some {
-                        app.set_route(Route::Home(HomeRoute::Transaction(transaction)));
-                    }
+                    app.set_route(Route {
+                        id: RouteId::Transaction(some),
+                        active_block: ActiveBlock::Main,
+                    });
                 }
                 app.is_loading = false;
             }
