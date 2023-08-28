@@ -18,8 +18,8 @@ pub enum ActiveBlock {
 
 #[derive(PartialEq, Clone)]
 pub struct Route {
-    pub id: RouteId,
-    pub active_block: ActiveBlock,
+    id: RouteId,
+    active_block: ActiveBlock,
 }
 
 impl Route {
@@ -28,6 +28,10 @@ impl Route {
             id: RouteId::Welcome,
             active_block: ActiveBlock::SearchBar,
         }
+    }
+
+    pub fn new(id: RouteId, active_block: ActiveBlock) -> Self {
+        Self { id, active_block }
     }
 
     pub fn get_active_block(&self) -> ActiveBlock {

@@ -42,10 +42,7 @@ impl<'a> Network<'a> {
                 let res = Self::get_block(self.endpoint, number).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
-                    app.set_route(Route {
-                        id: RouteId::Block(some),
-                        active_block: ActiveBlock::Main,
-                    });
+                    app.set_route(Route::new(RouteId::Block(some), ActiveBlock::Main));
                 }
                 app.is_loading = false;
             }
@@ -53,10 +50,7 @@ impl<'a> Network<'a> {
                 let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
-                    app.set_route(Route {
-                        id: RouteId::Transaction(some),
-                        active_block: ActiveBlock::Main,
-                    });
+                    app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
                 }
                 app.is_loading = false;
             }

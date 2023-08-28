@@ -133,12 +133,10 @@ async fn start_ui<B: Backend>(
                                     let latest_blocks = app.latest_blocks.clone();
                                     if let Some(blocks) = latest_blocks {
                                         if let Some(i) = blocks.get_selected_item_index() {
-                                            app.set_route(Route {
-                                                id: RouteId::Block(Some(
-                                                    blocks.items[i].to_owned(),
-                                                )),
-                                                active_block: ActiveBlock::Main,
-                                            });
+                                            app.set_route(Route::new(
+                                                RouteId::Block(Some(blocks.items[i].to_owned())),
+                                                ActiveBlock::Main,
+                                            ));
                                         }
                                     }
                                 }
@@ -146,12 +144,12 @@ async fn start_ui<B: Backend>(
                                     let latest_transactions = app.latest_transactions.clone();
                                     if let Some(transactions) = latest_transactions {
                                         if let Some(i) = transactions.get_selected_item_index() {
-                                            app.set_route(Route {
-                                                id: RouteId::Transaction(Some(
+                                            app.set_route(Route::new(
+                                                RouteId::Transaction(Some(
                                                     transactions.items[i].to_owned(),
                                                 )),
-                                                active_block: ActiveBlock::Main,
-                                            });
+                                                ActiveBlock::Main,
+                                            ));
                                         }
                                     }
                                 }
@@ -176,12 +174,12 @@ async fn start_ui<B: Backend>(
                                         let latest_blocks = app.latest_blocks.clone();
                                         if let Some(blocks) = latest_blocks {
                                             if let Some(i) = blocks.get_selected_item_index() {
-                                                app.set_route(Route {
-                                                    id: RouteId::Block(Some(
+                                                app.set_route(Route::new(
+                                                    RouteId::Block(Some(
                                                         blocks.items[i].to_owned(),
                                                     )),
-                                                    active_block: ActiveBlock::LatestBlocks,
-                                                });
+                                                    ActiveBlock::LatestBlocks,
+                                                ));
                                             }
                                         }
                                     }
@@ -195,12 +193,12 @@ async fn start_ui<B: Backend>(
                                         if let Some(transactions) = latest_transactions {
                                             if let Some(i) = transactions.get_selected_item_index()
                                             {
-                                                app.set_route(Route {
-                                                    id: RouteId::Transaction(Some(
+                                                app.set_route(Route::new(
+                                                    RouteId::Transaction(Some(
                                                         transactions.items[i].to_owned(),
                                                     )),
-                                                    active_block: ActiveBlock::LatestTransactions,
-                                                });
+                                                    ActiveBlock::LatestTransactions,
+                                                ));
                                             }
                                         }
                                     }
@@ -214,12 +212,12 @@ async fn start_ui<B: Backend>(
                                         let latest_blocks = app.latest_blocks.clone();
                                         if let Some(blocks) = latest_blocks {
                                             if let Some(i) = blocks.get_selected_item_index() {
-                                                app.set_route(Route {
-                                                    id: RouteId::Block(Some(
+                                                app.set_route(Route::new(
+                                                    RouteId::Block(Some(
                                                         blocks.items[i].to_owned(),
                                                     )),
-                                                    active_block: ActiveBlock::LatestBlocks,
-                                                });
+                                                    ActiveBlock::LatestBlocks,
+                                                ));
                                             }
                                         }
                                     }
@@ -233,12 +231,12 @@ async fn start_ui<B: Backend>(
                                         if let Some(transactions) = latest_transactions {
                                             if let Some(i) = transactions.get_selected_item_index()
                                             {
-                                                app.set_route(Route {
-                                                    id: RouteId::Transaction(Some(
+                                                app.set_route(Route::new(
+                                                    RouteId::Transaction(Some(
                                                         transactions.items[i].to_owned(),
                                                     )),
-                                                    active_block: ActiveBlock::LatestTransactions,
-                                                });
+                                                    ActiveBlock::LatestTransactions,
+                                                ));
                                             }
                                         }
                                     }

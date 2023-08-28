@@ -95,10 +95,7 @@ impl App {
     }
 
     pub fn change_active_block(&mut self, active_block: ActiveBlock) {
-        self.route = Route {
-            id: self.route.get_id(),
-            active_block,
-        };
+        self.route = Route::new(self.route.get_id(), active_block);
     }
 
     // Send a network event to the network thread
