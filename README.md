@@ -13,6 +13,7 @@
  <br/>
 
 - [lazy-etherscan](#lazy-etherscan)
+  - [Features](#features)
   - [Build](#build)
   - [Configurations & Usage](#configurations--usage)
   - [Roadmap](#roadmap)
@@ -22,10 +23,15 @@
 <br/>
 </details>
 
+## Features
+- **No Browser Required** - Use it effortlessly even in environments where browsers are unavailable, such as within servers.
+- **Developer Friendly** - Operate efficiently using keyboard shortcuts.
+- **Easily Switch Endpoints** - Switch between endpoints, including Mainnet, Testnets, custom node connections, and even BSC endpoints.
 
 ## Build
 This software has been tested and verified to work correctly on the following operating systems:
 - `Ubuntu 22.04.2 LTS`
+- `macOS Ventura 13.2`
 
 ```sh
 $ git clone https://github.com/woxjro/lazy-etherscan --recursive
@@ -48,21 +54,20 @@ The basic usage is as follows:
 
 ## Roadmap
 In the current state of this project, I plan to implement the following functionalities:
-- [ ] Welcome Page
-    - [ ] Display statistics about Ethereum.
-    - [ ] Latest Blocks
-        - [x] Display a list of the latest blocks.
-        - [ ] Display details of a block being focused.
-    - [ ] Latest Transactions
-        - [x] Display a list of the latest transactions.
-        - [ ] Display details of a transaction being focused.
+- [ ] Display statistics about Ethereum.
+- [x] Latest Blocks
+    - [x] Display a list of the latest blocks.
+    - [x] Display details of a block being focused.
+- [x] Latest Transactions
+    - [x] Display a list of the latest transactions.
+    - [x] Display details of a transaction being focused.
 - [ ] Search Functionality
     - [ ] by Address
         - [ ] Implement search results screen.
-    - [ ] by Txn Hash
-        - [ ] Implement search results screen.
-    - [ ] by Block
-        - [ ] Implement search results screen.
+    - [x] by Txn Hash
+        - [x] Implement search results screen.
+    - [x] by Block
+        - [x] Implement search results screen.
     - [ ] by Token
         - [ ] Implement search results screen.
     - [ ] by Domain Name
