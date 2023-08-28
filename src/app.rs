@@ -27,28 +27,12 @@ impl Statistics {
         }
     }
 
-    /*
-    pub fn get_ether_price_index() -> usize {
-        0
-    }
-    pub fn get_transactions_index() -> usize {
-        1
-    }
-    */
-    pub fn get_last_safe_block_index() -> usize {
-        2
-    }
-    /*
-    pub fn get_market_cap_index() -> usize {
-        3
-    }
-    pub fn get_med_gas_price_index() -> usize {
-        4
-    }
-    */
-    pub fn get_last_finalized_block_index() -> usize {
-        5
-    }
+    //pub const ETHER_PRICE_INDEX: usize = 0;
+    //pub const TRANSACTIONS_INDEX: usize = 1;
+    pub const LAST_SAFE_BLOCK_INDEX: usize = 2;
+    //pub const MARKET_CAP_INDEX: usize = 3;
+    //pub const MED_GAS_PRICE_INDEX: usize = 4;
+    pub const LAST_FINALIZED_BLOCK_INDEX: usize = 5;
 }
 
 pub enum InputMode {

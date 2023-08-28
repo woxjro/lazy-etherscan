@@ -52,13 +52,13 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             .constraints([Constraint::Length(1)].as_ref())
             .split(statistic_item) else { return; };
 
-        let text = if i == Statistics::get_last_safe_block_index() {
+        let text = if i == Statistics::LAST_SAFE_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_safe_block.as_ref() {
                 format!("#{} ", block.number.unwrap())
             } else {
                 format!("{}", Spinner::default().to_string())
             }
-        } else if i == Statistics::get_last_finalized_block_index() {
+        } else if i == Statistics::LAST_FINALIZED_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_finalized_block.as_ref() {
                 format!("#{} ", block.number.unwrap())
             } else {
