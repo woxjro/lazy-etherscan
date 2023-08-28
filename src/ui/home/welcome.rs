@@ -3,7 +3,7 @@ use ratatui::{prelude::*, widgets::*};
 pub fn render<B: Backend>(f: &mut Frame<B>, rect: Rect) {
     let welcome_block = Block::default()
         .title("Welcome")
-        .border_style(Style::default())
+        .border_style(Style::default().fg(Color::White))
         .borders(Borders::ALL)
         .border_type(BorderType::Plain);
 

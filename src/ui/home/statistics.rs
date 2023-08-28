@@ -42,7 +42,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
     for (i, &statistic_item) in statistic_items.iter().enumerate() {
         let block = Block::default()
             .title(statistic_titles[i])
-            .border_style(Style::default())
+            .border_style(Style::default().fg(Color::White))
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);
 
@@ -68,7 +68,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             format!("{}", Spinner::default().to_string())
         };
 
-        let paragraph = Paragraph::new(vec![Line::from(Span::raw(text))])
+        let paragraph = Paragraph::new(vec![Line::from(Span::raw(text).fg(Color::White))])
             .block(block.to_owned())
             .alignment(Alignment::Right)
             .wrap(Wrap { trim: true });

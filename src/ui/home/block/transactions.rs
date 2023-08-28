@@ -1,16 +1,17 @@
 use crate::app::App;
+use crate::route::ActiveBlock;
 use ethers_core::types::{Block as EBlock, Transaction, U64};
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
-    _app: &mut App,
+    app: &mut App,
     block: &EBlock<Transaction>,
     rect: Rect,
 ) {
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
-    let normal_style = Style::default();
+    let normal_style = Style::default().fg(Color::White);
     let header_cells = [
         "Hash",
         "Type",
@@ -64,12 +65,23 @@ pub fn render<B: Backend>(
             .max()
             .unwrap_or(0)
             + 1;
-        let cells = item.iter().map(|c| Cell::from(c.to_owned()));
+        let cells = item
+            .iter()
+            .map(|c| Cell::from(c.to_owned()).fg(Color::White));
         Row::new(cells).height(height as u16).bottom_margin(1)
     });
     let t = Table::new(rows)
         .header(header)
-        .block(Block::default().borders(Borders::ALL).title("Transactions"))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Transactions")
+                .fg(if let ActiveBlock::Main = app.route.get_active_block() {
+                    Color::Green
+                } else {
+                    Color::White
+                }),
+        )
         .highlight_style(selected_style)
         .widths(&[
             Constraint::Max(15),

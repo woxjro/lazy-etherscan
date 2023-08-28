@@ -13,7 +13,7 @@ pub fn render<B: Backend>(
         .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
             Style::default().fg(Color::Green)
         } else {
-            Style::default()
+            Style::default().fg(Color::White)
         })
         .padding(Padding::horizontal(2))
         .borders(Borders::BOTTOM)
@@ -21,7 +21,7 @@ pub fn render<B: Backend>(
 
     let details = vec![
         Line::from(vec![
-            Span::raw(format!("{:<20}: ", "Fee Recipient")),
+            Span::raw(format!("{:<20}: ", "Fee Recipient")).fg(Color::White),
             Span::styled(
                 format!(
                     "{}",
@@ -36,16 +36,17 @@ pub fn render<B: Backend>(
         ]),
         //ref: https://docs.alchemy.com/docs/how-to-calculate-ethereum-miner-rewards#calculate-a-miner-reward
         //format!("Block Reward: {} ETH", /* TODO */):
-        Line::from(Span::raw(format!(
-            "{:<20}: {}",
-            "Total Difficulty",
-            block.total_difficulty.unwrap()
-        ))),
-        Line::from(Span::raw(format!(
-            "{:<20}: {} bytes",
-            "Size",
-            block.size.unwrap()
-        ))),
+        Line::from(
+            Span::raw(format!(
+                "{:<20}: {}",
+                "Total Difficulty",
+                block.total_difficulty.unwrap()
+            ))
+            .fg(Color::White),
+        ),
+        Line::from(
+            Span::raw(format!("{:<20}: {} bytes", "Size", block.size.unwrap())).fg(Color::White),
+        ),
     ];
 
     let paragraph = Paragraph::new(details)

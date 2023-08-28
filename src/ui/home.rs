@@ -23,7 +23,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let searchbar_block = if let ActiveBlock::SearchBar = app.route.get_active_block() {
         Block::default().border_style(Style::default().fg(Color::Green))
     } else {
-        Block::default().border_style(Style::default())
+        Block::default().border_style(Style::default().fg(Color::White))
     }
     .title(format!(
         "Serach by Address / Txn Hash / Block / Token / Domain Name ({})",
@@ -36,7 +36,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     .border_type(BorderType::Plain);
 
     let input = Paragraph::new(app.input.as_str())
-        .style(Style::default())
+        .style(Style::default().fg(Color::White))
         .block(searchbar_block);
     f.render_widget(input, searchbar);
 

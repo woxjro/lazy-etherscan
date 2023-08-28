@@ -13,7 +13,7 @@ pub fn render<B: Backend>(
         .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
             Style::default().fg(Color::Green)
         } else {
-            Style::default()
+            Style::default().fg(Color::White)
         })
         .padding(Padding::new(2, 2, 2, 0))
         .borders(Borders::BOTTOM)
@@ -42,7 +42,7 @@ pub fn render<B: Backend>(
 
     let lines = lines
         .iter()
-        .map(|row| Line::from(Span::raw(row)))
+        .map(|row| Line::from(Span::raw(row).fg(Color::White)))
         .collect::<Vec<_>>();
 
     let paragraph = Paragraph::new(lines)

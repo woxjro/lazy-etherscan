@@ -22,7 +22,7 @@ pub fn render<B: Backend>(
             .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
                 Style::default().fg(Color::Green)
             } else {
-                Style::default()
+                Style::default().fg(Color::White)
             })
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
@@ -34,12 +34,15 @@ pub fn render<B: Backend>(
             .split(rect) else { return; };
 
         let mut details = vec![
-            Line::from(Span::raw(format!(
-                "{:<17}: {:#x}",
-                "Transaction Hash", transaction.hash
-            ))),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: {:#x}",
+                    "Transaction Hash", transaction.hash
+                ))
+                .fg(Color::White),
+            ),
             Line::from(vec![
-                Span::raw(format!("{:<17}: ", "Status")),
+                Span::raw(format!("{:<17}: ", "Status")).fg(Color::White),
                 transaction_receipt.status.map_or(Span::raw(""), |status| {
                     if status == U64::from(0) {
                         Span::styled("Failure", Style::default().fg(Color::Red))
@@ -48,22 +51,25 @@ pub fn render<B: Backend>(
                     }
                 }),
             ]),
-            Line::from(Span::raw(format!(
-                "{:<17}: #{}",
-                "Block",
-                transaction
-                    .block_number
-                    .map_or("pending...".to_owned(), |number| number.to_string())
-            ))),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: #{}",
+                    "Block",
+                    transaction
+                        .block_number
+                        .map_or("pending...".to_owned(), |number| number.to_string())
+                ))
+                .fg(Color::White),
+            ),
             Line::from(vec![
-                Span::raw(format!("{:<17}: ", "From")),
+                Span::raw(format!("{:<17}: ", "From")).fg(Color::White),
                 Span::styled(
                     format!("{:#x}", transaction.from),
                     Style::default().fg(Color::Cyan),
                 ),
             ]),
             Line::from(vec![
-                Span::raw(format!("{:<17}: ", "To")),
+                Span::raw(format!("{:<17}: ", "To")).fg(Color::White),
                 Span::styled(
                     format!(
                         "{}",
@@ -74,35 +80,47 @@ pub fn render<B: Backend>(
                     Style::default().fg(Color::Cyan),
                 ),
             ]),
-            Line::from(Span::raw(format!(
-                "{:<17}: {}",
-                "Transaction Type",
-                transaction.transaction_type.map_or("Legacy", |ty| {
-                    if ty == U64::from(1) {
-                        "1"
-                    } else {
-                        "2(EIP-1559)"
-                    }
-                })
-            ))),
-            Line::from(Span::raw(format!("{:<17}: {}", "Gas", transaction.gas))),
-            Line::from(Span::raw(format!(
-                "{:<17}: {} ETH",
-                "Value",
-                format_ether(transaction.value)
-            ))),
-            Line::from(Span::raw(format!(
-                "{:<17}: {} ETH",
-                "Transaction Fee",
-                format_ether(
-                    transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap()
-                )
-            ))),
-            Line::from(Span::raw(format!(
-                "{:<17}: {} Gwei",
-                "Gas Price",
-                format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
-            ))),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: {}",
+                    "Transaction Type",
+                    transaction.transaction_type.map_or("Legacy", |ty| {
+                        if ty == U64::from(1) {
+                            "1"
+                        } else {
+                            "2(EIP-1559)"
+                        }
+                    })
+                ))
+                .fg(Color::White),
+            ),
+            Line::from(Span::raw(format!("{:<17}: {}", "Gas", transaction.gas)).fg(Color::White)),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: {} ETH",
+                    "Value",
+                    format_ether(transaction.value)
+                ))
+                .fg(Color::White),
+            ),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: {} ETH",
+                    "Transaction Fee",
+                    format_ether(
+                        transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap()
+                    )
+                ))
+                .fg(Color::White),
+            ),
+            Line::from(
+                Span::raw(format!(
+                    "{:<17}: {} Gwei",
+                    "Gas Price",
+                    format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
+                ))
+                .fg(Color::White),
+            ),
         ];
 
         let input_data = transaction
@@ -116,12 +134,13 @@ pub fn render<B: Backend>(
 
         for (i, row) in input_data.iter().enumerate() {
             if i == 0 {
-                details.push(Line::from(Span::raw(format!(
-                    "{:<17}: {}",
-                    "Input Data", row
-                ))));
+                details.push(Line::from(
+                    Span::raw(format!("{:<17}: {}", "Input Data", row)).fg(Color::White),
+                ));
             } else {
-                details.push(Line::from(Span::raw(format!("{:<19}{}", "", row))));
+                details.push(Line::from(
+                    Span::raw(format!("{:<19}{}", "", row)).fg(Color::White),
+                ));
             }
         }
 
@@ -138,7 +157,7 @@ pub fn render<B: Backend>(
             .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
                 Style::default().fg(Color::Green)
             } else {
-                Style::default()
+                Style::default().fg(Color::White)
             })
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)

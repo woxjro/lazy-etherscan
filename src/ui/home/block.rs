@@ -32,7 +32,7 @@ pub fn render<B: Backend>(
             .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
                 Style::default().fg(Color::Green)
             } else {
-                Style::default()
+                Style::default().fg(Color::White)
             })
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
@@ -49,7 +49,7 @@ pub fn render<B: Backend>(
             .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
                 Style::default().fg(Color::Green)
             } else {
-                Style::default()
+                Style::default().fg(Color::White)
             })
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
