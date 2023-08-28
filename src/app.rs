@@ -165,33 +165,13 @@ impl App {
     }
 
     pub fn submit_message(&mut self) {
-        if let Ok(i) = self.input.to_string().parse::<u64>() {
+        if let Ok(i) = self.input.parse::<u64>() {
             let number = U64::from(i);
             self.dispatch(IoEvent::GetBlock { number });
         }
 
-        let bytes = self
-            .input
-            .to_owned()
-            .as_bytes()
-            .chunks(2)
-            .skip(1)
-            .map(|chunk| {
-                u8::from_str_radix(std::str::from_utf8(chunk).unwrap(), 16)
-                    .expect("Failed to parse hex byte")
-            })
-            .collect::<Vec<u8>>();
-
-        if bytes.len() == 32 {
-            let mut tx_bytes: [u8; 32] = [0; 32];
-
-            for (i, &byte) in bytes.iter().enumerate() {
-                tx_bytes[i] = byte;
-            }
-
-            self.dispatch(IoEvent::GetTransactionWithReceipt {
-                transaction_hash: TxHash::from(tx_bytes),
-            });
+        if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
+            self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
         }
 
         self.input.clear();
