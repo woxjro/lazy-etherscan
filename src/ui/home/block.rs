@@ -13,36 +13,48 @@ pub fn render<B: Backend>(
     block: Option<EBlock<Transaction>>,
     rect: Rect,
 ) {
-    //TODO: remove unwrap()
-    let block = block.unwrap();
-
     let height = rect.height;
     let [detail_rect, transactions_rect] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length((height - 12)/2 + 10), Constraint::Length((height - 12)/2 + 2)].as_ref())
             .split(rect) else { return; };
 
-    transactions::render(f, app, &block, transactions_rect);
+    if let Some(block) = block {
+        transactions::render(f, app, &block, transactions_rect);
 
-    let [block_info_rect, fee_info_rect, gas_info_rect] = *Layout::default()
+        let [block_info_rect, fee_info_rect, gas_info_rect] = *Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Ratio(5,16),Constraint::Ratio(4,16),Constraint::Ratio(6,16)].as_ref())
             .split(detail_rect) else { return; };
 
-    let detail_block = Block::default()
-        .title(format!("Block #{}", block.number.unwrap()))
-        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-            Style::default().fg(Color::Green)
-        } else {
-            Style::default()
-        })
-        .padding(Padding::new(2, 2, 1, 1))
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain);
+        let detail_block = Block::default()
+            .title(format!("Block #{}", block.number.unwrap()))
+            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default()
+            })
+            .padding(Padding::new(2, 2, 1, 1))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Plain);
 
-    block_info::render(f, app, &block, block_info_rect);
-    fee_info::render(f, app, &block, fee_info_rect);
-    gas_info::render(f, app, &block, gas_info_rect);
+        block_info::render(f, app, &block, block_info_rect);
+        fee_info::render(f, app, &block, fee_info_rect);
+        gas_info::render(f, app, &block, gas_info_rect);
 
-    f.render_widget(detail_block, rect);
+        f.render_widget(detail_block, rect);
+    } else {
+        let detail_block = Block::default()
+            .title("Block Not Found")
+            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default()
+            })
+            .padding(Padding::new(2, 2, 1, 1))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Plain);
+
+        f.render_widget(detail_block, rect);
+    }
 }

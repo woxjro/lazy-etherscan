@@ -74,12 +74,7 @@ async fn start_ui<B: Backend>(
 
     loop {
         let mut app = app.lock().await;
-        match app.route.get_id() {
-            //TODO
-            _ => {
-                terminal.draw(|f| ui::ui_home(f, &mut app))?;
-            }
-        };
+        terminal.draw(|f| ui::ui_home(f, &mut app))?;
 
         if event::poll(Duration::from_millis(250))? {
             match event::read()? {

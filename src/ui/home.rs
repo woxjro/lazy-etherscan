@@ -11,12 +11,6 @@ use ratatui::{prelude::*, widgets::*};
 
 /// /home
 pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
-    //TODO
-    //if let Route::Home(_) = app.route.to_owned() {
-    //} else {
-    //  panic!()
-    //}
-
     // Wrapping block for a group
     // Just draw the block and the group on the same area and build the group
     let outer = f.size();
@@ -112,7 +106,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove this magic number
+            " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove these magic numbers
             "Block Height", "Hash", "Transactions", "Time"
         )),
         ListItem::new(format!(
@@ -121,14 +115,14 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             "-".repeat(13),
             "-".repeat(14),
             "-".repeat(15),
-        )), //TODO: remove this magic number
+        )), //TODO: remove these magic numbers
     ];
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
         let mut res = header;
 
         for block in latest_blocks.items.to_owned() {
             res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove this magic number
+                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
                 block.number.unwrap(),
                 block.hash.unwrap(),
                 block.transactions.len(),
@@ -160,7 +154,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove this magic number
+            " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove these magic numbers
             "Hash", "From", "To", "Value (ETH)"
         )),
         ListItem::new(format!(
