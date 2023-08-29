@@ -4,7 +4,7 @@ pub mod types {
     #[derive(Clone, Debug, PartialEq)]
     pub struct AddressInfo {
         pub address: Address,
-        pub ens_id: String,
+        pub ens_id: Option<String>,
         pub balance: U256,
     }
 

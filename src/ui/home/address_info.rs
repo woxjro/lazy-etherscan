@@ -27,14 +27,22 @@ pub fn render<B: Backend>(
             .constraints([Constraint::Ratio(1,1)].as_ref())
             .split(rect) else { return; };
 
-        let details = vec![Line::from(
+        let mut details = vec![];
+
+        if let Some(ens_id) = address_info.ens_id {
+            details.push(Line::from(
+                Span::raw(format!("{:<17}: {ens_id}", "FULL NAME")).fg(Color::White),
+            ));
+        }
+
+        details.push(Line::from(
             Span::raw(format!(
                 "{:<17}: {} ETH",
                 "ETH BALANCE",
                 format_ether(address_info.balance)
             ))
             .fg(Color::White),
-        )];
+        ));
 
         let details = Paragraph::new(details)
             .block(detail_block.to_owned())

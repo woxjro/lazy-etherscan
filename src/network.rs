@@ -94,13 +94,13 @@ impl<'a> Network<'a> {
         address: Address,
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
-        let resolved_name = provider.lookup_address(address).await?;
+        let ens_id = provider.lookup_address(address).await.ok();
         let balance = provider.get_balance(address, None /* TODO */).await?;
         //TODO: Not Found
         Ok(Some(AddressInfo {
             address,
             balance,
-            ens_id: resolved_name,
+            ens_id,
         }))
     }
 
