@@ -238,6 +238,23 @@ async fn start_ui<B: Backend>(
                                 }
                                 _ => {}
                             },
+                            event::KeyCode::Char('r') => match app.route.get_active_block() {
+                                ActiveBlock::LatestBlocks => {
+                                    let height = terminal.size().unwrap().height as usize;
+                                    app.latest_blocks = None;
+                                    app.dispatch(IoEvent::GetLatestBlocks {
+                                        n: (height - 3 * 4) / 2 - 4,
+                                    });
+                                }
+                                ActiveBlock::LatestTransactions => {
+                                    let height = terminal.size().unwrap().height as usize;
+                                    app.latest_transactions = None;
+                                    app.dispatch(IoEvent::GetLatestTransactions {
+                                        n: (height - 3 * 4) / 2 - 4,
+                                    });
+                                }
+                                _ => {}
+                            },
                             _ => {}
                         }
                     }

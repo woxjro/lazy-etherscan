@@ -48,8 +48,10 @@ cargo run -- --help
 The basic usage is as follows:
 - Press `q` to exit `lazy-etherscan`.
 - Press `s` to focus on the search bar, where you can perform searches for addresses, blocks, transactions, and more.
-- Press `1` to navigate to the "Latest Blocks" panel. Use `j` to move to a block below and `k` to an above block.
-- Press `2` to navigate to the "Latest Transactions" panel. Use `j` to move to a transaction below and `k` to move to a transaction above.
+- Press `1` to navigate the "Latest Blocks" panel. Use `j` to move to a block below and `k` to an above block.
+    - Press `r` to refresh the "Latest Blocks".
+- Press `2` to navigate the "Latest Transactions" panel. Use `j` to move to a transaction below and `k` to move to a transaction above.
+    - Press `r` to refresh the "Latest Transactions".
 
 
 ## Roadmap
