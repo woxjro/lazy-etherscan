@@ -1,9 +1,10 @@
-use crate::ethers::types::TransactionWithReceipt;
+use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use ethers_core::types::{Block, Transaction};
 
 #[derive(PartialEq, Clone)]
 pub enum RouteId {
     Welcome,
+    AddressInfo(Option<AddressInfo>),
     Block(Option<Block<Transaction>>),
     Transaction(Option<TransactionWithReceipt>),
 }

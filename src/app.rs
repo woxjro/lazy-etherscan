@@ -2,7 +2,7 @@ use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, Transaction, TxHash, U64};
+use ethers_core::types::{Address, Block, Transaction, TxHash, U64};
 use std::sync::mpsc::Sender;
 
 #[derive(Clone, Debug)]
@@ -156,6 +156,10 @@ impl App {
 
         if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
             self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
+        }
+
+        if let Ok(address) = self.input.parse::<Address>() {
+            self.dispatch(IoEvent::GetAddressInfo { address });
         }
 
         self.input.clear();

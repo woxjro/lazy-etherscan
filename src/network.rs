@@ -1,8 +1,8 @@
 use crate::app::{App, Statistics};
-use crate::ethers::types::TransactionWithReceipt;
+use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, BlockNumber, Transaction, TxHash, U64};
+use ethers_core::types::{Address, Block, BlockNumber, Transaction, TxHash, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -11,6 +11,7 @@ use tokio::sync::Mutex;
 
 pub enum IoEvent {
     GetStatistics,
+    GetAddressInfo { address: Address },
     GetBlock { number: U64 },
     GetTransactionWithReceipt { transaction_hash: TxHash },
     GetLatestBlocks { n: usize },
@@ -35,6 +36,14 @@ impl<'a> Network<'a> {
                 let mut app = self.app.lock().await;
                 if let Ok(statistics) = res {
                     app.statistics = statistics;
+                }
+                app.is_loading = false;
+            }
+            IoEvent::GetAddressInfo { address } => {
+                let res = Self::get_address_info(self.endpoint, address).await;
+                let mut app = self.app.lock().await;
+                if let Ok(some) = res {
+                    app.set_route(Route::new(RouteId::AddressInfo(some), ActiveBlock::Main));
                 }
                 app.is_loading = false;
             }
@@ -78,6 +87,21 @@ impl<'a> Network<'a> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let block = provider.get_block_with_txs(number).await?;
         Ok(block)
+    }
+
+    async fn get_address_info(
+        endpoint: &'a str,
+        address: Address,
+    ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let resolved_name = provider.lookup_address(address).await?;
+        let balance = provider.get_balance(address, None /* TODO */).await?;
+        //TODO: Not Found
+        Ok(Some(AddressInfo {
+            address,
+            balance,
+            ens_id: resolved_name,
+        }))
     }
 
     async fn get_transaction_with_receipt(

@@ -1,3 +1,4 @@
+mod address_info;
 mod block;
 mod statistics;
 mod transaction;
@@ -207,6 +208,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     }
 
     match app.route.get_id() {
+        RouteId::AddressInfo(address_info) => {
+            address_info::render(f, app, address_info, detail);
+        }
         RouteId::Block(block) => {
             block::render(f, app, block, detail);
         }
