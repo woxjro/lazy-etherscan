@@ -150,10 +150,14 @@ async fn start_ui<B: Backend>(
                                 }
                                 ActiveBlock::Main => {
                                     if let RouteId::Block(block) = app.route.get_id() {
-                                        app.set_route(Route::new(
-                                            RouteId::TransactionsOfBlock(block),
-                                            ActiveBlock::Main,
-                                        ));
+                                        if let Some(App::BLOCK_DETAIL_TRANSACTIONS_INDEX) =
+                                            app.block_detail_list_state.selected()
+                                        {
+                                            app.set_route(Route::new(
+                                                RouteId::TransactionsOfBlock(block),
+                                                ActiveBlock::Main,
+                                            ));
+                                        }
                                     }
                                 }
                                 _ => {}

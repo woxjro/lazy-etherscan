@@ -40,9 +40,9 @@ pub fn render<B: Backend>(
         "{:<20}: {} {} transactions",
         "Transactions ",
         if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
-            "▽"
+            "▼"
         } else {
-            "▷"
+            "▶"
         },
         block.transactions.len()
     ))
@@ -64,7 +64,7 @@ pub fn render<B: Backend>(
     //if past Shanghai
     if let Some(withdrawals) = block.withdrawals.as_ref() {
         let withdrawals_span = Span::raw(format!(
-            "{:<20}: ▷ {} withdrawals in this block",
+            "{:<20}: ▶ {} withdrawals in this block",
             "Withdrawals",
             withdrawals.len()
         ))
