@@ -46,6 +46,13 @@ pub fn render<B: Backend>(
         ));
     }
 
+    let parent_hash_spans = vec![
+        Span::raw(format!("{:<20}: ", "Parent Hash")).fg(Color::White),
+        Span::styled(
+            format!("{:#x}", block.parent_hash),
+            Style::default().fg(Color::Cyan),
+        ),
+    ];
     details.append(&mut vec![
         //format!("{:<20}: {}", "Burnt Fees", TODO),
         //format!("{:<20}: {}", "Extra Data", TODO),
@@ -53,13 +60,16 @@ pub fn render<B: Backend>(
         Line::from(
             Span::raw(format!("{:<20}: {:#x}", "Hash", block.hash.unwrap())).fg(Color::White),
         ),
-        Line::from(vec![
-            Span::raw(format!("{:<20}: ", "Parent Hash")).fg(Color::White),
-            Span::styled(
-                format!("{:#x}", block.parent_hash),
-                Style::default().fg(Color::Cyan),
-            ),
-        ]),
+        Line::from(
+            if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_PARENT_HASH_INDEX) {
+                parent_hash_spans
+                    .iter()
+                    .map(|span| span.to_owned().add_modifier(Modifier::BOLD))
+                    .collect::<Vec<_>>()
+            } else {
+                parent_hash_spans
+            },
+        ),
         Line::from(
             Span::raw(format!("{:<20}: {:#x}", "StateRoot", block.state_root)).fg(Color::White),
         ),

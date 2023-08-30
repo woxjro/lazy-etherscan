@@ -198,6 +198,20 @@ async fn start_ui<B: Backend>(
                                         }
                                     }
                                 }
+                                ActiveBlock::Main => match app.route.get_id() {
+                                    RouteId::Block(block) => {
+                                        if let Some(_) = block {
+                                            if let Some(i) = app.block_detail_list_state.selected()
+                                            {
+                                                app.block_detail_list_state
+                                                    .select(Some((i + 1) % 4));
+                                            } else {
+                                                app.block_detail_list_state.select(Some(0));
+                                            }
+                                        }
+                                    }
+                                    _ => {}
+                                },
                                 _ => {}
                             },
                             event::KeyCode::Char('k') => match app.route.get_active_block() {
@@ -236,6 +250,20 @@ async fn start_ui<B: Backend>(
                                         }
                                     }
                                 }
+                                ActiveBlock::Main => match app.route.get_id() {
+                                    RouteId::Block(block) => {
+                                        if let Some(_) = block {
+                                            if let Some(i) = app.block_detail_list_state.selected()
+                                            {
+                                                app.block_detail_list_state
+                                                    .select(Some((i + 3) % 4));
+                                            } else {
+                                                app.block_detail_list_state.select(Some(0));
+                                            }
+                                        }
+                                    }
+                                    _ => {}
+                                },
                                 _ => {}
                             },
                             event::KeyCode::Char('r') => match app.route.get_active_block() {

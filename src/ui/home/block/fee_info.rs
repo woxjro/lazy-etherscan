@@ -19,21 +19,33 @@ pub fn render<B: Backend>(
         .borders(Borders::BOTTOM)
         .border_type(BorderType::Plain);
 
-    let details = vec![
-        Line::from(vec![
-            Span::raw(format!("{:<20}: ", "Fee Recipient")).fg(Color::White),
-            Span::styled(
-                format!(
-                    "{}",
-                    if let Some(addr) = block.author {
-                        format!("{:#x}", addr)
-                    } else {
-                        format!("pending...")
-                    }
-                ),
-                Style::default().fg(Color::Cyan),
+    let fee_recipient_spans = vec![
+        Span::raw(format!("{:<20}: ", "Fee Recipient")).fg(Color::White),
+        Span::styled(
+            format!(
+                "{}",
+                if let Some(addr) = block.author {
+                    format!("{:#x}", addr)
+                } else {
+                    format!("pending...")
+                }
             ),
-        ]),
+            Style::default().fg(Color::Cyan),
+        ),
+    ];
+
+    let details = vec![
+        Line::from(
+            if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_FEE_RECIPIENT_INDEX)
+            {
+                fee_recipient_spans
+                    .iter()
+                    .map(|span| span.to_owned().add_modifier(Modifier::BOLD))
+                    .collect::<Vec<_>>()
+            } else {
+                fee_recipient_spans
+            },
+        ),
         //ref: https://docs.alchemy.com/docs/how-to-calculate-ethereum-miner-rewards#calculate-a-miner-reward
         //format!("Block Reward: {} ETH", /* TODO */):
         Line::from(

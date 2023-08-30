@@ -7,8 +7,8 @@ pub struct Spinner {
     elements: Vec<String>,
 }
 
-impl Spinner {
-    pub fn default() -> Self {
+impl Default for Spinner {
+    fn default() -> Self {
         Self {
             elements: SPINNER.iter().map(|s| s.to_string()).collect::<Vec<_>>(),
         }

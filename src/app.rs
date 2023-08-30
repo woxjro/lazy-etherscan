@@ -3,6 +3,7 @@ use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
 use ethers_core::types::{Address, Block, Transaction, TxHash, U64};
+use ratatui::widgets::ListState;
 use std::sync::mpsc::Sender;
 
 #[derive(Clone, Debug)]
@@ -53,9 +54,17 @@ pub struct App {
     pub input: String,
     /// Position of cursor in the editor area.
     pub cursor_position: usize,
+    //Block Detail
+    pub block_detail_list_state: ListState,
 }
 
 impl App {
+    // magic numbers
+    pub const BLOCK_DETAIL_TRANSACTIONS_INDEX: usize = 0;
+    pub const BLOCK_DETAIL_WITHDRAWLS_INDEX: usize = 1;
+    pub const BLOCK_DETAIL_FEE_RECIPIENT_INDEX: usize = 2;
+    pub const BLOCK_DETAIL_PARENT_HASH_INDEX: usize = 3;
+
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
             route: Route::default(),
@@ -71,6 +80,8 @@ impl App {
             input_mode: InputMode::Normal,
             input: "".to_owned(),
             cursor_position: 0,
+            //Block Detail
+            block_detail_list_state: ListState::default(),
         }
     }
 
