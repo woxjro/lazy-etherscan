@@ -134,7 +134,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     } else {
         let mut res = header.to_owned();
         res.push(ListItem::new(format!(
-            "Loading {}",
+            " Loading {}",
             Spinner::default().to_string()
         )));
         List::new(res)
@@ -184,7 +184,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     } else {
         let mut res = header.to_owned();
         res.push(ListItem::new(format!(
-            "Loading {}",
+            " Loading {}",
             Spinner::default().to_string()
         )));
         List::new(res)

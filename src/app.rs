@@ -16,7 +16,7 @@ pub struct Statistics {
 }
 
 impl Statistics {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             ether_price: None,
             market_cap: None,

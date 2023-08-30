@@ -4,7 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::{App, InputMode};
+use app::{App, InputMode, Statistics};
 use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
@@ -241,7 +241,9 @@ async fn start_ui<B: Backend>(
                             event::KeyCode::Char('r') => match app.route.get_active_block() {
                                 ActiveBlock::LatestBlocks => {
                                     let height = terminal.size().unwrap().height as usize;
+                                    app.statistics = Statistics::new();
                                     app.latest_blocks = None;
+                                    app.dispatch(IoEvent::GetStatistics);
                                     app.dispatch(IoEvent::GetLatestBlocks {
                                         n: (height - 3 * 4) / 2 - 4,
                                     });
