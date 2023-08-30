@@ -6,6 +6,7 @@ pub enum RouteId {
     Welcome,
     AddressInfo(Option<AddressInfo>),
     Block(Option<Block<Transaction>>),
+    TransactionsOfBlock(Option<Block<Transaction>>),
     Transaction(Option<TransactionWithReceipt>),
 }
 
@@ -24,13 +25,6 @@ pub struct Route {
 }
 
 impl Route {
-    pub fn default() -> Self {
-        Self {
-            id: RouteId::Welcome,
-            active_block: ActiveBlock::SearchBar,
-        }
-    }
-
     pub fn new(id: RouteId, active_block: ActiveBlock) -> Self {
         Self { id, active_block }
     }
@@ -41,5 +35,14 @@ impl Route {
 
     pub fn get_id(&self) -> RouteId {
         self.id.to_owned()
+    }
+}
+
+impl Default for Route {
+    fn default() -> Self {
+        Self {
+            id: RouteId::Welcome,
+            active_block: ActiveBlock::SearchBar,
+        }
     }
 }

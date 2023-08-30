@@ -60,6 +60,7 @@ pub struct App {
 
 impl App {
     // magic numbers
+    pub const BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT: usize = 4;
     pub const BLOCK_DETAIL_TRANSACTIONS_INDEX: usize = 0;
     pub const BLOCK_DETAIL_WITHDRAWLS_INDEX: usize = 1;
     pub const BLOCK_DETAIL_FEE_RECIPIENT_INDEX: usize = 2;

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::route::ActiveBlock;
+use crate::route::{ActiveBlock, RouteId};
 use ethers_core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
 
@@ -37,17 +37,27 @@ pub fn render<B: Backend>(
     ];
 
     let transactions_span = Span::raw(format!(
-        "{:<20}: ▷ {} transactions",
+        "{:<20}: {} {} transactions",
         "Transactions ",
+        if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
+            "▽"
+        } else {
+            "▷"
+        },
         block.transactions.len()
     ))
     .fg(Color::White);
 
     lines.push(
-        if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_TRANSACTIONS_INDEX) {
+        if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
             Line::from(transactions_span.add_modifier(Modifier::BOLD))
         } else {
-            Line::from(transactions_span)
+            if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_TRANSACTIONS_INDEX)
+            {
+                Line::from(transactions_span.add_modifier(Modifier::BOLD))
+            } else {
+                Line::from(transactions_span)
+            }
         },
     );
 

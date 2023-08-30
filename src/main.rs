@@ -148,6 +148,14 @@ async fn start_ui<B: Backend>(
                                         }
                                     }
                                 }
+                                ActiveBlock::Main => {
+                                    if let RouteId::Block(block) = app.route.get_id() {
+                                        app.set_route(Route::new(
+                                            RouteId::TransactionsOfBlock(block),
+                                            ActiveBlock::Main,
+                                        ));
+                                    }
+                                }
                                 _ => {}
                             },
                             event::KeyCode::Char('q') => {
@@ -203,8 +211,10 @@ async fn start_ui<B: Backend>(
                                         if let Some(_) = block {
                                             if let Some(i) = app.block_detail_list_state.selected()
                                             {
-                                                app.block_detail_list_state
-                                                    .select(Some((i + 1) % 4));
+                                                app.block_detail_list_state.select(Some(
+                                                    (i + 1)
+                                                        % App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT,
+                                                ));
                                             } else {
                                                 app.block_detail_list_state.select(Some(0));
                                             }
@@ -255,8 +265,11 @@ async fn start_ui<B: Backend>(
                                         if let Some(_) = block {
                                             if let Some(i) = app.block_detail_list_state.selected()
                                             {
-                                                app.block_detail_list_state
-                                                    .select(Some((i + 3) % 4));
+                                                app.block_detail_list_state.select(Some(
+                                                    (i + (App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT
+                                                        - 1))
+                                                        % App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT,
+                                                ));
                                             } else {
                                                 app.block_detail_list_state.select(Some(0));
                                             }

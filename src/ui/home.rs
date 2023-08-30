@@ -214,6 +214,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         RouteId::Block(block) => {
             block::render(f, app, block, detail);
         }
+        RouteId::TransactionsOfBlock(block) => {
+            block::render(f, app, block, detail);
+        }
         RouteId::Transaction(transaction) => {
             transaction::render(f, app, transaction, detail);
         }
