@@ -154,9 +154,31 @@ async fn start_ui<B: Backend>(
                                             app.block_detail_list_state.selected()
                                         {
                                             app.set_route(Route::new(
-                                                RouteId::TransactionsOfBlock(block),
+                                                RouteId::TransactionsOfBlock(block.to_owned()),
                                                 ActiveBlock::Main,
                                             ));
+                                        }
+
+                                        if let Some(App::BLOCK_DETAIL_WITHDRAWLS_INDEX) =
+                                            app.block_detail_list_state.selected()
+                                        {
+                                        }
+
+                                        if let Some(App::BLOCK_DETAIL_FEE_RECIPIENT_INDEX) =
+                                            app.block_detail_list_state.selected()
+                                        {
+                                            if let Some(block) = block.as_ref() {
+                                                if let Some(address) = block.author {
+                                                    app.dispatch(IoEvent::GetAddressInfo {
+                                                        address,
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        if let Some(App::BLOCK_DETAIL_PARENT_HASH_INDEX) =
+                                            app.block_detail_list_state.selected()
+                                        {
                                         }
                                     }
                                 }
