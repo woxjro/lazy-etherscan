@@ -4,7 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::{App, InputMode, Statistics};
+use app::{statistics::Statistics, App, InputMode};
 use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};

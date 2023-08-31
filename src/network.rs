@@ -1,4 +1,4 @@
-use crate::app::{App, Statistics};
+use crate::app::{statistics::Statistics, App};
 use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;

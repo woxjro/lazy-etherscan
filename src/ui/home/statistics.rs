@@ -1,4 +1,4 @@
-use crate::app::{App, Statistics};
+use crate::app::{statistics::Statistics, App};
 use crate::widget::Spinner;
 use ratatui::{prelude::*, widgets::*};
 
