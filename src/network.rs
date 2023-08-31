@@ -2,7 +2,7 @@ use crate::app::{statistics::Statistics, App};
 use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
-use ethers_core::types::{Address, Block, BlockNumber, Transaction, TxHash, U64};
+use ethers_core::types::{Address, Block, BlockId, BlockNumber, Transaction, TxHash, H256, U64};
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -13,6 +13,7 @@ pub enum IoEvent {
     GetStatistics,
     GetAddressInfo { address: Address },
     GetBlock { number: U64 },
+    GetBlockByHash { hash: H256 },
     GetTransactionWithReceipt { transaction_hash: TxHash },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
@@ -55,6 +56,14 @@ impl<'a> Network<'a> {
                 }
                 app.is_loading = false;
             }
+            IoEvent::GetBlockByHash { hash } => {
+                let res = Self::get_block(self.endpoint, hash).await;
+                let mut app = self.app.lock().await;
+                if let Ok(some) = res {
+                    app.set_route(Route::new(RouteId::Block(some), ActiveBlock::Main));
+                }
+                app.is_loading = false;
+            }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
                 let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
                 let mut app = self.app.lock().await;
@@ -80,12 +89,12 @@ impl<'a> Network<'a> {
         }
     }
 
-    async fn get_block(
+    async fn get_block<T: Into<BlockId> + Send + Sync>(
         endpoint: &'a str,
-        number: U64,
+        block_hash_or_number: T,
     ) -> Result<Option<Block<Transaction>>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
-        let block = provider.get_block_with_txs(number).await?;
+        let block = provider.get_block_with_txs(block_hash_or_number).await?;
         Ok(block)
     }
 

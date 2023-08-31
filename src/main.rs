@@ -170,7 +170,13 @@ async fn start_ui<B: Backend>(
                                                         }
                                                     }
                                                 }
-                                                SelectableBlockDetailItem::ParentHash => {}
+                                                SelectableBlockDetailItem::ParentHash => {
+                                                    if let Some(block) = block.as_ref() {
+                                                        app.dispatch(IoEvent::GetBlockByHash {
+                                                            hash: block.parent_hash,
+                                                        });
+                                                    }
+                                                }
                                             }
                                         }
                                     }
