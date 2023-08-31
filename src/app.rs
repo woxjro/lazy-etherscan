@@ -1,3 +1,4 @@
+pub mod block;
 pub mod statistics;
 use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
@@ -31,13 +32,6 @@ pub struct App {
 }
 
 impl App {
-    // magic numbers
-    pub const BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT: usize = 4;
-    pub const BLOCK_DETAIL_TRANSACTIONS_INDEX: usize = 0;
-    pub const BLOCK_DETAIL_WITHDRAWLS_INDEX: usize = 1;
-    pub const BLOCK_DETAIL_FEE_RECIPIENT_INDEX: usize = 2;
-    pub const BLOCK_DETAIL_PARENT_HASH_INDEX: usize = 3;
-
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
             route: Route::default(),

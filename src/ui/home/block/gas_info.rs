@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{block::SelectableBlockDetailItem, App};
 use crate::route::ActiveBlock;
 use ethers_core::types::{Block as EBlock, Transaction};
 use ethers_core::utils::{format_ether, format_units};
@@ -61,7 +61,9 @@ pub fn render<B: Backend>(
             Span::raw(format!("{:<20}: {:#x}", "Hash", block.hash.unwrap())).fg(Color::White),
         ),
         Line::from(
-            if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_PARENT_HASH_INDEX) {
+            if app.block_detail_list_state.selected()
+                == Some(SelectableBlockDetailItem::ParentHash.into())
+            {
                 parent_hash_spans
                     .iter()
                     .map(|span| span.to_owned().add_modifier(Modifier::BOLD))

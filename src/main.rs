@@ -4,7 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::{statistics::Statistics, App, InputMode};
+use app::{block::SelectableBlockDetailItem, statistics::Statistics, App, InputMode};
 use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
@@ -150,35 +150,28 @@ async fn start_ui<B: Backend>(
                                 }
                                 ActiveBlock::Main => {
                                     if let RouteId::Block(block) = app.route.get_id() {
-                                        if let Some(App::BLOCK_DETAIL_TRANSACTIONS_INDEX) =
-                                            app.block_detail_list_state.selected()
-                                        {
-                                            app.set_route(Route::new(
-                                                RouteId::TransactionsOfBlock(block.to_owned()),
-                                                ActiveBlock::Main,
-                                            ));
-                                        }
-
-                                        if let Some(App::BLOCK_DETAIL_WITHDRAWLS_INDEX) =
-                                            app.block_detail_list_state.selected()
-                                        {
-                                        }
-
-                                        if let Some(App::BLOCK_DETAIL_FEE_RECIPIENT_INDEX) =
-                                            app.block_detail_list_state.selected()
-                                        {
-                                            if let Some(block) = block.as_ref() {
-                                                if let Some(address) = block.author {
-                                                    app.dispatch(IoEvent::GetAddressInfo {
-                                                        address,
-                                                    });
+                                        if let Some(i) = app.block_detail_list_state.selected() {
+                                            match SelectableBlockDetailItem::from(i) {
+                                                SelectableBlockDetailItem::Transactions => {
+                                                    app.set_route(Route::new(
+                                                        RouteId::TransactionsOfBlock(
+                                                            block.to_owned(),
+                                                        ),
+                                                        ActiveBlock::Main,
+                                                    ));
                                                 }
+                                                SelectableBlockDetailItem::Withdrawls => {}
+                                                SelectableBlockDetailItem::FeeRecipient => {
+                                                    if let Some(block) = block.as_ref() {
+                                                        if let Some(address) = block.author {
+                                                            app.dispatch(IoEvent::GetAddressInfo {
+                                                                address,
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                                SelectableBlockDetailItem::ParentHash => {}
                                             }
-                                        }
-
-                                        if let Some(App::BLOCK_DETAIL_PARENT_HASH_INDEX) =
-                                            app.block_detail_list_state.selected()
-                                        {
                                         }
                                     }
                                 }
@@ -234,15 +227,18 @@ async fn start_ui<B: Backend>(
                                 }
                                 ActiveBlock::Main => match app.route.get_id() {
                                     RouteId::Block(block) => {
-                                        if let Some(_) = block {
+                                        if let Some(block) = block.as_ref() {
                                             if let Some(i) = app.block_detail_list_state.selected()
                                             {
                                                 app.block_detail_list_state.select(Some(
-                                                    (i + 1)
-                                                        % App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT,
+                                                    SelectableBlockDetailItem::from(i)
+                                                        .next(block)
+                                                        .into(),
                                                 ));
                                             } else {
-                                                app.block_detail_list_state.select(Some(0));
+                                                app.block_detail_list_state.select(Some(
+                                                    SelectableBlockDetailItem::Transactions.into(),
+                                                ));
                                             }
                                         }
                                     }
@@ -288,16 +284,18 @@ async fn start_ui<B: Backend>(
                                 }
                                 ActiveBlock::Main => match app.route.get_id() {
                                     RouteId::Block(block) => {
-                                        if let Some(_) = block {
+                                        if let Some(block) = block.as_ref() {
                                             if let Some(i) = app.block_detail_list_state.selected()
                                             {
                                                 app.block_detail_list_state.select(Some(
-                                                    (i + (App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT
-                                                        - 1))
-                                                        % App::BLOCK_DETAIL_SELECTABLE_ITEMS_COUNT,
+                                                    SelectableBlockDetailItem::from(i)
+                                                        .previous(block)
+                                                        .into(),
                                                 ));
                                             } else {
-                                                app.block_detail_list_state.select(Some(0));
+                                                app.block_detail_list_state.select(Some(
+                                                    SelectableBlockDetailItem::Transactions.into(),
+                                                ));
                                             }
                                         }
                                     }

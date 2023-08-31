@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{block::SelectableBlockDetailItem, App};
 use crate::route::ActiveBlock;
 use ethers_core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
@@ -36,7 +36,8 @@ pub fn render<B: Backend>(
 
     let details = vec![
         Line::from(
-            if app.block_detail_list_state.selected() == Some(App::BLOCK_DETAIL_FEE_RECIPIENT_INDEX)
+            if app.block_detail_list_state.selected()
+                == Some(SelectableBlockDetailItem::FeeRecipient.into())
             {
                 fee_recipient_spans
                     .iter()
