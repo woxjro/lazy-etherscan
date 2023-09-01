@@ -29,7 +29,7 @@ pub fn render<B: Backend>(
             Span::raw(format!(
                 "{:<20}: {}",
                 "Timestamp",
-                block.time().unwrap().to_string()
+                block.time().map_or("".to_string(), |time| time.to_string())
             ))
             .fg(Color::White),
         ),
