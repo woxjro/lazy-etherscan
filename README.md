@@ -6,7 +6,7 @@
     <a href="https://github.com/woxjro/lazy-etherscan/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/woxjro/lazy-etherscan?style=for-the-badge" height="20"></a>
 </div>
 
-![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/15956e50-75a8-4f7f-8c6e-095710c33253)
+![demo](https://github.com/woxjro/lazy-etherscan/assets/63214188/5b880d7f-71a7-40e5-9aad-6cd72892f626)
 
 <details>
  <summary><strong>Table of contents</strong></summary>
@@ -64,7 +64,7 @@ In the current state of this project, I plan to implement the following function
     - [x] Display a list of the latest transactions.
     - [x] Display details of a transaction being focused.
 - [ ] Search Functionality
-    - [ ] by Address
+    - [x] by Address
         - [ ] Implement search results screen.
     - [x] by Txn Hash
         - [x] Implement search results screen.
