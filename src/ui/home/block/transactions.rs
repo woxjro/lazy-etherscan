@@ -19,7 +19,7 @@ pub fn render<B: Backend>(
         "From",
         "To",
         "Value (ETH)",
-        "Fee",
+        //"Fee",
         "Gas Price (Gwei)",
     ]
     .iter()
@@ -63,8 +63,8 @@ pub fn render<B: Backend>(
                 Cell::from(tx.to.map_or("".to_owned(), |to| format!("{to}"))).fg(Color::White),
                 Cell::from(format!("{}", format_ether(tx.value))).fg(Color::White),
                 //TODO:format!( "{}", format_ether(tx.gas_price.unwrap() * tx_receipt.gas_used)),
-                //transaction_receipt.gas_usedが必要
-                Cell::from(format!("")).fg(Color::White),
+                //transaction_receipt.gas_usedが必要 ref: https://hackmd.io/@tvanepps/1559-wallets
+                //Cell::from(format!("")).fg(Color::White),
                 Cell::from(format!(
                     "{}",
                     format_units(tx.gas_price.unwrap(), "gwei").unwrap()
@@ -98,7 +98,7 @@ pub fn render<B: Backend>(
             Constraint::Max(12), //From
             Constraint::Max(12), //To
             Constraint::Max(20), //Value (ETH)
-            Constraint::Max(10), //Fee
+            //Constraint::Max(10), //Fee
             Constraint::Max(20), //Gas Price (Gwei)
         ]);
 
