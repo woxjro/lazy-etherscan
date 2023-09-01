@@ -248,6 +248,21 @@ async fn start_ui<B: Backend>(
                                             }
                                         }
                                     }
+                                    RouteId::TransactionsOfBlock(block) => {
+                                        if let Some(block) = block.as_ref() {
+                                            if block.transactions.len() > 0 {
+                                                if let Some(i) =
+                                                    app.transactions_table_state.selected()
+                                                {
+                                                    app.transactions_table_state.select(Some(
+                                                        (i + 1) % block.transactions.len(),
+                                                    ));
+                                                } else {
+                                                    app.transactions_table_state.select(Some(0));
+                                                }
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 },
                                 _ => {}
@@ -302,6 +317,22 @@ async fn start_ui<B: Backend>(
                                                 app.block_detail_list_state.select(Some(
                                                     SelectableBlockDetailItem::Transactions.into(),
                                                 ));
+                                            }
+                                        }
+                                    }
+                                    RouteId::TransactionsOfBlock(block) => {
+                                        if let Some(block) = block.as_ref() {
+                                            if block.transactions.len() > 0 {
+                                                if let Some(i) =
+                                                    app.transactions_table_state.selected()
+                                                {
+                                                    app.transactions_table_state.select(Some(
+                                                        (i + block.transactions.len() - 1)
+                                                            % block.transactions.len(),
+                                                    ));
+                                                } else {
+                                                    app.transactions_table_state.select(Some(0));
+                                                }
                                             }
                                         }
                                     }

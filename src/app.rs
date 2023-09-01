@@ -5,7 +5,7 @@ use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
 use ethers_core::types::{Address, Block, Transaction, TxHash, U64};
-use ratatui::widgets::ListState;
+use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::sync::mpsc::Sender;
 
@@ -29,6 +29,7 @@ pub struct App {
     pub cursor_position: usize,
     //Block Detail
     pub block_detail_list_state: ListState,
+    pub transactions_table_state: TableState,
 }
 
 impl App {
@@ -49,6 +50,7 @@ impl App {
             cursor_position: 0,
             //Block Detail
             block_detail_list_state: ListState::default(),
+            transactions_table_state: TableState::default(),
         }
     }
 

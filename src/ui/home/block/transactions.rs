@@ -10,7 +10,7 @@ pub fn render<B: Backend>(
     block: &EBlock<Transaction>,
     rect: Rect,
 ) {
-    let selected_style = Style::default().add_modifier(Modifier::REVERSED);
+    let selected_style = Style::default().add_modifier(Modifier::BOLD);
     let normal_style = Style::default().fg(Color::White);
     let header_cells = [
         "Hash",
@@ -70,7 +70,7 @@ pub fn render<B: Backend>(
             .map(|c| Cell::from(c.to_owned()).fg(Color::White));
         Row::new(cells).height(height as u16).bottom_margin(1)
     });
-    let t = Table::new(rows)
+    let t = Table::new(rows.to_owned())
         .header(header)
         .block(
             Block::default()
@@ -92,5 +92,6 @@ pub fn render<B: Backend>(
             Constraint::Max(10),
             Constraint::Max(20),
         ]);
-    f.render_stateful_widget(t, rect, &mut TableState::default());
+
+    f.render_stateful_widget(t, rect, &mut app.transactions_table_state);
 }
