@@ -148,8 +148,8 @@ async fn start_ui<B: Backend>(
                                         }
                                     }
                                 }
-                                ActiveBlock::Main => {
-                                    if let RouteId::Block(block) = app.route.get_id() {
+                                ActiveBlock::Main => match app.route.get_id() {
+                                    RouteId::Block(block) => {
                                         if let Some(i) = app.block_detail_list_state.selected() {
                                             match SelectableBlockDetailItem::from(i) {
                                                 SelectableBlockDetailItem::Transactions => {
@@ -180,7 +180,24 @@ async fn start_ui<B: Backend>(
                                             }
                                         }
                                     }
-                                }
+                                    RouteId::TransactionsOfBlock(block) => {
+                                        if let Some(block) = block.as_ref() {
+                                            if let Some(i) = app.transactions_table_state.selected()
+                                            {
+                                                if let Some(transaction) =
+                                                    block.transactions.iter().nth(i)
+                                                {
+                                                    app.dispatch(
+                                                        IoEvent::GetTransactionWithReceipt {
+                                                            transaction_hash: transaction.hash,
+                                                        },
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                    _ => {}
+                                },
                                 _ => {}
                             },
                             event::KeyCode::Char('q') => {
