@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::route::ActiveBlock;
+use crate::route::{ActiveBlock, RouteId};
 use ethers_core::types::{Block as EBlock, Transaction, U64};
 use ethers_core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
@@ -85,7 +85,11 @@ pub fn render<B: Backend>(
                 .borders(Borders::ALL)
                 .title("Transactions")
                 .fg(if let ActiveBlock::Main = app.route.get_active_block() {
-                    Color::Green
+                    if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
+                        Color::Green
+                    } else {
+                        Color::White
+                    }
                 } else {
                     Color::White
                 }),

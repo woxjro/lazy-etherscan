@@ -11,7 +11,11 @@ pub fn render<B: Backend>(
 ) {
     let detail_block = Block::default()
         .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-            Style::default().fg(Color::Green)
+            if let RouteId::Block(_) = app.route.get_id() {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default().fg(Color::White)
+            }
         } else {
             Style::default().fg(Color::White)
         })
