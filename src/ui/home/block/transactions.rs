@@ -14,6 +14,7 @@ pub fn render<B: Backend>(
     let normal_style = Style::default().fg(Color::White);
     let header_cells = [
         "Hash",
+        "Method",
         "Type",
         "From",
         "To",
@@ -32,8 +33,17 @@ pub fn render<B: Backend>(
         .iter()
         .map(|tx| {
             vec![
-                format!("{}", tx.hash),
-                format!(
+                Cell::from(format!("{}", tx.hash)).fg(Color::White),
+                if let Some(_) = tx.to {
+                    if tx.input.len() >= 4 {
+                        Cell::from("ContractExecution").fg(Color::LightYellow) //TODO
+                    } else {
+                        Cell::from("Transfer").fg(Color::LightMagenta)
+                    }
+                } else {
+                    Cell::from("ContractDeployment").fg(Color::LightCyan)
+                },
+                Cell::from(format!(
                     "{}",
                     match tx.transaction_type {
                         Some(i) => {
@@ -47,29 +57,27 @@ pub fn render<B: Backend>(
                         }
                         None => "Legacy",
                     }
-                ),
-                format!("{}", tx.from),
-                tx.to.map_or("".to_owned(), |to| format!("{to}")),
-                format!("{}", format_ether(tx.value)),
+                ))
+                .fg(Color::White),
+                Cell::from(format!("{}", tx.from)).fg(Color::White),
+                Cell::from(tx.to.map_or("".to_owned(), |to| format!("{to}"))).fg(Color::White),
+                Cell::from(format!("{}", format_ether(tx.value))).fg(Color::White),
                 //TODO:format!( "{}", format_ether(tx.gas_price.unwrap() * tx_receipt.gas_used)),
                 //transaction_receipt.gas_usedが必要
-                format!(""),
-                format!("{}", format_units(tx.gas_price.unwrap(), "gwei").unwrap()),
+                Cell::from(format!("")).fg(Color::White),
+                Cell::from(format!(
+                    "{}",
+                    format_units(tx.gas_price.unwrap(), "gwei").unwrap()
+                ))
+                .fg(Color::White),
             ]
         })
         .collect::<Vec<_>>();
-    let rows = items.iter().map(|item| {
-        let height = item
-            .iter()
-            .map(|content| content.chars().filter(|c| *c == '\n').count())
-            .max()
-            .unwrap_or(0)
-            + 1;
-        let cells = item
-            .iter()
-            .map(|c| Cell::from(c.to_owned()).fg(Color::White));
-        Row::new(cells).height(height as u16).bottom_margin(1)
-    });
+
+    let rows = items
+        .iter()
+        .map(|cells| Row::new(cells.to_owned()).height(1).bottom_margin(1));
+
     let t = Table::new(rows.to_owned())
         .header(header)
         .block(
@@ -84,13 +92,14 @@ pub fn render<B: Backend>(
         )
         .highlight_style(selected_style)
         .widths(&[
-            Constraint::Max(15),
-            Constraint::Max(10),
-            Constraint::Max(15),
-            Constraint::Max(15),
-            Constraint::Max(20),
-            Constraint::Max(10),
-            Constraint::Max(20),
+            Constraint::Max(12), //Hash
+            Constraint::Max(18), //Method
+            Constraint::Max(10), //Type
+            Constraint::Max(12), //From
+            Constraint::Max(12), //To
+            Constraint::Max(20), //Value (ETH)
+            Constraint::Max(10), //Fee
+            Constraint::Max(20), //Gas Price (Gwei)
         ]);
 
     f.render_stateful_widget(t, rect, &mut app.transactions_table_state);
