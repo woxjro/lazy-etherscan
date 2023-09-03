@@ -4,7 +4,10 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::{block::SelectableBlockDetailItem, statistics::Statistics, App, InputMode};
+use app::{
+    block::SelectableBlockDetailItem, statistics::Statistics,
+    transaction::SelectableTransactionDetailItem, App, InputMode,
+};
 use clap::Parser;
 use crossterm::{event, execute, terminal};
 use network::{IoEvent, Network};
@@ -196,6 +199,34 @@ async fn start_ui<B: Backend>(
                                             }
                                         }
                                     }
+                                    RouteId::Transaction(transaction) => {
+                                        if let Some(i) =
+                                            app.transaction_detail_list_state.selected()
+                                        {
+                                            match SelectableTransactionDetailItem::from(i) {
+                                                SelectableTransactionDetailItem::From => {
+                                                    if let Some(transaction) = transaction.as_ref()
+                                                    {
+                                                        app.dispatch(IoEvent::GetAddressInfo {
+                                                            address: transaction.transaction.from,
+                                                        });
+                                                    }
+                                                }
+                                                SelectableTransactionDetailItem::To => {
+                                                    if let Some(transaction) = transaction.as_ref()
+                                                    {
+                                                        if let Some(address) =
+                                                            transaction.transaction.to
+                                                        {
+                                                            app.dispatch(IoEvent::GetAddressInfo {
+                                                                address,
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 },
                                 _ => {}
@@ -280,6 +311,23 @@ async fn start_ui<B: Backend>(
                                             }
                                         }
                                     }
+                                    RouteId::Transaction(transaction) => {
+                                        if let Some(transaction) = transaction.as_ref() {
+                                            if let Some(i) =
+                                                app.transaction_detail_list_state.selected()
+                                            {
+                                                app.transaction_detail_list_state.select(Some(
+                                                    SelectableTransactionDetailItem::from(i)
+                                                        .next(transaction)
+                                                        .into(),
+                                                ));
+                                            } else {
+                                                app.transaction_detail_list_state.select(Some(
+                                                    SelectableTransactionDetailItem::From.into(),
+                                                ));
+                                            }
+                                        }
+                                    }
                                     _ => {}
                                 },
                                 _ => {}
@@ -350,6 +398,23 @@ async fn start_ui<B: Backend>(
                                                 } else {
                                                     app.transactions_table_state.select(Some(0));
                                                 }
+                                            }
+                                        }
+                                    }
+                                    RouteId::Transaction(transaction) => {
+                                        if let Some(transaction) = transaction.as_ref() {
+                                            if let Some(i) =
+                                                app.transaction_detail_list_state.selected()
+                                            {
+                                                app.transaction_detail_list_state.select(Some(
+                                                    SelectableTransactionDetailItem::from(i)
+                                                        .previous(transaction)
+                                                        .into(),
+                                                ));
+                                            } else {
+                                                app.transaction_detail_list_state.select(Some(
+                                                    SelectableTransactionDetailItem::From.into(),
+                                                ));
                                             }
                                         }
                                     }

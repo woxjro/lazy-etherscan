@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::{transaction::SelectableTransactionDetailItem, App};
 use crate::ethers::types::TransactionWithReceipt;
 use crate::route::ActiveBlock;
 use ethers_core::types::U64;
@@ -61,25 +61,66 @@ pub fn render<B: Backend>(
                 ))
                 .fg(Color::White),
             ),
-            Line::from(vec![
-                Span::raw(format!("{:<17}: ", "From")).fg(Color::White),
-                Span::styled(
-                    format!("{:#x}", transaction.from),
-                    Style::default().fg(Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
-                Span::raw(format!("{:<17}: ", "To")).fg(Color::White),
-                Span::styled(
-                    format!(
-                        "{}",
-                        transaction
-                            .to
-                            .map_or("".to_owned(), |to| format!("{:#x}", to)),
-                    ),
-                    Style::default().fg(Color::Cyan),
-                ),
-            ]),
+            Line::from(
+                if app.transaction_detail_list_state.selected()
+                    == Some(SelectableTransactionDetailItem::From.into())
+                {
+                    vec![
+                        Span::raw(format!("{:<17}: ", "From"))
+                            .fg(Color::White)
+                            .add_modifier(Modifier::BOLD),
+                        Span::styled(
+                            format!("{:#x}", transaction.from),
+                            Style::default()
+                                .fg(Color::Cyan)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                    ]
+                } else {
+                    vec![
+                        Span::raw(format!("{:<17}: ", "From")).fg(Color::White),
+                        Span::styled(
+                            format!("{:#x}", transaction.from),
+                            Style::default().fg(Color::Cyan),
+                        ),
+                    ]
+                },
+            ),
+            Line::from(
+                if app.transaction_detail_list_state.selected()
+                    == Some(SelectableTransactionDetailItem::To.into())
+                {
+                    vec![
+                        Span::raw(format!("{:<17}: ", "To"))
+                            .fg(Color::White)
+                            .add_modifier(Modifier::BOLD),
+                        Span::styled(
+                            format!(
+                                "{}",
+                                transaction
+                                    .to
+                                    .map_or("".to_owned(), |to| format!("{:#x}", to)),
+                            ),
+                            Style::default()
+                                .fg(Color::Cyan)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                    ]
+                } else {
+                    vec![
+                        Span::raw(format!("{:<17}: ", "To")).fg(Color::White),
+                        Span::styled(
+                            format!(
+                                "{}",
+                                transaction
+                                    .to
+                                    .map_or("".to_owned(), |to| format!("{:#x}", to)),
+                            ),
+                            Style::default().fg(Color::Cyan),
+                        ),
+                    ]
+                },
+            ),
             Line::from(
                 Span::raw(format!(
                     "{:<17}: {}",
