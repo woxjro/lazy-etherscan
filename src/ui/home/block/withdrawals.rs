@@ -43,7 +43,7 @@ pub fn render<B: Backend>(
                 .borders(Borders::ALL)
                 .title("Transactions")
                 .fg(if let ActiveBlock::Main = app.route.get_active_block() {
-                    if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
+                    if let RouteId::WithdrawalsOfBlock(_) = app.route.get_id() {
                         Color::Green
                     } else {
                         Color::White
@@ -55,10 +55,10 @@ pub fn render<B: Backend>(
         .highlight_style(selected_style)
         .widths(&[
             Constraint::Max(12), //Index
-            Constraint::Max(12), //Validator Index
+            Constraint::Max(16), //Validator Index
             Constraint::Max(12), //Address
             Constraint::Max(12), //Amount
         ]);
 
-    f.render_stateful_widget(t, rect, &mut app.transactions_table_state);
+    f.render_stateful_widget(t, rect, &mut app.withdrawals_table_state);
 }

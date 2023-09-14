@@ -69,8 +69,13 @@ pub fn render<B: Backend>(
     //if past Shanghai
     if let Some(withdrawals) = block.withdrawals.as_ref() {
         let withdrawals_span = Span::raw(format!(
-            "{:<20}: ▶ {} withdrawals in this block",
+            "{:<20}: {} {} withdrawals in this block",
             "Withdrawals",
+            if let RouteId::WithdrawalsOfBlock(_) = app.route.get_id() {
+                "▼"
+            } else {
+                "▶"
+            },
             withdrawals.len()
         ))
         .fg(Color::White);

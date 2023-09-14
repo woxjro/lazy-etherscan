@@ -163,7 +163,14 @@ async fn start_ui<B: Backend>(
                                                         ActiveBlock::Main,
                                                     ));
                                                 }
-                                                SelectableBlockDetailItem::Withdrawls => {}
+                                                SelectableBlockDetailItem::Withdrawls => {
+                                                    app.set_route(Route::new(
+                                                        RouteId::WithdrawalsOfBlock(
+                                                            block.to_owned(),
+                                                        ),
+                                                        ActiveBlock::Main,
+                                                    ));
+                                                }
                                                 SelectableBlockDetailItem::FeeRecipient => {
                                                     if let Some(block) = block.as_ref() {
                                                         if let Some(address) = block.author {
@@ -311,6 +318,20 @@ async fn start_ui<B: Backend>(
                                             }
                                         }
                                     }
+                                    RouteId::WithdrawalsOfBlock(block) => {
+                                        if let Some(block) = block.as_ref() {
+                                            if let Some(withdrawals) = block.withdrawals.as_ref() {
+                                                if let Some(i) =
+                                                    app.withdrawals_table_state.selected()
+                                                {
+                                                    app.withdrawals_table_state
+                                                        .select(Some((i + 1) % withdrawals.len()));
+                                                } else {
+                                                    app.withdrawals_table_state.select(Some(0));
+                                                }
+                                            }
+                                        }
+                                    }
                                     RouteId::Transaction(transaction) => {
                                         if let Some(transaction) = transaction.as_ref() {
                                             if let Some(i) =
@@ -397,6 +418,22 @@ async fn start_ui<B: Backend>(
                                                     ));
                                                 } else {
                                                     app.transactions_table_state.select(Some(0));
+                                                }
+                                            }
+                                        }
+                                    }
+                                    RouteId::WithdrawalsOfBlock(block) => {
+                                        if let Some(block) = block.as_ref() {
+                                            if let Some(withdrawals) = block.withdrawals.as_ref() {
+                                                if let Some(i) =
+                                                    app.withdrawals_table_state.selected()
+                                                {
+                                                    app.withdrawals_table_state.select(Some(
+                                                        (i + withdrawals.len() - 1)
+                                                            % withdrawals.len(),
+                                                    ));
+                                                } else {
+                                                    app.withdrawals_table_state.select(Some(0));
                                                 }
                                             }
                                         }

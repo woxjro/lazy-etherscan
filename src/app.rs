@@ -31,6 +31,7 @@ pub struct App {
     //Block Detail
     pub block_detail_list_state: ListState,
     pub transactions_table_state: TableState,
+    pub withdrawals_table_state: TableState,
     //Transaction Detail
     pub transaction_detail_list_state: ListState,
 }
@@ -54,6 +55,7 @@ impl App {
             //Block Detail
             block_detail_list_state: ListState::default(),
             transactions_table_state: TableState::default(),
+            withdrawals_table_state: TableState::default(),
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
         }
