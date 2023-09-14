@@ -7,6 +7,7 @@ pub enum RouteId {
     AddressInfo(Option<AddressInfo>),
     Block(Option<Block<Transaction>>),
     TransactionsOfBlock(Option<Block<Transaction>>),
+    WithdrawalsOfBlock(Option<Block<Transaction>>),
     Transaction(Option<TransactionWithReceipt>),
 }
 
