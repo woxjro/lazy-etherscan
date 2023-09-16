@@ -41,7 +41,7 @@ pub fn render<B: Backend>(
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title("Transactions")
+                .title("Withdrawals")
                 .fg(if let ActiveBlock::Main = app.route.get_active_block() {
                     if let RouteId::WithdrawalsOfBlock(_) = app.route.get_id() {
                         Color::Green
