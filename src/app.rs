@@ -1,4 +1,5 @@
 pub mod block;
+pub mod event_handling;
 pub mod statistics;
 pub mod transaction;
 use crate::ethers::types::TransactionWithReceipt;
