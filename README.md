@@ -57,26 +57,7 @@ The basic usage is as follows:
 
 
 ## Roadmap
-In the current state of this project, I plan to implement the following functionalities:
-- [ ] Display statistics about Ethereum.
-- [x] Latest Blocks
-    - [x] Display a list of the latest blocks.
-    - [x] Display details of a block being focused.
-- [x] Latest Transactions
-    - [x] Display a list of the latest transactions.
-    - [x] Display details of a transaction being focused.
-- [ ] Search Functionality
-    - [x] by Address
-        - [ ] Implement search results screen.
-    - [x] by Txn Hash
-        - [x] Implement search results screen.
-    - [x] by Block
-        - [x] Implement search results screen.
-    - [ ] by Token
-        - [ ] Implement search results screen.
-    - [ ] by Domain Name
-        - [ ] Implement search results screen.
-
+Please see [this issue](https://github.com/woxjro/lazy-etherscan/issues/1).
 
 ## Contributing
 This project is currently in the Proof of Concept (PoC) stage.
