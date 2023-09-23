@@ -17,7 +17,7 @@ pub enum InputMode {
 }
 
 pub struct App {
-    route: Route,
+    routes: Vec<Route>,
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
     pub statistics: Statistics,
@@ -40,7 +40,7 @@ pub struct App {
 impl App {
     pub fn new(io_tx: Sender<IoEvent>) -> App {
         App {
-            route: Route::default(),
+            routes: vec![Route::default()],
             is_loading: false,
             io_tx: Some(io_tx),
             statistics: Statistics::new(),
@@ -63,15 +63,20 @@ impl App {
     }
 
     pub fn get_current_route(&self) -> Route {
-        self.route.to_owned()
+        self.routes
+            .last()
+            .map_or(Route::default(), |route| route.to_owned())
     }
 
     pub fn set_route(&mut self, route: Route) {
-        self.route = route;
+        self.routes.push(route);
     }
 
     pub fn change_active_block(&mut self, active_block: ActiveBlock) {
-        self.route = Route::new(self.route.get_id(), active_block);
+        let current_route = self.get_current_route();
+        self.routes.pop();
+        self.routes
+            .push(Route::new(current_route.get_id(), active_block));
     }
 
     // Send a network event to the network thread
