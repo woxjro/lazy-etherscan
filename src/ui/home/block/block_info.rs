@@ -10,15 +10,17 @@ pub fn render<B: Backend>(
     rect: Rect,
 ) {
     let detail_block = Block::default()
-        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-            if let RouteId::Block(_) = app.route.get_id() {
-                Style::default().fg(Color::Green)
+        .border_style(
+            if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                if let RouteId::Block(_) = app.get_current_route().get_id() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                }
             } else {
                 Style::default().fg(Color::White)
-            }
-        } else {
-            Style::default().fg(Color::White)
-        })
+            },
+        )
         .padding(Padding::new(2, 2, 2, 0))
         .borders(Borders::BOTTOM)
         .border_type(BorderType::Plain);
@@ -43,7 +45,7 @@ pub fn render<B: Backend>(
     let transactions_span = Span::raw(format!(
         "{:<20}: {} {} transactions",
         "Transactions ",
-        if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
+        if let RouteId::TransactionsOfBlock(_) = app.get_current_route().get_id() {
             "▼"
         } else {
             "▶"
@@ -53,7 +55,7 @@ pub fn render<B: Backend>(
     .fg(Color::White);
 
     lines.push(
-        if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
+        if let RouteId::TransactionsOfBlock(_) = app.get_current_route().get_id() {
             Line::from(transactions_span.add_modifier(Modifier::BOLD))
         } else {
             if app.block_detail_list_state.selected()
@@ -71,7 +73,7 @@ pub fn render<B: Backend>(
         let withdrawals_span = Span::raw(format!(
             "{:<20}: {} {} withdrawals in this block",
             "Withdrawals",
-            if let RouteId::WithdrawalsOfBlock(_) = app.route.get_id() {
+            if let RouteId::WithdrawalsOfBlock(_) = app.get_current_route().get_id() {
                 "▼"
             } else {
                 "▶"

@@ -24,20 +24,21 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         return;
     };
 
-    let searchbar_block = if let ActiveBlock::SearchBar = app.route.get_active_block() {
-        Block::default().border_style(Style::default().fg(Color::Green))
-    } else {
-        Block::default().border_style(Style::default().fg(Color::White))
-    }
-    .title(format!(
-        "Serach by Address / Txn Hash / Block / Token / Domain Name ({})",
-        match app.input_mode {
-            InputMode::Normal => "Press 'q' to exit, 'i' to start editing.",
-            InputMode::Editing => "Press 'Esc' to stop editing, 'Enter' to search.",
+    let searchbar_block =
+        if let ActiveBlock::SearchBar = app.get_current_route().get_active_block() {
+            Block::default().border_style(Style::default().fg(Color::Green))
+        } else {
+            Block::default().border_style(Style::default().fg(Color::White))
         }
-    ))
-    .borders(Borders::ALL)
-    .border_type(BorderType::Plain);
+        .title(format!(
+            "Serach by Address / Txn Hash / Block / Token / Domain Name ({})",
+            match app.input_mode {
+                InputMode::Normal => "Press 'q' to exit, 'i' to start editing.",
+                InputMode::Editing => "Press 'Esc' to stop editing, 'Enter' to search.",
+            }
+        ))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain);
 
     let input = Paragraph::new(app.input.as_str())
         .style(Style::default().fg(Color::White))
@@ -101,7 +102,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         })
         .collect::<Vec<_>>();
 
-    match app.route.get_active_block() {
+    match app.get_current_route().get_active_block() {
         ActiveBlock::LatestBlocks => {
             blocks[0] = blocks[0]
                 .to_owned()
@@ -219,7 +220,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
     }
 
-    match app.route.get_id() {
+    match app.get_current_route().get_id() {
         RouteId::AddressInfo(address_info) => {
             address_info::render(f, app, address_info, detail);
         }

@@ -84,15 +84,17 @@ pub fn render<B: Backend>(
             Block::default()
                 .borders(Borders::ALL)
                 .title("Transactions")
-                .fg(if let ActiveBlock::Main = app.route.get_active_block() {
-                    if let RouteId::TransactionsOfBlock(_) = app.route.get_id() {
-                        Color::Green
+                .fg(
+                    if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                        if let RouteId::TransactionsOfBlock(_) = app.get_current_route().get_id() {
+                            Color::Green
+                        } else {
+                            Color::White
+                        }
                     } else {
                         Color::White
-                    }
-                } else {
-                    Color::White
-                }),
+                    },
+                ),
         )
         .highlight_style(selected_style)
         .widths(&[

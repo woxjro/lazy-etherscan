@@ -31,7 +31,7 @@ pub fn render<B: Backend>(
     };
 
     if let Some(block) = block {
-        if let RouteId::WithdrawalsOfBlock(_) = app.route.get_id() {
+        if let RouteId::WithdrawalsOfBlock(_) = app.get_current_route().get_id() {
             withdrawals::render(f, app, &block, transactions_rect);
         } else {
             transactions::render(f, app, &block, transactions_rect);
@@ -54,11 +54,13 @@ pub fn render<B: Backend>(
 
         let detail_block = Block::default()
             .title(format!("Block #{}", block.number.unwrap()))
-            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-                Style::default().fg(Color::Green)
-            } else {
-                Style::default().fg(Color::White)
-            })
+            .border_style(
+                if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                },
+            )
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);
@@ -71,11 +73,13 @@ pub fn render<B: Backend>(
     } else {
         let detail_block = Block::default()
             .title("Block Not Found")
-            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-                Style::default().fg(Color::Green)
-            } else {
-                Style::default().fg(Color::White)
-            })
+            .border_style(
+                if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                },
+            )
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);

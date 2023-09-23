@@ -19,19 +19,24 @@ pub fn render<B: Backend>(
 
         let detail_block = Block::default()
             .title("Transaction Details")
-            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-                Style::default().fg(Color::Green)
-            } else {
-                Style::default().fg(Color::White)
-            })
+            .border_style(
+                if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                },
+            )
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);
 
         let [detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Ratio(1,1)].as_ref())
-            .split(rect) else { return; };
+            .constraints([Constraint::Ratio(1, 1)].as_ref())
+            .split(rect)
+        else {
+            return;
+        };
 
         let mut details = vec![
             Line::from(
@@ -195,11 +200,13 @@ pub fn render<B: Backend>(
     } else {
         let detail_block = Block::default()
             .title("Transaction Not Found")
-            .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-                Style::default().fg(Color::Green)
-            } else {
-                Style::default().fg(Color::White)
-            })
+            .border_style(
+                if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                },
+            )
             .padding(Padding::new(2, 2, 1, 1))
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);

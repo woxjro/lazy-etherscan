@@ -10,15 +10,17 @@ pub fn render<B: Backend>(
     rect: Rect,
 ) {
     let detail_block = Block::default()
-        .border_style(if let ActiveBlock::Main = app.route.get_active_block() {
-            if let RouteId::Block(_) = app.route.get_id() {
-                Style::default().fg(Color::Green)
+        .border_style(
+            if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                if let RouteId::Block(_) = app.get_current_route().get_id() {
+                    Style::default().fg(Color::Green)
+                } else {
+                    Style::default().fg(Color::White)
+                }
             } else {
                 Style::default().fg(Color::White)
-            }
-        } else {
-            Style::default().fg(Color::White)
-        })
+            },
+        )
         .padding(Padding::horizontal(2))
         .borders(Borders::BOTTOM)
         .border_type(BorderType::Plain);

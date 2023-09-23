@@ -17,7 +17,7 @@ pub enum InputMode {
 }
 
 pub struct App {
-    pub route: Route,
+    route: Route,
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
     pub statistics: Statistics,
@@ -60,6 +60,10 @@ impl App {
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
         }
+    }
+
+    pub fn get_current_route(&self) -> Route {
+        self.route.to_owned()
     }
 
     pub fn set_route(&mut self, route: Route) {

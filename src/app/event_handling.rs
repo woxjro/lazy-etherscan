@@ -14,7 +14,7 @@ where
 {
     match event {
         event::Event::Key(key) => {
-            if let ActiveBlock::SearchBar = app.route.get_active_block() {
+            if let ActiveBlock::SearchBar = app.get_current_route().get_active_block() {
                 match app.input_mode {
                     InputMode::Normal => match key.code {
                         event::KeyCode::Char('i') => {
@@ -58,7 +58,7 @@ where
                 }
             } else {
                 match key.code {
-                    event::KeyCode::Enter => match app.route.get_active_block() {
+                    event::KeyCode::Enter => match app.get_current_route().get_active_block() {
                         ActiveBlock::LatestBlocks => {
                             let latest_blocks = app.latest_blocks.clone();
                             if let Some(blocks) = latest_blocks {
@@ -83,7 +83,7 @@ where
                                 }
                             }
                         }
-                        ActiveBlock::Main => match app.route.get_id() {
+                        ActiveBlock::Main => match app.get_current_route().get_id() {
                             RouteId::Block(block) => {
                                 if let Some(i) = app.block_detail_list_state.selected() {
                                     match SelectableBlockDetailItem::from(i) {
@@ -168,7 +168,7 @@ where
                     event::KeyCode::Char('2') => {
                         app.change_active_block(ActiveBlock::LatestTransactions);
                     }
-                    event::KeyCode::Char('j') => match app.route.get_active_block() {
+                    event::KeyCode::Char('j') => match app.get_current_route().get_active_block() {
                         ActiveBlock::LatestBlocks => {
                             if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                 latest_blocks.next();
@@ -199,7 +199,7 @@ where
                                 }
                             }
                         }
-                        ActiveBlock::Main => match app.route.get_id() {
+                        ActiveBlock::Main => match app.get_current_route().get_id() {
                             RouteId::Block(block) => {
                                 if let Some(block) = block.as_ref() {
                                     if let Some(i) = app.block_detail_list_state.selected() {
@@ -256,7 +256,7 @@ where
                         },
                         _ => {}
                     },
-                    event::KeyCode::Char('k') => match app.route.get_active_block() {
+                    event::KeyCode::Char('k') => match app.get_current_route().get_active_block() {
                         ActiveBlock::LatestBlocks => {
                             if let Some(latest_blocks) = app.latest_blocks.as_mut() {
                                 latest_blocks.previous();
@@ -287,7 +287,7 @@ where
                                 }
                             }
                         }
-                        ActiveBlock::Main => match app.route.get_id() {
+                        ActiveBlock::Main => match app.get_current_route().get_id() {
                             RouteId::Block(block) => {
                                 if let Some(block) = block.as_ref() {
                                     if let Some(i) = app.block_detail_list_state.selected() {
@@ -349,7 +349,7 @@ where
                         },
                         _ => {}
                     },
-                    event::KeyCode::Char('r') => match app.route.get_active_block() {
+                    event::KeyCode::Char('r') => match app.get_current_route().get_active_block() {
                         ActiveBlock::LatestBlocks => {
                             let height = terminal.size().unwrap().height as usize;
                             app.statistics = Statistics::new();
@@ -373,7 +373,7 @@ where
             }
         }
         event::Event::Paste(data) => {
-            if let ActiveBlock::SearchBar = app.route.get_active_block() {
+            if let ActiveBlock::SearchBar = app.get_current_route().get_active_block() {
                 match app.input_mode {
                     InputMode::Normal => {}
                     InputMode::Editing => {
