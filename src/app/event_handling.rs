@@ -29,6 +29,11 @@ where
                         event::KeyCode::Char('2') => {
                             app.change_active_block(ActiveBlock::LatestTransactions);
                         }
+                        event::KeyCode::Char('p') => {
+                            if key.modifiers == event::KeyModifiers::CONTROL {
+                                app.pop_current_route();
+                            }
+                        }
                         _ => {}
                     },
                     InputMode::Editing if key.kind == event::KeyEventKind::Press => {
@@ -156,6 +161,11 @@ where
                         },
                         _ => {}
                     },
+                    event::KeyCode::Char('p') => {
+                        if key.modifiers == event::KeyModifiers::CONTROL {
+                            app.pop_current_route();
+                        }
+                    }
                     event::KeyCode::Char('q') => {
                         return true;
                     }

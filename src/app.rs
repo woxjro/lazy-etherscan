@@ -62,6 +62,12 @@ impl App {
         }
     }
 
+    pub fn pop_current_route(&mut self) {
+        if self.routes.len() > 1 {
+            self.routes.pop();
+        }
+    }
+
     pub fn get_current_route(&self) -> Route {
         self.routes
             .last()
