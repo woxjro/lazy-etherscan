@@ -8,7 +8,9 @@ use crossterm::event;
 use ratatui::prelude::*;
 use ratatui::Terminal;
 
-pub fn event_handling<B>(event: event::Event, app: &mut App, terminal: &Terminal<B>) -> bool
+type IsQ = bool;
+
+pub fn event_handling<B>(event: event::Event, app: &mut App, terminal: &Terminal<B>) -> IsQ
 where
     B: Backend,
 {
