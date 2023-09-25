@@ -8,7 +8,7 @@ use crossterm::event;
 use ratatui::prelude::*;
 use ratatui::Terminal;
 
-pub fn even_handling<B>(event: event::Event, app: &mut App, terminal: &Terminal<B>) -> bool
+pub fn event_handling<B>(event: event::Event, app: &mut App, terminal: &Terminal<B>) -> bool
 where
     B: Backend,
 {

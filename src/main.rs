@@ -4,7 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::event_handling::even_handling;
+use app::event_handling::event_handling;
 use app::App;
 use clap::Parser;
 use crossterm::{event, execute, terminal};
@@ -77,7 +77,7 @@ async fn start_ui<B: Backend>(
         terminal.draw(|f| ui::ui_home(f, &mut app))?;
 
         if event::poll(Duration::from_millis(250))? {
-            let is_q = even_handling(event::read()?, &mut app, &terminal);
+            let is_q = event_handling(event::read()?, &mut app, &terminal);
             if is_q {
                 return Ok(());
             }
