@@ -5,6 +5,7 @@ use crate::app::{
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route, RouteId};
 use crossterm::event;
+use log::debug;
 use ratatui::prelude::*;
 use ratatui::Terminal;
 
@@ -16,6 +17,7 @@ where
 {
     match event {
         event::Event::Key(key) => {
+            debug!("{:?}", key.code);
             if let ActiveBlock::SearchBar = app.get_current_route().get_active_block() {
                 match app.input_mode {
                     InputMode::Normal => match key.code {

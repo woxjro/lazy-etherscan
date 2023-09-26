@@ -6,10 +6,13 @@ mod ui;
 mod widget;
 use app::event_handling::event_handling;
 use app::App;
+use chrono::Utc;
 use clap::Parser;
 use crossterm::{event, execute, terminal};
+use log::LevelFilter;
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
+use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
 use std::sync::Arc;
 use std::{error::Error, io, time::Duration};
 use tokio::sync::Mutex;
@@ -24,6 +27,21 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    CombinedLogger::init(vec![
+        TermLogger::new(
+            LevelFilter::Error,
+            Config::default(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto,
+        ),
+        WriteLogger::new(
+            LevelFilter::Debug,
+            Config::default(),
+            std::fs::File::create(format!("logs/{}.log", Utc::now().format("%Y%m%d%H%M"))).unwrap(),
+        ),
+    ])
+    .unwrap();
+
     // setup terminal
     terminal::enable_raw_mode()?;
     let mut stdout = io::stdout();
