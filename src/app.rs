@@ -22,7 +22,6 @@ pub struct App {
     pub is_loading: bool,
     pub is_toggled: bool,
     pub statistics: Statistics,
-    pub sidebar_items: Vec<String>,
     pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
     pub latest_transactions: Option<StatefulList<TransactionWithReceipt>>,
     //Search
@@ -46,10 +45,6 @@ impl App {
             is_toggled: false,
             io_tx: Some(io_tx),
             statistics: Statistics::new(),
-            sidebar_items: vec![
-                "Latest Blocks".to_string(),
-                "Latest Transactions".to_string(),
-            ],
             latest_blocks: None,
             latest_transactions: None,
             input_mode: InputMode::Normal,

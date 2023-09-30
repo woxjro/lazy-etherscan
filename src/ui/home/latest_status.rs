@@ -15,33 +15,29 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         return;
     };
 
-    let sidebar_items = [latest_blocks_rect, latest_transactions_rect];
+    let latest_blocks_block = Block::default()
+        .title("Latest Blocks")
+        .border_style(Style::default().fg(
+            if let ActiveBlock::LatestBlocks = app.get_current_route().get_active_block() {
+                Color::Green
+            } else {
+                Color::White
+            },
+        ))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain);
 
-    let mut blocks = (0..(app.sidebar_items.len()))
-        .map(|i| {
-            Block::default()
-                .title(app.sidebar_items[i].to_owned())
-                .border_style(Style::default())
-                .borders(Borders::ALL)
-                .border_type(BorderType::Plain)
-        })
-        .collect::<Vec<_>>();
-
-    match app.get_current_route().get_active_block() {
-        ActiveBlock::LatestBlocks => {
-            blocks[0] = blocks[0]
-                .to_owned()
-                .border_style(Style::default().fg(Color::Green));
-        }
-        ActiveBlock::LatestTransactions => {
-            blocks[1] = blocks[1]
-                .to_owned()
-                .border_style(Style::default().fg(Color::Green));
-        }
-        _ => {}
-    }
-
-    let blocks = blocks;
+    let latest_transactions_block = Block::default()
+        .title("Latest Transactions")
+        .border_style(Style::default().fg(
+            if let ActiveBlock::LatestTransactions = app.get_current_route().get_active_block() {
+                Color::Green
+            } else {
+                Color::White
+            },
+        ))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain);
 
     let header = vec![
         ListItem::new(format!(
@@ -77,7 +73,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         )));
         List::new(res)
     }
-    .block(blocks[0].to_owned())
+    .block(latest_blocks_block.to_owned())
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
@@ -125,7 +121,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         )));
         List::new(res)
     }
-    .block(blocks[1].to_owned())
+    .block(latest_transactions_block.to_owned())
     .style(Style::default().fg(Color::White))
     .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
@@ -137,7 +133,6 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             .map_or(&mut ListState::default(), |txns| &mut txns.state),
     );
 
-    for i in 0..app.sidebar_items.len() {
-        f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
-    }
+    f.render_widget(latest_blocks_block, latest_blocks_rect);
+    f.render_widget(latest_transactions_block, latest_transactions_rect);
 }
