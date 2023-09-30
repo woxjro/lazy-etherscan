@@ -20,6 +20,7 @@ pub struct App {
     routes: Vec<Route>,
     io_tx: Option<Sender<IoEvent>>,
     pub is_loading: bool,
+    pub is_toggled: bool,
     pub statistics: Statistics,
     pub sidebar_items: Vec<String>,
     pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
@@ -42,6 +43,7 @@ impl App {
         App {
             routes: vec![Route::default()],
             is_loading: false,
+            is_toggled: false,
             io_tx: Some(io_tx),
             statistics: Statistics::new(),
             sidebar_items: vec![

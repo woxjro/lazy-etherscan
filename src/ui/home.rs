@@ -62,182 +62,202 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         }
     }
 
-    let [sidebar, detail] = *Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)].as_ref())
-        .split(rest)
-    else {
-        return;
-    };
-
-    let [statistics, latest_status] = *Layout::default()
-        .direction(Direction::Vertical)
-        .margin(0)
-        .constraints([Constraint::Min(9), Constraint::Min(0)].as_ref())
-        .split(sidebar)
-    else {
-        return;
-    };
-
-    statistics::render(f, app, statistics);
-
-    let [top, middle] = *Layout::default()
-        .direction(Direction::Vertical)
-        .margin(0)
-        .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)].as_ref())
-        .split(latest_status)
-    else {
-        return;
-    };
-
-    let sidebar_items = [top, middle];
-
-    let mut blocks = (0..(app.sidebar_items.len()))
-        .map(|i| {
-            Block::default()
-                .title(app.sidebar_items[i].to_owned())
-                .border_style(Style::default())
-                .borders(Borders::ALL)
-                .border_type(BorderType::Plain)
-        })
-        .collect::<Vec<_>>();
-
-    match app.get_current_route().get_active_block() {
-        ActiveBlock::LatestBlocks => {
-            blocks[0] = blocks[0]
-                .to_owned()
-                .border_style(Style::default().fg(Color::Green));
+    if app.is_toggled {
+        match app.get_current_route().get_id() {
+            RouteId::AddressInfo(address_info) => {
+                address_info::render(f, app, address_info, rest);
+            }
+            RouteId::Block(block) => {
+                block::render(f, app, block, rest);
+            }
+            RouteId::TransactionsOfBlock(block) => {
+                block::render(f, app, block, rest);
+            }
+            RouteId::WithdrawalsOfBlock(block) => {
+                block::render(f, app, block, rest);
+            }
+            RouteId::Transaction(transaction) => {
+                transaction::render(f, app, transaction, rest);
+            }
+            RouteId::Welcome => {
+                welcome::render(f, rest);
+            }
         }
-        ActiveBlock::LatestTransactions => {
-            blocks[1] = blocks[1]
-                .to_owned()
-                .border_style(Style::default().fg(Color::Green));
-        }
-        _ => {}
-    }
-
-    let blocks = blocks;
-
-    let header = vec![
-        ListItem::new(format!(
-            " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove these magic numbers
-            "Block Height", "Hash", "Transactions", "Time"
-        )),
-        ListItem::new(format!(
-            "{}+{}+{}+{}|",
-            "-".repeat(14),
-            "-".repeat(13),
-            "-".repeat(14),
-            "-".repeat(15),
-        )), //TODO: remove these magic numbers
-    ];
-    let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
-        let mut res = header;
-
-        for block in latest_blocks.items.to_owned() {
-            res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
-                block.number.unwrap(),
-                block.hash.unwrap(),
-                block.transactions.len(),
-                (Utc::now() - block.time().unwrap()).num_seconds()
-            )));
-        }
-        List::new(res)
     } else {
-        let mut res = header.to_owned();
-        res.push(ListItem::new(format!(
-            " Loading {}",
-            Spinner::default().to_string()
-        )));
-        List::new(res)
-    }
-    .block(blocks[0].to_owned())
-    .style(Style::default().fg(Color::White))
-    .highlight_style(Style::default().add_modifier(Modifier::BOLD));
+        let [sidebar, detail] = *Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)].as_ref())
+            .split(rest)
+        else {
+            return;
+        };
 
-    if let Some(_) = app.latest_blocks {
+        let [statistics, latest_status] = *Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints([Constraint::Min(9), Constraint::Min(0)].as_ref())
+            .split(sidebar)
+        else {
+            return;
+        };
+
+        statistics::render(f, app, statistics);
+
+        let [latest_blocks_rect, latest_transactions_rect] = *Layout::default()
+            .direction(Direction::Vertical)
+            .margin(0)
+            .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)].as_ref())
+            .split(latest_status)
+        else {
+            return;
+        };
+
+        let sidebar_items = [latest_blocks_rect, latest_transactions_rect];
+
+        let mut blocks = (0..(app.sidebar_items.len()))
+            .map(|i| {
+                Block::default()
+                    .title(app.sidebar_items[i].to_owned())
+                    .border_style(Style::default())
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Plain)
+            })
+            .collect::<Vec<_>>();
+
+        match app.get_current_route().get_active_block() {
+            ActiveBlock::LatestBlocks => {
+                blocks[0] = blocks[0]
+                    .to_owned()
+                    .border_style(Style::default().fg(Color::Green));
+            }
+            ActiveBlock::LatestTransactions => {
+                blocks[1] = blocks[1]
+                    .to_owned()
+                    .border_style(Style::default().fg(Color::Green));
+            }
+            _ => {}
+        }
+
+        let blocks = blocks;
+
+        let header = vec![
+            ListItem::new(format!(
+                " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove these magic numbers
+                "Block Height", "Hash", "Transactions", "Time"
+            )),
+            ListItem::new(format!(
+                "{}+{}+{}+{}|",
+                "-".repeat(14),
+                "-".repeat(13),
+                "-".repeat(14),
+                "-".repeat(15),
+            )), //TODO: remove these magic numbers
+        ];
+        let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
+            let mut res = header;
+
+            for block in latest_blocks.items.to_owned() {
+                res.push(ListItem::new(format!(
+                    "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
+                    block.number.unwrap(),
+                    block.hash.unwrap(),
+                    block.transactions.len(),
+                    (Utc::now() - block.time().unwrap()).num_seconds()
+                )));
+            }
+            List::new(res)
+        } else {
+            let mut res = header.to_owned();
+            res.push(ListItem::new(format!(
+                " Loading {}",
+                Spinner::default().to_string()
+            )));
+            List::new(res)
+        }
+        .block(blocks[0].to_owned())
+        .style(Style::default().fg(Color::White))
+        .highlight_style(Style::default().add_modifier(Modifier::BOLD));
+
         f.render_stateful_widget(
             block_list,
-            top,
-            &mut app.latest_blocks.as_mut().unwrap().state,
+            latest_blocks_rect,
+            app.latest_blocks
+                .as_mut()
+                .map_or(&mut ListState::default(), |blocks| &mut blocks.state),
         );
-    } else {
-        f.render_stateful_widget(block_list, top, &mut ListState::default());
-    }
 
-    let header = vec![
-        ListItem::new(format!(
-            " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove these magic numbers
-            "Hash", "From", "To", "Value (ETH)"
-        )),
-        ListItem::new(format!(
-            "{}+{}+{}+{}|",
-            "-".repeat(13),
-            "-".repeat(13),
-            "-".repeat(13),
-            "-".repeat(22),
-        )),
-    ];
-    let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
-        let mut res = header.to_owned();
+        let header = vec![
+            ListItem::new(format!(
+                " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove these magic numbers
+                "Hash", "From", "To", "Value (ETH)"
+            )),
+            ListItem::new(format!(
+                "{}+{}+{}+{}|",
+                "-".repeat(13),
+                "-".repeat(13),
+                "-".repeat(13),
+                "-".repeat(22),
+            )),
+        ];
+        let transaction_list =
+            if let Some(latest_transactions) = app.latest_transactions.as_ref() {
+                let mut res = header.to_owned();
 
-        for tx in latest_transactions.items.to_owned() {
-            res.push(ListItem::new(format!(
-                " {:^11} | {:^11} | {:^11} | {:>19} |",
-                tx.transaction.hash,
-                tx.transaction.from,
-                tx.transaction
-                    .to
-                    .map_or("".to_owned(), |to| format!("{to}")),
-                format_ether(tx.transaction.value)
-            )));
-        }
-        List::new(res)
-    } else {
-        let mut res = header.to_owned();
-        res.push(ListItem::new(format!(
-            " Loading {}",
-            Spinner::default().to_string()
-        )));
-        List::new(res)
-    }
-    .block(blocks[1].to_owned())
-    .style(Style::default().fg(Color::White))
-    .highlight_style(Style::default().add_modifier(Modifier::BOLD));
+                for tx in latest_transactions.items.to_owned() {
+                    res.push(ListItem::new(format!(
+                        " {:^11} | {:^11} | {:^11} | {:>19} |",
+                        tx.transaction.hash,
+                        tx.transaction.from,
+                        tx.transaction
+                            .to
+                            .map_or("".to_owned(), |to| format!("{to}")),
+                        format_ether(tx.transaction.value)
+                    )));
+                }
+                List::new(res)
+            } else {
+                let mut res = header.to_owned();
+                res.push(ListItem::new(format!(
+                    " Loading {}",
+                    Spinner::default().to_string()
+                )));
+                List::new(res)
+            }
+            .block(blocks[1].to_owned())
+            .style(Style::default().fg(Color::White))
+            .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
-    if let Some(_) = app.latest_transactions {
         f.render_stateful_widget(
             transaction_list,
-            middle,
-            &mut app.latest_transactions.as_mut().unwrap().state,
+            latest_transactions_rect,
+            app.latest_transactions
+                .as_mut()
+                .map_or(&mut ListState::default(), |txns| &mut txns.state),
         );
-    } else {
-        f.render_stateful_widget(transaction_list, middle, &mut ListState::default());
-    }
 
-    for i in 0..app.sidebar_items.len() {
-        f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
-    }
+        for i in 0..app.sidebar_items.len() {
+            f.render_widget(blocks[i].to_owned(), sidebar_items[i]);
+        }
 
-    match app.get_current_route().get_id() {
-        RouteId::AddressInfo(address_info) => {
-            address_info::render(f, app, address_info, detail);
-        }
-        RouteId::Block(block) => {
-            block::render(f, app, block, detail);
-        }
-        RouteId::TransactionsOfBlock(block) => {
-            block::render(f, app, block, detail);
-        }
-        RouteId::WithdrawalsOfBlock(block) => {
-            block::render(f, app, block, detail);
-        }
-        RouteId::Transaction(transaction) => {
-            transaction::render(f, app, transaction, detail);
-        }
-        RouteId::Welcome => {
-            welcome::render(f, detail);
+        match app.get_current_route().get_id() {
+            RouteId::AddressInfo(address_info) => {
+                address_info::render(f, app, address_info, detail);
+            }
+            RouteId::Block(block) => {
+                block::render(f, app, block, detail);
+            }
+            RouteId::TransactionsOfBlock(block) => {
+                block::render(f, app, block, detail);
+            }
+            RouteId::WithdrawalsOfBlock(block) => {
+                block::render(f, app, block, detail);
+            }
+            RouteId::Transaction(transaction) => {
+                transaction::render(f, app, transaction, detail);
+            }
+            RouteId::Welcome => {
+                welcome::render(f, detail);
+            }
         }
     }
 }

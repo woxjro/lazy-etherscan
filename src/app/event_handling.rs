@@ -21,6 +21,11 @@ where
             if let ActiveBlock::SearchBar = app.get_current_route().get_active_block() {
                 match app.input_mode {
                     InputMode::Normal => match key.code {
+                        event::KeyCode::Char('e') => {
+                            if key.modifiers == event::KeyModifiers::CONTROL {
+                                app.is_toggled = !app.is_toggled;
+                            }
+                        }
                         event::KeyCode::Char('i') => {
                             app.input_mode = InputMode::Editing;
                         }
@@ -165,6 +170,11 @@ where
                         },
                         _ => {}
                     },
+                    event::KeyCode::Char('e') => {
+                        if key.modifiers == event::KeyModifiers::CONTROL {
+                            app.is_toggled = !app.is_toggled;
+                        }
+                    }
                     event::KeyCode::Char('p') => {
                         if key.modifiers == event::KeyModifiers::CONTROL {
                             app.pop_current_route();
