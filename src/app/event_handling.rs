@@ -49,6 +49,7 @@ where
                         match key.code {
                             event::KeyCode::Enter => {
                                 app.submit_message();
+                                app.input_mode = InputMode::Normal;
                             }
                             event::KeyCode::Char(to_insert) => {
                                 app.enter_char(to_insert);
