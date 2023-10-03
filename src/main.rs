@@ -27,6 +27,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let _ = std::fs::create_dir("logs");
     CombinedLogger::init(vec![
         TermLogger::new(
             LevelFilter::Error,
