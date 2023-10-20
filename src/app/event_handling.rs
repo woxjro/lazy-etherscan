@@ -2,6 +2,8 @@ use crate::app::{
     block::SelectableBlockDetailItem, statistics::Statistics,
     transaction::SelectableTransactionDetailItem, App, InputMode,
 };
+use ethers_core::types::NameOrAddress;
+
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route, RouteId};
 use crossterm::event;
@@ -117,8 +119,10 @@ where
                                         SelectableBlockDetailItem::FeeRecipient => {
                                             if let Some(block) = block.as_ref() {
                                                 if let Some(address) = block.author {
-                                                    app.dispatch(IoEvent::GetAddressInfo {
-                                                        address,
+                                                    app.dispatch(IoEvent::GetNameOrAddressInfo {
+                                                        name_or_address: NameOrAddress::Address(
+                                                            address,
+                                                        ),
                                                     });
                                                 }
                                             }
@@ -150,16 +154,20 @@ where
                                     match SelectableTransactionDetailItem::from(i) {
                                         SelectableTransactionDetailItem::From => {
                                             if let Some(transaction) = transaction.as_ref() {
-                                                app.dispatch(IoEvent::GetAddressInfo {
-                                                    address: transaction.transaction.from,
+                                                app.dispatch(IoEvent::GetNameOrAddressInfo {
+                                                    name_or_address: NameOrAddress::Address(
+                                                        transaction.transaction.from,
+                                                    ),
                                                 });
                                             }
                                         }
                                         SelectableTransactionDetailItem::To => {
                                             if let Some(transaction) = transaction.as_ref() {
                                                 if let Some(address) = transaction.transaction.to {
-                                                    app.dispatch(IoEvent::GetAddressInfo {
-                                                        address,
+                                                    app.dispatch(IoEvent::GetNameOrAddressInfo {
+                                                        name_or_address: NameOrAddress::Address(
+                                                            address,
+                                                        ),
                                                     });
                                                 }
                                             }

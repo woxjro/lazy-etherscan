@@ -6,7 +6,7 @@ use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Address, Block, Transaction, TxHash, U64};
+use ethers_core::types::{Block, NameOrAddress, Transaction, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::sync::mpsc::Sender;
@@ -158,8 +158,8 @@ impl App {
             self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
         }
 
-        if let Ok(address) = self.input.parse::<Address>() {
-            self.dispatch(IoEvent::GetAddressInfo { address });
+        if let Ok(name_or_address) = self.input.parse::<NameOrAddress>() {
+            self.dispatch(IoEvent::GetNameOrAddressInfo { name_or_address })
         }
 
         self.input.clear();
