@@ -18,6 +18,7 @@
   - [Configurations & Usage](#configurations--usage)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
+  - [Sponsors](#sponsors)
   - [Acknowledgement](#acknowledgement)
 
 <br/>
@@ -61,6 +62,9 @@ Please see [this issue](https://github.com/woxjro/lazy-etherscan/issues/1).
 This project is currently in the Proof of Concept (PoC) stage.
 Contributions are kindly requested to be postponed until further notice.
 
+## Sponsors
+This project has been developed with a grant from the [Ethereum Foundation](https://ethereum.org/en/foundation/).
+![demo](resources/ethereum_foundation.png)
 
 ## Acknowledgement
 `lazy-etherscan` is written in [Rust](https://www.rust-lang.org/) and is built on top of [ratatui](https://github.com/ratatui-org/ratatui).
