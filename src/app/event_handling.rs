@@ -181,6 +181,13 @@ where
                     },
                     event::KeyCode::Char('e') => {
                         if key.modifiers == event::KeyModifiers::CONTROL {
+                            match app.get_current_route().get_active_block() {
+                                ActiveBlock::LatestBlocks | ActiveBlock::LatestTransactions => {
+                                    app.change_active_block(ActiveBlock::Main);
+                                }
+                                _ => {}
+                            }
+
                             app.is_toggled = !app.is_toggled;
                         }
                     }
