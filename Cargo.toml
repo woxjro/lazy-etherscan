@@ -9,6 +9,7 @@ edition = "2021"
 cfonts = "1.1.0"
 chrono = "0.4.26"
 ethers-core = "2.0.8"
+ethers-etherscan = "2.0.10"
 ethers-providers = "2.0.8"
 futures = "0.3.28"
 ratatui = { version = "0.22.0", features = ["all-widgets"] }
@@ -18,6 +19,8 @@ ratatui-tree-widget = { path = "./ratatui-tree-widget" }
 clap = { version = "4.3.23", features = ["derive"] }
 log = "0.4.20"
 simplelog = "0.12.1"
+toml = "0.8.4"
+serde = "1.0.189"
 
 [dependencies.crossterm]
 version = "0.26.1"

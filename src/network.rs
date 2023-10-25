@@ -2,9 +2,12 @@ use crate::app::{statistics::Statistics, App};
 use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
+use crate::Etherscan;
+use ethers_core::types::Chain;
 use ethers_core::types::{
     Address, Block, BlockId, BlockNumber, NameOrAddress, Transaction, TxHash, H256, U64,
 };
+use ethers_etherscan::Client;
 use ethers_providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
@@ -25,17 +28,32 @@ pub enum IoEvent {
 pub struct Network<'a> {
     pub app: &'a Arc<Mutex<App>>,
     endpoint: &'a str,
+    etherscan: &'a Option<Etherscan>,
 }
 
 impl<'a> Network<'a> {
-    pub fn new(app: &'a Arc<Mutex<App>>, endpoint: &'a str) -> Self {
-        Self { app, endpoint }
+    pub fn new(
+        app: &'a Arc<Mutex<App>>,
+        endpoint: &'a str,
+        etherscan: &'a Option<Etherscan>,
+    ) -> Self {
+        Self {
+            app,
+            endpoint,
+            etherscan,
+        }
     }
 
     pub async fn handle_network_event(&mut self, io_event: IoEvent) {
         match io_event {
             IoEvent::GetStatistics => {
-                let res = Self::get_statistics(self.endpoint).await;
+                let res = Self::get_statistics(
+                    self.endpoint,
+                    self.etherscan
+                        .as_ref()
+                        .map_or(None, |etherscan| etherscan.api_key.to_owned()),
+                )
+                .await;
                 let mut app = self.app.lock().await;
                 if let Ok(statistics) = res {
                     app.statistics = statistics;
@@ -225,8 +243,21 @@ impl<'a> Network<'a> {
         Ok(result)
     }
 
-    async fn get_statistics(endpoint: &'a str) -> Result<Statistics, Box<dyn Error>> {
+    async fn get_statistics(
+        endpoint: &'a str,
+        etherscan_api_key: Option<String>,
+    ) -> Result<Statistics, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
+
+        if let Some(api_key) = etherscan_api_key {
+            //TODO: remove unwrap()
+            let _ = Client::builder()
+                .with_api_key(api_key)
+                .with_api_url("https://api.etherscan.io/api")?
+                .chain(Chain::Mainnet)?
+                .build()?;
+        }
+
         let res = join_all([
             provider.get_block_with_txs(BlockNumber::Safe),
             provider.get_block_with_txs(BlockNumber::Finalized),
