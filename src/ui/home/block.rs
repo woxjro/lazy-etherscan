@@ -6,7 +6,7 @@ mod withdrawals;
 use crate::app::App;
 use crate::route::ActiveBlock;
 use crate::route::RouteId;
-use ethers_core::types::{Block as EBlock, Transaction};
+use ethers::core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(

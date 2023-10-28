@@ -2,7 +2,7 @@ use crate::app::{
     block::SelectableBlockDetailItem, statistics::Statistics,
     transaction::SelectableTransactionDetailItem, App, InputMode,
 };
-use ethers_core::types::NameOrAddress;
+use ethers::core::types::NameOrAddress;
 
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route, RouteId};

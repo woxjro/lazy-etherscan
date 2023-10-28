@@ -2,7 +2,7 @@ use crate::app::App;
 use crate::route::ActiveBlock;
 use crate::widget::Spinner;
 use chrono::Utc;
-use ethers_core::utils::format_ether;
+use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {

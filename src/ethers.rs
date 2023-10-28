@@ -1,5 +1,5 @@
 pub mod types {
-    use ethers_core::types::{Address, Transaction, TransactionReceipt, U256};
+    use ethers::core::types::{Address, Transaction, TransactionReceipt, U256};
     use url::Url;
 
     #[derive(Clone, Debug, PartialEq)]

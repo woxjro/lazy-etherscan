@@ -3,12 +3,12 @@ use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
 use crate::Etherscan;
-use ethers_core::types::Chain;
-use ethers_core::types::{
+use ethers::core::types::Chain;
+use ethers::core::types::{
     Address, Block, BlockId, BlockNumber, NameOrAddress, Transaction, TxHash, H256, U64,
 };
-use ethers_etherscan::Client;
-use ethers_providers::{Http, Middleware, Provider};
+use ethers::etherscan::Client;
+use ethers::providers::{Http, Middleware, Provider};
 use futures::future::join_all;
 use std::error::Error;
 use std::sync::Arc;

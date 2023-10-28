@@ -6,7 +6,7 @@ use crate::ethers::types::TransactionWithReceipt;
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
-use ethers_core::types::{Block, NameOrAddress, Transaction, TxHash, U64};
+use ethers::core::types::{Block, NameOrAddress, Transaction, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::sync::mpsc::Sender;

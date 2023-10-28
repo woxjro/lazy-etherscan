@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::ethers::types::AddressInfo;
 use crate::route::ActiveBlock;
-use ethers_core::utils::format_ether;
+use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(

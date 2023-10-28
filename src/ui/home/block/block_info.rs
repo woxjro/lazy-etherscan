@@ -1,6 +1,6 @@
 use crate::app::{block::SelectableBlockDetailItem, App};
 use crate::route::{ActiveBlock, RouteId};
-use ethers_core::types::{Block as EBlock, Transaction};
+use ethers::core::types::{Block as EBlock, Transaction};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(

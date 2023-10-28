@@ -8,9 +8,7 @@ edition = "2021"
 [dependencies]
 cfonts = "1.1.0"
 chrono = "0.4.26"
-ethers-core = "2.0.8"
-ethers-etherscan = "2.0.10"
-ethers-providers = "2.0.8"
+ethers = { git = "https://github.com/woxjro/ethers-rs", branch = "feat/etherscan/stats" }
 futures = "0.3.28"
 ratatui = { version = "0.22.0", features = ["all-widgets"] }
 serde_json = "1.0.104"

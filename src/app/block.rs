@@ -1,4 +1,4 @@
-use ethers_core::types::Block;
+use ethers::core::types::Block;
 
 pub enum SelectableBlockDetailItem {
     Transactions,

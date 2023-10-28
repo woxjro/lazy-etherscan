@@ -1,8 +1,8 @@
 use crate::app::{transaction::SelectableTransactionDetailItem, App};
 use crate::ethers::types::TransactionWithReceipt;
 use crate::route::ActiveBlock;
-use ethers_core::types::U64;
-use ethers_core::utils::{format_ether, format_units};
+use ethers::core::types::U64;
+use ethers::core::utils::{format_ether, format_units};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(

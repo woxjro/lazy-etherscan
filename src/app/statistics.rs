@@ -1,4 +1,4 @@
-use ethers_core::types::{Block, Transaction, U64};
+use ethers::core::types::{Block, Transaction, U64};
 
 #[derive(Clone, Debug)]
 pub struct Statistics {
