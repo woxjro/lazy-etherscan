@@ -130,11 +130,13 @@ impl<'a> Network<'a> {
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let address = provider.resolve_name(ens_id).await.ok().unwrap();
+        let avatar_url = provider.resolve_avatar(ens_id).await.ok();
         let balance = provider.get_balance(address, None /* TODO */).await?;
-        //TODO: Not Found
+        //TODO: Not Found (impl LazyEtherscanError)
         Ok(Some(AddressInfo {
             address,
             balance,
+            avatar_url,
             ens_id: Some(ens_id.to_owned()),
         }))
     }
@@ -145,11 +147,18 @@ impl<'a> Network<'a> {
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let ens_id = provider.lookup_address(address).await.ok();
+
+        let mut avatar_url = None;
+        if let Some(ens_id) = ens_id.as_ref() {
+            avatar_url = provider.resolve_avatar(&ens_id).await.ok();
+        }
         let balance = provider.get_balance(address, None /* TODO */).await?;
+
         //TODO: Not Found
         Ok(Some(AddressInfo {
             address,
             balance,
+            avatar_url,
             ens_id,
         }))
     }

@@ -40,6 +40,12 @@ pub fn render<B: Backend>(
             ));
         }
 
+        if let Some(avatar_url) = address_info.avatar_url {
+            details.push(Line::from(
+                Span::raw(format!("{:<17}: {avatar_url}", "AVATAR URL")).fg(Color::White),
+            ));
+        }
+
         details.push(Line::from(
             Span::raw(format!(
                 "{:<17}: {} ETH",
