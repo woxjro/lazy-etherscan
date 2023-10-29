@@ -201,6 +201,7 @@ impl<'a> Network<'a> {
 
         let mut res = vec![];
         for block in blocks {
+            //TODO
             res.push(block.unwrap().unwrap());
         }
         Ok(res)
@@ -258,13 +259,16 @@ impl<'a> Network<'a> {
     ) -> Result<Statistics, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
 
+        let mut ethusd = None;
         if let Some(api_key) = etherscan_api_key {
             //TODO: remove unwrap()
-            let _ = Client::builder()
+            let client = Client::builder()
                 .with_api_key(api_key)
                 .with_api_url("https://api.etherscan.io/api")?
                 .chain(Chain::Mainnet)?
                 .build()?;
+            let res = client.eth_price().await?;
+            ethusd = Some(res.ethusd);
         }
 
         let res = join_all([
@@ -274,7 +278,7 @@ impl<'a> Network<'a> {
         .await;
 
         Ok(Statistics {
-            ether_price: None,
+            ethusd,
             market_cap: None,
             transactions: None,
             med_gas_price: None,

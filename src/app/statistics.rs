@@ -2,7 +2,7 @@ use ethers::core::types::{Block, Transaction, U64};
 
 #[derive(Clone, Debug)]
 pub struct Statistics {
-    pub ether_price: Option<U64>,
+    pub ethusd: Option<f64>,
     pub market_cap: Option<U64>,
     pub transactions: Option<U64>,
     pub med_gas_price: Option<U64>,
@@ -13,7 +13,7 @@ pub struct Statistics {
 impl Statistics {
     pub fn new() -> Self {
         Self {
-            ether_price: None,
+            ethusd: None,
             market_cap: None,
             transactions: None,
             med_gas_price: None,
@@ -22,7 +22,7 @@ impl Statistics {
         }
     }
 
-    //pub const ETHER_PRICE_INDEX: usize = 0;
+    pub const ETHUSD_INDEX: usize = 0;
     //pub const TRANSACTIONS_INDEX: usize = 1;
     pub const LAST_SAFE_BLOCK_INDEX: usize = 2;
     //pub const MARKET_CAP_INDEX: usize = 3;
