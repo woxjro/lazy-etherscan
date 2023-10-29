@@ -57,14 +57,12 @@ pub fn render<B: Backend>(
     lines.push(
         if let RouteId::TransactionsOfBlock(_) = app.get_current_route().get_id() {
             Line::from(transactions_span.add_modifier(Modifier::BOLD))
+        } else if app.block_detail_list_state.selected()
+            == Some(SelectableBlockDetailItem::Transactions.into())
+        {
+            Line::from(transactions_span.add_modifier(Modifier::BOLD))
         } else {
-            if app.block_detail_list_state.selected()
-                == Some(SelectableBlockDetailItem::Transactions.into())
-            {
-                Line::from(transactions_span.add_modifier(Modifier::BOLD))
-            } else {
-                Line::from(transactions_span)
-            }
+            Line::from(transactions_span)
         },
     );
 

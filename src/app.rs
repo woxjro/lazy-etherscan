@@ -151,15 +151,11 @@ impl App {
     pub fn submit_message(&mut self) {
         if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
             self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
-        } else {
-            if let Ok(i) = self.input.parse::<u64>() {
-                let number = U64::from(i);
-                self.dispatch(IoEvent::GetBlock { number });
-            } else {
-                if let Ok(name_or_address) = self.input.parse::<NameOrAddress>() {
-                    self.dispatch(IoEvent::GetNameOrAddressInfo { name_or_address })
-                }
-            }
+        } else if let Ok(i) = self.input.parse::<u64>() {
+            let number = U64::from(i);
+            self.dispatch(IoEvent::GetBlock { number });
+        } else if let Ok(name_or_address) = self.input.parse::<NameOrAddress>() {
+            self.dispatch(IoEvent::GetNameOrAddressInfo { name_or_address })
         }
 
         self.input.clear();
