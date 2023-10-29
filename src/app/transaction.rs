@@ -45,11 +45,11 @@ impl From<usize> for SelectableTransactionDetailItem {
     }
 }
 
-impl Into<usize> for SelectableTransactionDetailItem {
-    fn into(self) -> usize {
-        match self {
-            Self::From => 0,
-            Self::To => 1,
+impl From<SelectableTransactionDetailItem> for usize {
+    fn from(val: SelectableTransactionDetailItem) -> Self {
+        match val {
+            SelectableTransactionDetailItem::From => 0,
+            SelectableTransactionDetailItem::To => 1,
         }
     }
 }

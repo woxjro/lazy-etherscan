@@ -44,12 +44,12 @@ impl<T> StatefulList<T> {
         let i = match self.state.selected() {
             Some(i) => {
                 if i >= self.items.len() - 1 + self.header_size {
-                    0 + self.header_size
+                    self.header_size
                 } else {
                     i + 1
                 }
             }
-            None => 0 + self.header_size,
+            None => self.header_size,
         };
         self.state.select(Some(i));
     }
@@ -57,13 +57,13 @@ impl<T> StatefulList<T> {
     pub fn previous(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i <= 0 + self.header_size {
+                if i <= self.header_size {
                     self.items.len() - 1 + self.header_size
                 } else {
                     i - 1
                 }
             }
-            None => 0 + self.header_size,
+            None => self.header_size,
         };
         self.state.select(Some(i));
     }

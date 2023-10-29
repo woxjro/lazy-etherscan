@@ -67,13 +67,13 @@ impl From<usize> for SelectableBlockDetailItem {
     }
 }
 
-impl Into<usize> for SelectableBlockDetailItem {
-    fn into(self) -> usize {
-        match self {
-            Self::Transactions => 0,
-            Self::Withdrawls => 1,
-            Self::FeeRecipient => 2,
-            Self::ParentHash => 3,
+impl From<SelectableBlockDetailItem> for usize {
+    fn from(val: SelectableBlockDetailItem) -> Self {
+        match val {
+            SelectableBlockDetailItem::Transactions => 0,
+            SelectableBlockDetailItem::Withdrawls => 1,
+            SelectableBlockDetailItem::FeeRecipient => 2,
+            SelectableBlockDetailItem::ParentHash => 3,
         }
     }
 }
