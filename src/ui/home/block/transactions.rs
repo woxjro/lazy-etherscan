@@ -34,7 +34,7 @@ pub fn render<B: Backend>(
         .map(|tx| {
             vec![
                 Cell::from(format!("{}", tx.hash)).fg(Color::White),
-                if let Some(_) = tx.to {
+                if tx.to.is_some() {
                     if tx.input.len() >= 4 {
                         Cell::from("ContractExecution").fg(Color::LightYellow) //TODO
                     } else {

@@ -9,7 +9,7 @@ impl SelectableTransactionDetailItem {
     pub fn next(&self, transaction: &TransactionWithReceipt) -> Self {
         match self {
             Self::From => {
-                if let Some(_) = transaction.transaction.to {
+                if transaction.transaction.to.is_some() {
                     Self::To
                 } else {
                     Self::From
@@ -22,7 +22,7 @@ impl SelectableTransactionDetailItem {
     pub fn previous(&self, transaction: &TransactionWithReceipt) -> Self {
         match self {
             Self::From => {
-                if let Some(_) = transaction.transaction.to {
+                if transaction.transaction.to.is_some() {
                     Self::To
                 } else {
                     Self::From

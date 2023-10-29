@@ -11,7 +11,7 @@ impl SelectableBlockDetailItem {
     pub fn next<T>(&self, block: &Block<T>) -> Self {
         match self {
             Self::Transactions => {
-                if let Some(_) = block.withdrawals {
+                if block.withdrawals.is_some() {
                     Self::Withdrawls
                 } else {
                     Self::FeeRecipient
@@ -19,7 +19,7 @@ impl SelectableBlockDetailItem {
             }
             Self::Withdrawls => Self::FeeRecipient,
             Self::FeeRecipient => {
-                if let Some(_) = block.author {
+                if block.author.is_some() {
                     Self::ParentHash
                 } else {
                     Self::Transactions
@@ -32,7 +32,7 @@ impl SelectableBlockDetailItem {
     pub fn previous<T>(&self, block: &Block<T>) -> Self {
         match self {
             Self::Transactions => {
-                if let Some(_) = block.author {
+                if block.author.is_some() {
                     Self::ParentHash
                 } else {
                     Self::FeeRecipient
@@ -40,7 +40,7 @@ impl SelectableBlockDetailItem {
             }
             Self::Withdrawls => Self::Transactions,
             Self::FeeRecipient => {
-                if let Some(_) = block.withdrawals {
+                if block.withdrawals.is_some() {
                     Self::Withdrawls
                 } else {
                     Self::Transactions
