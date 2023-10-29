@@ -28,14 +28,12 @@ pub fn render<B: Backend>(
     let fee_recipient_spans = vec![
         Span::raw(format!("{:<20}: ", "Fee Recipient")).fg(Color::White),
         Span::styled(
-            format!(
-                "{}",
-                if let Some(addr) = block.author {
-                    format!("{:#x}", addr)
-                } else {
-                    format!("pending...")
-                }
-            ),
+            (if let Some(addr) = block.author {
+                format!("{:#x}", addr)
+            } else {
+                "pending...".to_string()
+            })
+            .to_string(),
             Style::default().fg(Color::Cyan),
         ),
     ];

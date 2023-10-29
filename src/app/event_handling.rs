@@ -140,8 +140,7 @@ where
                             RouteId::TransactionsOfBlock(block) => {
                                 if let Some(block) = block.as_ref() {
                                     if let Some(i) = app.transactions_table_state.selected() {
-                                        if let Some(transaction) = block.transactions.iter().nth(i)
-                                        {
+                                        if let Some(transaction) = block.transactions.get(i) {
                                             app.dispatch(IoEvent::GetTransactionWithReceipt {
                                                 transaction_hash: transaction.hash,
                                             });
@@ -255,7 +254,7 @@ where
                             }
                             RouteId::TransactionsOfBlock(block) => {
                                 if let Some(block) = block.as_ref() {
-                                    if block.transactions.len() > 0 {
+                                    if block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state
                                                 .select(Some((i + 1) % block.transactions.len()));
@@ -345,7 +344,7 @@ where
                             }
                             RouteId::TransactionsOfBlock(block) => {
                                 if let Some(block) = block.as_ref() {
-                                    if block.transactions.len() > 0 {
+                                    if block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state.select(Some(
                                                 (i + block.transactions.len() - 1)
@@ -424,5 +423,5 @@ where
         }
         _ => {}
     }
-    return false;
+    false
 }

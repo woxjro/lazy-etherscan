@@ -43,9 +43,8 @@ pub fn render<B: Backend>(
                 } else {
                     Cell::from("ContractDeployment").fg(Color::LightCyan)
                 },
-                Cell::from(format!(
-                    "{}",
-                    match tx.transaction_type {
+                Cell::from(
+                    (match tx.transaction_type {
                         Some(i) => {
                             if i == U64::from(1) {
                                 "AccessList"
@@ -56,19 +55,21 @@ pub fn render<B: Backend>(
                             }
                         }
                         None => "Legacy",
-                    }
-                ))
+                    })
+                    .to_string(),
+                )
                 .fg(Color::White),
                 Cell::from(format!("{}", tx.from)).fg(Color::White),
                 Cell::from(tx.to.map_or("".to_owned(), |to| format!("{to}"))).fg(Color::White),
-                Cell::from(format!("{}", format_ether(tx.value))).fg(Color::White),
+                Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
                 //TODO:format!( "{}", format_ether(tx.gas_price.unwrap() * tx_receipt.gas_used)),
                 //transaction_receipt.gas_usedが必要 ref: https://hackmd.io/@tvanepps/1559-wallets
                 //Cell::from(format!("")).fg(Color::White),
-                Cell::from(format!(
-                    "{}",
-                    format_units(tx.gas_price.unwrap(), "gwei").unwrap()
-                ))
+                Cell::from(
+                    format_units(tx.gas_price.unwrap(), "gwei")
+                        .unwrap()
+                        .to_string(),
+                )
                 .fg(Color::White),
             ]
         })

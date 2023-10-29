@@ -62,7 +62,7 @@ pub fn render<B: Backend>(
     details.append(&mut vec![
         //format!("{:<20}: {}", "Burnt Fees", TODO),
         //format!("{:<20}: {}", "Extra Data", TODO),
-        Line::from(Span::raw(format!("More Details")).fg(Color::White)),
+        Line::from(Span::raw("More Details".to_string()).fg(Color::White)),
         Line::from(
             Span::raw(format!("{:<20}: {:#x}", "Hash", block.hash.unwrap())).fg(Color::White),
         ),

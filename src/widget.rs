@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ratatui::widgets::ListState;
 
-const SPINNER: [&'static str; 10] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+const SPINNER: [&str; 10] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 pub struct Spinner {
     elements: Vec<String>,
@@ -69,10 +69,7 @@ impl<T> StatefulList<T> {
     }
 
     pub fn get_selected_item_index(&self) -> Option<usize> {
-        match self.state.selected() {
-            Some(state) => Some(state - self.header_size),
-            None => None,
-        }
+        self.state.selected().map(|state| state - self.header_size)
     }
 
     /*

@@ -82,22 +82,22 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             if let Some(ethusd) = app.statistics.ethusd.as_ref() {
                 format!("{:.4} USD/ETH ", ethusd)
             } else {
-                format!("{}", Spinner::default().to_string())
+                Spinner::default().to_string()
             }
         } else if i == Statistics::LAST_SAFE_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_safe_block.as_ref() {
                 format!("#{} ", block.number.unwrap())
             } else {
-                format!("{}", Spinner::default().to_string())
+                Spinner::default().to_string()
             }
         } else if i == Statistics::LAST_FINALIZED_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_finalized_block.as_ref() {
                 format!("#{} ", block.number.unwrap())
             } else {
-                format!("{}", Spinner::default().to_string())
+                Spinner::default().to_string()
             }
         } else {
-            format!("{}", Spinner::default().to_string())
+            Spinner::default().to_string()
         };
 
         let paragraph = Paragraph::new(vec![Line::from(Span::raw(text).fg(Color::White))])

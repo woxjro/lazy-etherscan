@@ -55,7 +55,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
         let mut res = header;
 
-        for block in latest_blocks.items.to_owned() {
+        for block in latest_blocks.items.clone() {
             res.push(ListItem::new(format!(
                 "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
                 block.number.unwrap(),
@@ -101,7 +101,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
     let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
         let mut res = header.to_owned();
 
-        for tx in latest_transactions.items.to_owned() {
+        for tx in latest_transactions.items.clone() {
             res.push(ListItem::new(format!(
                 " {:^11} | {:^11} | {:^11} | {:>19} |",
                 tx.transaction.hash,

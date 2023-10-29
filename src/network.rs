@@ -51,7 +51,7 @@ impl<'a> Network<'a> {
                     self.endpoint,
                     self.etherscan
                         .as_ref()
-                        .map_or(None, |etherscan| etherscan.api_key.to_owned()),
+                        .and_then(|etherscan| etherscan.api_key.to_owned()),
                 )
                 .await;
                 let mut app = self.app.lock().await;
@@ -150,7 +150,7 @@ impl<'a> Network<'a> {
 
         let mut avatar_url = None;
         if let Some(ens_id) = ens_id.as_ref() {
-            avatar_url = provider.resolve_avatar(&ens_id).await.ok();
+            avatar_url = provider.resolve_avatar(ens_id).await.ok();
         }
         let balance = provider.get_balance(address, None /* TODO */).await?;
 

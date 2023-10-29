@@ -113,7 +113,7 @@ fn read_file(path: String) -> Result<String, String> {
     let mut file_content = String::new();
 
     let mut fr = fs::File::open(path)
-        .map(|f| BufReader::new(f))
+        .map(BufReader::new)
         .map_err(|e| e.to_string())?;
 
     fr.read_to_string(&mut file_content)
@@ -133,7 +133,7 @@ async fn start_ui<B: Backend>(
         terminal.draw(|f| ui::ui_home(f, &mut app))?;
 
         if event::poll(Duration::from_millis(250))? {
-            let is_q = event_handling(event::read()?, &mut app, &terminal);
+            let is_q = event_handling(event::read()?, &mut app, terminal);
             if is_q {
                 return Ok(());
             }

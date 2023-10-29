@@ -100,12 +100,10 @@ pub fn render<B: Backend>(
                             .fg(Color::White)
                             .add_modifier(Modifier::BOLD),
                         Span::styled(
-                            format!(
-                                "{}",
-                                transaction
-                                    .to
-                                    .map_or("".to_owned(), |to| format!("{:#x}", to)),
-                            ),
+                            transaction
+                                .to
+                                .map_or("".to_owned(), |to| format!("{:#x}", to))
+                                .to_string(),
                             Style::default()
                                 .fg(Color::Cyan)
                                 .add_modifier(Modifier::BOLD),
@@ -115,12 +113,10 @@ pub fn render<B: Backend>(
                     vec![
                         Span::raw(format!("{:<17}: ", "To")).fg(Color::White),
                         Span::styled(
-                            format!(
-                                "{}",
-                                transaction
-                                    .to
-                                    .map_or("".to_owned(), |to| format!("{:#x}", to)),
-                            ),
+                            transaction
+                                .to
+                                .map_or("".to_owned(), |to| format!("{:#x}", to))
+                                .to_string(),
                             Style::default().fg(Color::Cyan),
                         ),
                     ]
