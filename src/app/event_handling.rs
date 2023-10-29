@@ -254,7 +254,7 @@ where
                             }
                             RouteId::TransactionsOfBlock(block) => {
                                 if let Some(block) = block.as_ref() {
-                                    if block.transactions.is_empty() {
+                                    if !block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state
                                                 .select(Some((i + 1) % block.transactions.len()));
@@ -344,7 +344,7 @@ where
                             }
                             RouteId::TransactionsOfBlock(block) => {
                                 if let Some(block) = block.as_ref() {
-                                    if block.transactions.is_empty() {
+                                    if !block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state.select(Some(
                                                 (i + block.transactions.len() - 1)
