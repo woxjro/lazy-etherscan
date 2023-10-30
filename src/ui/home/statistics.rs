@@ -57,7 +57,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         "ETHER PRICE",
         "TRANSACTIONS",
         "LAST SAFE BLOCK",
-        "MARKET CAP",
+        "NODE COUNT",
         "MED GAS PRICE",
         "LAST FINALIZED BLOCK",
     ];
@@ -81,6 +81,12 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         let text = if i == Statistics::ETHUSD_INDEX {
             if let Some(ethusd) = app.statistics.ethusd.as_ref() {
                 format!("{:.4} USD/ETH ", ethusd)
+            } else {
+                Spinner::default().to_string()
+            }
+        } else if i == Statistics::NODE_COUNT_INDEX {
+            if let Some(node_count) = app.statistics.node_count.as_ref() {
+                format!("{node_count} nodes")
             } else {
                 Spinner::default().to_string()
             }

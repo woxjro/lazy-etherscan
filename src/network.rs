@@ -260,6 +260,7 @@ impl<'a> Network<'a> {
         let provider = Provider::<Http>::try_from(endpoint)?;
 
         let mut ethusd = None;
+        let mut node_count = None;
         if let Some(api_key) = etherscan_api_key {
             //TODO: remove unwrap()
             let client = Client::builder()
@@ -267,8 +268,10 @@ impl<'a> Network<'a> {
                 .with_api_url("https://api.etherscan.io/api")?
                 .chain(Chain::Mainnet)?
                 .build()?;
-            let res = client.eth_price().await?;
-            ethusd = Some(res.ethusd);
+            let eth_price = client.eth_price().await?;
+            let res = client.node_count().await?;
+            ethusd = Some(eth_price.ethusd);
+            node_count = Some(res.total_node_count);
         }
 
         let res = join_all([
@@ -279,7 +282,7 @@ impl<'a> Network<'a> {
 
         Ok(Statistics {
             ethusd,
-            market_cap: None,
+            node_count,
             transactions: None,
             med_gas_price: None,
             last_safe_block: res[0].as_ref().unwrap().to_owned(),
