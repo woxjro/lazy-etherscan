@@ -1,5 +1,6 @@
 use crate::app::{statistics::Statistics, App};
 use crate::widget::Spinner;
+use ethers::core::utils::format_units;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
@@ -55,7 +56,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
     let statistic_titles = [
         "ETHER PRICE",
-        "TRANSACTIONS",
+        "SUGGESTED BASE FEE",
         "LAST SAFE BLOCK",
         "NODE COUNT",
         "MED GAS PRICE",
@@ -84,6 +85,12 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             } else {
                 Spinner::default().to_string()
             }
+        } else if i == Statistics::SUGGESTED_BASE_FEE_INDEX {
+            if let Some(suggested_base_fee) = app.statistics.suggested_base_fee {
+                format!("{} Gwei", format_units(suggested_base_fee, "gwei").unwrap())
+            } else {
+                Spinner::default().to_string()
+            }
         } else if i == Statistics::NODE_COUNT_INDEX {
             if let Some(node_count) = app.statistics.node_count.as_ref() {
                 format!("{node_count} nodes")
@@ -93,6 +100,12 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         } else if i == Statistics::LAST_SAFE_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_safe_block.as_ref() {
                 format!("#{} ", block.number.unwrap())
+            } else {
+                Spinner::default().to_string()
+            }
+        } else if i == Statistics::MED_GAS_PRICE_INDEX {
+            if let Some(med_gas_price) = app.statistics.med_gas_price {
+                format!("{} Gwei", format_units(med_gas_price, "gwei").unwrap())
             } else {
                 Spinner::default().to_string()
             }

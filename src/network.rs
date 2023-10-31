@@ -9,7 +9,7 @@ use ethers::core::types::{
 };
 use ethers::etherscan::Client;
 use ethers::providers::{Http, Middleware, Provider};
-use futures::future::{join_all, try_join};
+use futures::future::{join_all, try_join, try_join3};
 use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -261,6 +261,8 @@ impl<'a> Network<'a> {
 
         let mut ethusd = None;
         let mut node_count = None;
+        let mut suggested_base_fee = None;
+        let mut med_gas_price = None;
         if let Some(api_key) = etherscan_api_key {
             let client = Client::builder()
                 .with_api_key(api_key)
@@ -268,11 +270,13 @@ impl<'a> Network<'a> {
                 .chain(Chain::Mainnet)?
                 .build()?;
 
-            let (eth_price, total_node_count) =
-                try_join(client.eth_price(), client.node_count()).await?;
+            let (eth_price, total_node_count, gas_oracle) =
+                try_join3(client.eth_price(), client.node_count(), client.gas_oracle()).await?;
 
             ethusd = Some(eth_price.ethusd);
             node_count = Some(total_node_count.total_node_count);
+            suggested_base_fee = Some(gas_oracle.suggested_base_fee);
+            med_gas_price = Some(gas_oracle.propose_gas_price);
         }
 
         let (last_safe_block, last_finalized_block) = try_join(
@@ -284,8 +288,8 @@ impl<'a> Network<'a> {
         Ok(Statistics {
             ethusd,
             node_count,
-            transactions: None,
-            med_gas_price: None,
+            suggested_base_fee,
+            med_gas_price,
             last_safe_block,
             last_finalized_block,
         })
