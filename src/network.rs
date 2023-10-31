@@ -9,7 +9,7 @@ use ethers::core::types::{
 };
 use ethers::etherscan::Client;
 use ethers::providers::{Http, Middleware, Provider};
-use futures::future::join_all;
+use futures::future::{join_all, try_join};
 use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -262,31 +262,32 @@ impl<'a> Network<'a> {
         let mut ethusd = None;
         let mut node_count = None;
         if let Some(api_key) = etherscan_api_key {
-            //TODO: remove unwrap()
             let client = Client::builder()
                 .with_api_key(api_key)
                 .with_api_url("https://api.etherscan.io/api")?
                 .chain(Chain::Mainnet)?
                 .build()?;
-            let eth_price = client.eth_price().await?;
-            let res = client.node_count().await?;
+
+            let (eth_price, total_node_count) =
+                try_join(client.eth_price(), client.node_count()).await?;
+
             ethusd = Some(eth_price.ethusd);
-            node_count = Some(res.total_node_count);
+            node_count = Some(total_node_count.total_node_count);
         }
 
-        let res = join_all([
+        let (last_safe_block, last_finalized_block) = try_join(
             provider.get_block_with_txs(BlockNumber::Safe),
             provider.get_block_with_txs(BlockNumber::Finalized),
-        ])
-        .await;
+        )
+        .await?;
 
         Ok(Statistics {
             ethusd,
             node_count,
             transactions: None,
             med_gas_price: None,
-            last_safe_block: res[0].as_ref().unwrap().to_owned(),
-            last_finalized_block: res[1].as_ref().unwrap().to_owned(),
+            last_safe_block,
+            last_finalized_block,
         })
     }
 }
