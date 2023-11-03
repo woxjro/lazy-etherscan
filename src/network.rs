@@ -20,6 +20,7 @@ pub enum IoEvent {
     GetBlock { number: U64 },
     GetBlockByHash { hash: H256 },
     GetTransactionWithReceipt { transaction_hash: TxHash },
+    GetLatestBlocksAndTransactions { n: usize },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
 }
@@ -96,6 +97,18 @@ impl<'a> Network<'a> {
                 if let Ok(some) = res {
                     app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
                 }
+                app.is_loading = false;
+            }
+            IoEvent::GetLatestBlocksAndTransactions { n } => {
+                let (blocks, transactions) = try_join(
+                    Self::get_latest_blocks(self.endpoint, n),
+                    Self::get_latest_transactions(self.endpoint, n),
+                )
+                .await
+                .unwrap();
+                let mut app = self.app.lock().await;
+                app.latest_blocks = Some(StatefulList::with_items(blocks));
+                app.latest_transactions = Some(StatefulList::with_items(transactions));
                 app.is_loading = false;
             }
             IoEvent::GetLatestBlocks { n } => {

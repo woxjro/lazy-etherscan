@@ -143,11 +143,7 @@ async fn start_ui<B: Backend>(
             app.dispatch(IoEvent::GetStatistics);
 
             let height = terminal.size().unwrap().height as usize;
-            app.dispatch(IoEvent::GetLatestBlocks {
-                n: (height - 3 * 4) / 2 - 4,
-            });
-
-            app.dispatch(IoEvent::GetLatestTransactions {
+            app.dispatch(IoEvent::GetLatestBlocksAndTransactions {
                 n: (height - 3 * 4) / 2 - 4,
             });
 
