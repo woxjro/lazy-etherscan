@@ -1,7 +1,7 @@
 use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use ethers::core::types::{Block, Transaction};
 
-#[derive(PartialEq, Clone)]
+#[derive(Clone)]
 pub enum RouteId {
     Welcome,
     AddressInfo(Option<AddressInfo>),
@@ -19,7 +19,7 @@ pub enum ActiveBlock {
     Main,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(Clone)]
 pub struct Route {
     id: RouteId,
     active_block: ActiveBlock,

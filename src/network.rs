@@ -3,12 +3,13 @@ use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
 use crate::Etherscan;
-use ethers::core::types::Chain;
-use ethers::core::types::{
-    Address, Block, BlockId, BlockNumber, NameOrAddress, Transaction, TxHash, H256, U64,
+use ethers::{
+    core::types::{
+        Address, Block, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TxHash, H256, U64,
+    },
+    etherscan::Client,
+    providers::{Http, Middleware, Provider},
 };
-use ethers::etherscan::Client;
-use ethers::providers::{Http, Middleware, Provider};
 use futures::future::{join_all, try_join, try_join3};
 use std::error::Error;
 use std::sync::Arc;
@@ -65,7 +66,14 @@ impl<'a> Network<'a> {
                 let res = match name_or_address {
                     NameOrAddress::Name(name) => Self::get_name_info(self.endpoint, &name).await,
                     NameOrAddress::Address(address) => {
-                        Self::get_address_info(self.endpoint, address).await
+                        Self::get_address_info(
+                            self.endpoint,
+                            self.etherscan
+                                .as_ref()
+                                .and_then(|etherscan| etherscan.api_key.to_owned()),
+                            address,
+                        )
+                        .await
                     }
                 };
                 let mut app = self.app.lock().await;
@@ -150,21 +158,37 @@ impl<'a> Network<'a> {
             address,
             balance,
             avatar_url,
+            contract_metadata: None,
             ens_id: Some(ens_id.to_owned()),
         }))
     }
 
+    //TODO: use `join`
     async fn get_address_info(
         endpoint: &'a str,
+        etherscan_api_key: Option<String>,
         address: Address,
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let ens_id = provider.lookup_address(address).await.ok();
 
-        let mut avatar_url = None;
-        if let Some(ens_id) = ens_id.as_ref() {
-            avatar_url = provider.resolve_avatar(ens_id).await.ok();
-        }
+        let avatar_url = if let Some(ens_id) = ens_id.as_ref() {
+            provider.resolve_avatar(ens_id).await.ok()
+        } else {
+            None
+        };
+
+        let contract_metadata = if let Some(api_key) = etherscan_api_key {
+            let client = Client::builder()
+                .with_api_key(api_key)
+                .chain(Chain::Mainnet)?
+                .build()?;
+
+            Some(client.contract_source_code(address).await?)
+        } else {
+            None
+        };
+
         let balance = provider.get_balance(address, None /* TODO */).await?;
 
         //TODO: Not Found
@@ -172,6 +196,7 @@ impl<'a> Network<'a> {
             address,
             balance,
             avatar_url,
+            contract_metadata,
             ens_id,
         }))
     }
@@ -279,7 +304,6 @@ impl<'a> Network<'a> {
         if let Some(api_key) = etherscan_api_key {
             let client = Client::builder()
                 .with_api_key(api_key)
-                .with_api_url("https://api.etherscan.io/api")?
                 .chain(Chain::Mainnet)?
                 .build()?;
 
