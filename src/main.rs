@@ -4,8 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
-use app::event_handling::event_handling;
-use app::App;
+use app::{event_handling::event_handling, App};
 use chrono::Utc;
 use clap::Parser;
 use crossterm::{event, execute, terminal};
@@ -14,10 +13,13 @@ use network::{IoEvent, Network};
 use ratatui::prelude::*;
 use serde::Deserialize;
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
-use std::fs;
-use std::io::{BufReader, Read};
-use std::sync::Arc;
-use std::{error::Error, io, time::Duration};
+use std::{
+    error::Error,
+    fs, io,
+    io::{BufReader, Read},
+    sync::Arc,
+    time::Duration,
+};
 use tokio::sync::Mutex;
 
 #[derive(Deserialize, Debug)]

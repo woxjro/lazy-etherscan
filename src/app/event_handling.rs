@@ -8,8 +8,7 @@ use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route, RouteId};
 use crossterm::event;
 use log::debug;
-use ratatui::prelude::*;
-use ratatui::Terminal;
+use ratatui::{prelude::*, Terminal};
 
 type IsQ = bool;
 

@@ -11,8 +11,7 @@ use ethers::{
     providers::{Http, Middleware, Provider},
 };
 use futures::future::{join_all, try_join, try_join3};
-use std::error::Error;
-use std::sync::Arc;
+use std::{error::Error, sync::Arc};
 use tokio::sync::Mutex;
 
 pub enum IoEvent {

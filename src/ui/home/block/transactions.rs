@@ -1,7 +1,9 @@
 use crate::app::App;
 use crate::route::{ActiveBlock, RouteId};
-use ethers::core::types::{Block as EBlock, Transaction, U64};
-use ethers::core::utils::{format_ether, format_units};
+use ethers::core::{
+    types::{Block as EBlock, Transaction, U64},
+    utils::{format_ether, format_units},
+};
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(
