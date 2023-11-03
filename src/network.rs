@@ -187,7 +187,7 @@ impl<'a> Network<'a> {
                 .chain(Chain::Mainnet)?
                 .build()?;
 
-            Some(client.contract_source_code(address).await?)
+            client.contract_source_code(address).await.ok()
         } else {
             None
         };
