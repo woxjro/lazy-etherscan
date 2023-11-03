@@ -77,9 +77,10 @@ impl<'a> Network<'a> {
                     }
                 };
                 let mut app = self.app.lock().await;
-                if let Ok(some) = res {
-                    app.set_route(Route::new(RouteId::AddressInfo(some), ActiveBlock::Main));
-                }
+                app.set_route(Route::new(
+                    RouteId::AddressInfo(if let Ok(some) = res { some } else { None }),
+                    ActiveBlock::Main,
+                ));
 
                 app.is_loading = false;
             }
@@ -145,12 +146,14 @@ impl<'a> Network<'a> {
         Ok(block)
     }
 
+    //TODO: use `join`
     async fn get_name_info(
         endpoint: &'a str,
         ens_id: &str,
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
-        let address = provider.resolve_name(ens_id).await.ok().unwrap();
+        let address = provider.resolve_name(ens_id).await?;
+
         let avatar_url = provider.resolve_avatar(ens_id).await.ok();
         let balance = provider.get_balance(address, None /* TODO */).await?;
         //TODO: Not Found (impl LazyEtherscanError)
