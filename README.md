@@ -41,11 +41,21 @@ $ cargo run --
 ```
 
 ## Configurations & Usage
+### Ethereum Statistics
+To see statistics information about Ethereum, you have to set an Etherscan's free API key.
+You can get it from [here](https://etherscan.io/apis).
+And set it to `api_key` field in `settings.toml`. You can use a setting template file (`settings.example.toml`).
+```sh
+$ mv ./settings.example.toml ./settings.toml
+```
+
+### Configurations
 Please check the various settings such as endpoints using the following command:
 ```sh
 cargo run -- --help
 ```
 
+### Usage
 The basic usage is as follows:
 - Press `q` to exit `lazy-etherscan`.
 - Press `s` to focus on the search bar, where you can perform searches for addresses, blocks, transactions, and more.
@@ -61,6 +71,7 @@ Please see [this issue](https://github.com/woxjro/lazy-etherscan/issues/1).
 ## Contributing
 This project is currently in the Proof of Concept (PoC) stage.
 Contributions are kindly requested to be postponed until further notice.
+Crash reports are welcome, please create an issue to do that.
 
 ## Sponsors
 This project has been developed with a grant from the [Ethereum Foundation](https://ethereum.org/en/foundation/).
