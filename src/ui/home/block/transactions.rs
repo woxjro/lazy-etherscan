@@ -1,6 +1,7 @@
 use crate::app::App;
 use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::route::{ActiveBlock, RouteId};
+use crate::widget::Spinner;
 use ethers::core::{
     types::{Transaction, U64},
     utils::{format_ether, format_units},
@@ -15,7 +16,7 @@ pub fn render<B: Backend>(
 ) {
     let BlockWithTransactionReceipts {
         block,
-        transaction_receipts: _,
+        transaction_receipts,
     } = block_with_transaction_receipts;
 
     let selected_style = Style::default().add_modifier(Modifier::BOLD);
@@ -27,7 +28,7 @@ pub fn render<B: Backend>(
         "From",
         "To",
         "Value (ETH)",
-        //"Fee",
+        "Fee",
         "Gas Price (Gwei)",
     ]
     .iter()
@@ -70,9 +71,26 @@ pub fn render<B: Backend>(
                 Cell::from(format!("{}", tx.from)).fg(Color::White),
                 Cell::from(tx.to.map_or("".to_owned(), |to| format!("{to}"))).fg(Color::White),
                 Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
-                //TODO:format!( "{}", format_ether(tx.gas_price.unwrap() * tx_receipt.gas_used)),
-                //transaction_receipt.gas_usedが必要 ref: https://hackmd.io/@tvanepps/1559-wallets
-                //Cell::from(format!("")).fg(Color::White),
+                Cell::from(format!(
+                    "{}",
+                    if let Some(transaction_receipts) = transaction_receipts {
+                        if let Some(transaction_receipt) = transaction_receipts
+                            .iter()
+                            .find(|receipt| receipt.transaction_hash == tx.hash)
+                        {
+                            transaction_receipt
+                                .gas_used
+                                .map_or(Spinner::default().to_string(), |gas_used| {
+                                    format_ether(tx.gas_price.unwrap() * gas_used)
+                                })
+                        } else {
+                            Spinner::default().to_string()
+                        }
+                    } else {
+                        Spinner::default().to_string()
+                    }
+                ))
+                .fg(Color::White),
                 Cell::from(
                     format_units(tx.gas_price.unwrap(), "gwei")
                         .unwrap()
@@ -113,7 +131,7 @@ pub fn render<B: Backend>(
             Constraint::Max(12), //From
             Constraint::Max(12), //To
             Constraint::Max(20), //Value (ETH)
-            //Constraint::Max(10), //Fee
+            Constraint::Max(10), //Fee
             Constraint::Max(20), //Gas Price (Gwei)
         ]);
 
