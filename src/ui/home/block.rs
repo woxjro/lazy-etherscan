@@ -4,15 +4,15 @@ mod gas_info;
 mod transactions;
 mod withdrawals;
 use crate::app::App;
-use crate::route::ActiveBlock;
-use crate::route::RouteId;
-use ethers::core::types::{Block as EBlock, Transaction};
+use crate::ethers::types::BlockWithTransactionReceipts;
+use crate::route::{ActiveBlock, RouteId};
+use ethers::core::types::Transaction;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
     app: &mut App,
-    block: Option<EBlock<Transaction>>,
+    block_with_transaction_receipts: Option<BlockWithTransactionReceipts<Transaction>>,
     rect: Rect,
 ) {
     let height = rect.height;
@@ -30,11 +30,11 @@ pub fn render<B: Backend>(
         return;
     };
 
-    if let Some(block) = block {
+    if let Some(block_with_transaction_receipts) = block_with_transaction_receipts {
         if let RouteId::WithdrawalsOfBlock(_) = app.get_current_route().get_id() {
-            withdrawals::render(f, app, &block, transactions_rect);
+            withdrawals::render(f, app, &block_with_transaction_receipts, transactions_rect);
         } else {
-            transactions::render(f, app, &block, transactions_rect);
+            transactions::render(f, app, &block_with_transaction_receipts, transactions_rect);
         }
 
         let [block_info_rect, fee_info_rect, gas_info_rect] = *Layout::default()
@@ -51,6 +51,11 @@ pub fn render<B: Backend>(
         else {
             return;
         };
+
+        let BlockWithTransactionReceipts {
+            block,
+            transaction_receipts: _,
+        } = block_with_transaction_receipts;
 
         let detail_block = Block::default()
             .title(format!("Block #{}", block.number.unwrap()))

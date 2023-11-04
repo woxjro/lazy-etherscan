@@ -2,11 +2,11 @@ pub mod block;
 pub mod event_handling;
 pub mod statistics;
 pub mod transaction;
-use crate::ethers::types::TransactionWithReceipt;
+use crate::ethers::types::{BlockWithTransactionReceipts, TransactionWithReceipt};
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
-use ethers::core::types::{Block, NameOrAddress, Transaction, TxHash, U64};
+use ethers::core::types::{NameOrAddress, Transaction, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::sync::mpsc::Sender;
@@ -22,7 +22,7 @@ pub struct App {
     pub is_loading: bool,
     pub is_toggled: bool,
     pub statistics: Statistics,
-    pub latest_blocks: Option<StatefulList<Block<Transaction>>>,
+    pub latest_blocks: Option<StatefulList<BlockWithTransactionReceipts<Transaction>>>,
     pub latest_transactions: Option<StatefulList<TransactionWithReceipt>>,
     //Search
     pub input_mode: InputMode,

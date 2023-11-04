@@ -1,14 +1,20 @@
 use crate::app::App;
+use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::route::{ActiveBlock, RouteId};
-use ethers::core::types::{Block as EBlock, Transaction};
+use ethers::core::types::Transaction;
 use ratatui::{prelude::*, widgets::*};
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
     app: &mut App,
-    block: &EBlock<Transaction>,
+    block_with_transaction_receipts: &BlockWithTransactionReceipts<Transaction>,
     rect: Rect,
 ) {
+    let BlockWithTransactionReceipts {
+        block,
+        transaction_receipts: _,
+    } = block_with_transaction_receipts;
+
     let selected_style = Style::default().add_modifier(Modifier::BOLD);
     let normal_style = Style::default().fg(Color::White);
     let header_cells = ["Index", "Validator Index", "Address", "Amount"]

@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::route::ActiveBlock;
 use crate::widget::Spinner;
 use chrono::Utc;
@@ -55,7 +56,12 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
         let mut res = header;
 
-        for block in latest_blocks.items.clone() {
+        for block_with_transaction_receipts in latest_blocks.items.clone() {
+            let BlockWithTransactionReceipts {
+                block,
+                transaction_receipts: _,
+            } = block_with_transaction_receipts;
+
             res.push(ListItem::new(format!(
                 "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
                 block.number.unwrap(),

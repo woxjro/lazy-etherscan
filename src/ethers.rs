@@ -1,6 +1,6 @@
 pub mod types {
     use ethers::{
-        core::types::{Address, Transaction, TransactionReceipt, U256},
+        core::types::{Address, Block, Transaction, TransactionReceipt, U256},
         etherscan::contract::ContractMetadata,
     };
     use std::cmp::PartialEq;
@@ -15,11 +15,15 @@ pub mod types {
         pub balance: U256,
     }
 
-    //impl PartialEq for ContractMetadata {}
-
     #[derive(Clone, Debug, PartialEq)]
     pub struct TransactionWithReceipt {
         pub transaction: Transaction,
         pub transaction_receipt: TransactionReceipt,
+    }
+
+    #[derive(Clone, Debug, PartialEq)]
+    pub struct BlockWithTransactionReceipts<T> {
+        pub block: Block<T>,
+        pub transaction_receipts: Option<Vec<TransactionReceipt>>,
     }
 } /* types */

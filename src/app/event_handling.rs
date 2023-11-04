@@ -2,11 +2,11 @@ use crate::app::{
     block::SelectableBlockDetailItem, statistics::Statistics,
     transaction::SelectableTransactionDetailItem, App, InputMode,
 };
-use ethers::core::types::NameOrAddress;
-
+use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route, RouteId};
 use crossterm::event;
+use ethers::core::types::NameOrAddress;
 use log::debug;
 use ratatui::{prelude::*, Terminal};
 
@@ -116,7 +116,11 @@ where
                                             ));
                                         }
                                         SelectableBlockDetailItem::FeeRecipient => {
-                                            if let Some(block) = block.as_ref() {
+                                            if let Some(BlockWithTransactionReceipts {
+                                                block,
+                                                transaction_receipts: _,
+                                            }) = block.as_ref()
+                                            {
                                                 if let Some(address) = block.author {
                                                     app.dispatch(IoEvent::GetNameOrAddressInfo {
                                                         name_or_address: NameOrAddress::Address(
@@ -127,7 +131,11 @@ where
                                             }
                                         }
                                         SelectableBlockDetailItem::ParentHash => {
-                                            if let Some(block) = block.as_ref() {
+                                            if let Some(BlockWithTransactionReceipts {
+                                                block,
+                                                transaction_receipts: _,
+                                            }) = block.as_ref()
+                                            {
                                                 app.dispatch(IoEvent::GetBlockByHash {
                                                     hash: block.parent_hash,
                                                 });
@@ -137,7 +145,11 @@ where
                                 }
                             }
                             RouteId::TransactionsOfBlock(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if let Some(i) = app.transactions_table_state.selected() {
                                         if let Some(transaction) = block.transactions.get(i) {
                                             app.dispatch(IoEvent::GetTransactionWithReceipt {
@@ -239,7 +251,11 @@ where
                         }
                         ActiveBlock::Main => match app.get_current_route().get_id() {
                             RouteId::Block(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if let Some(i) = app.block_detail_list_state.selected() {
                                         app.block_detail_list_state.select(Some(
                                             SelectableBlockDetailItem::from(i).next(block).into(),
@@ -252,7 +268,11 @@ where
                                 }
                             }
                             RouteId::TransactionsOfBlock(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if !block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state
@@ -264,7 +284,11 @@ where
                                 }
                             }
                             RouteId::WithdrawalsOfBlock(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if let Some(withdrawals) = block.withdrawals.as_ref() {
                                         if let Some(i) = app.withdrawals_table_state.selected() {
                                             app.withdrawals_table_state
@@ -327,7 +351,11 @@ where
                         }
                         ActiveBlock::Main => match app.get_current_route().get_id() {
                             RouteId::Block(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if let Some(i) = app.block_detail_list_state.selected() {
                                         app.block_detail_list_state.select(Some(
                                             SelectableBlockDetailItem::from(i)
@@ -342,7 +370,11 @@ where
                                 }
                             }
                             RouteId::TransactionsOfBlock(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if !block.transactions.is_empty() {
                                         if let Some(i) = app.transactions_table_state.selected() {
                                             app.transactions_table_state.select(Some(
@@ -356,7 +388,11 @@ where
                                 }
                             }
                             RouteId::WithdrawalsOfBlock(block) => {
-                                if let Some(block) = block.as_ref() {
+                                if let Some(BlockWithTransactionReceipts {
+                                    block,
+                                    transaction_receipts: _,
+                                }) = block.as_ref()
+                                {
                                     if let Some(withdrawals) = block.withdrawals.as_ref() {
                                         if let Some(i) = app.withdrawals_table_state.selected() {
                                             app.withdrawals_table_state.select(Some(

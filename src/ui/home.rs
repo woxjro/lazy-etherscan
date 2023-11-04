@@ -67,14 +67,14 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             RouteId::AddressInfo(address_info) => {
                 address_info::render(f, app, address_info, rest);
             }
-            RouteId::Block(block) => {
-                block::render(f, app, block, rest);
+            RouteId::Block(block_with_transaction_receipts) => {
+                block::render(f, app, block_with_transaction_receipts, rest);
             }
-            RouteId::TransactionsOfBlock(block) => {
-                block::render(f, app, block, rest);
+            RouteId::TransactionsOfBlock(block_with_transaction_receipts) => {
+                block::render(f, app, block_with_transaction_receipts, rest);
             }
-            RouteId::WithdrawalsOfBlock(block) => {
-                block::render(f, app, block, rest);
+            RouteId::WithdrawalsOfBlock(block_with_transaction_receipts) => {
+                block::render(f, app, block_with_transaction_receipts, rest);
             }
             RouteId::Transaction(transaction) => {
                 transaction::render(f, app, transaction, rest);

@@ -1,11 +1,11 @@
 use crate::app::{statistics::Statistics, App};
-use crate::ethers::types::{AddressInfo, TransactionWithReceipt};
+use crate::ethers::types::{AddressInfo, BlockWithTransactionReceipts, TransactionWithReceipt};
 use crate::route::{ActiveBlock, Route, RouteId};
 use crate::widget::StatefulList;
 use crate::Etherscan;
 use ethers::{
     core::types::{
-        Address, Block, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TxHash, H256, U64,
+        Address, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TxHash, H256, U64,
     },
     etherscan::Client,
     providers::{Http, Middleware, Provider},
@@ -86,8 +86,8 @@ impl<'a> Network<'a> {
             IoEvent::GetBlock { number } => {
                 let res = Self::get_block(self.endpoint, number).await;
                 let mut app = self.app.lock().await;
-                if let Ok(some) = res {
-                    app.set_route(Route::new(RouteId::Block(some), ActiveBlock::Main));
+                if let Ok(block) = res {
+                    app.set_route(Route::new(RouteId::Block(block), ActiveBlock::Main));
                 }
                 app.is_loading = false;
             }
@@ -139,10 +139,28 @@ impl<'a> Network<'a> {
     async fn get_block<T: Into<BlockId> + Send + Sync>(
         endpoint: &'a str,
         block_hash_or_number: T,
-    ) -> Result<Option<Block<Transaction>>, Box<dyn Error>> {
+    ) -> Result<Option<BlockWithTransactionReceipts<Transaction>>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let block = provider.get_block_with_txs(block_hash_or_number).await?;
-        Ok(block)
+        let query = if let Some(block) = block.as_ref() {
+            block
+                .transactions
+                .iter()
+                .map(|tx| provider.get_transaction_receipt(tx.hash))
+                .collect()
+        } else {
+            vec![]
+        };
+        let transaction_receipts = join_all(query).await;
+        let transaction_receipts = transaction_receipts
+            .iter()
+            .filter_map(|receipt| receipt.as_ref().ok().and_then(|receipt| receipt.clone()))
+            .collect::<Vec<_>>();
+
+        Ok(Some(BlockWithTransactionReceipts {
+            block: block.unwrap(), //TODO
+            transaction_receipts: Some(transaction_receipts),
+        }))
     }
 
     //TODO: use `join`
@@ -227,7 +245,7 @@ impl<'a> Network<'a> {
     async fn get_latest_blocks(
         endpoint: &'a str,
         n: usize,
-    ) -> Result<Vec<Block<Transaction>>, Box<dyn Error>> {
+    ) -> Result<Vec<BlockWithTransactionReceipts<Transaction>>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let block_number = provider.get_block_number().await?;
 
@@ -242,7 +260,10 @@ impl<'a> Network<'a> {
         let mut res = vec![];
         for block in blocks {
             //TODO
-            res.push(block.unwrap().unwrap());
+            res.push(BlockWithTransactionReceipts {
+                block: block.unwrap().unwrap(),
+                transaction_receipts: None,
+            });
         }
         Ok(res)
     }
