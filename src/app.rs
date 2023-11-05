@@ -13,12 +13,12 @@ use std::{fs::File, io::Read, sync::mpsc::Sender};
 
 use serde::{Deserialize, Deserializer};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct ERC20Token {
-    name: String,
-    ticker: String,
+    pub name: String,
+    pub ticker: String,
     #[serde(deserialize_with = "deserialize_address_from_string")]
-    contract_address: Address,
+    pub contract_address: Address,
 }
 
 fn deserialize_address_from_string<'de, D>(deserializer: D) -> Result<Address, D::Error>
@@ -184,7 +184,15 @@ impl App {
     }
 
     pub fn submit_message(&mut self) {
-        if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
+        if let Some(token) = self
+            .erc20_tokens
+            .iter()
+            .find(|erc20_token| erc20_token.ticker == self.input)
+        {
+            self.dispatch(IoEvent::GetNameOrAddressInfo {
+                name_or_address: NameOrAddress::Address(token.contract_address),
+            })
+        } else if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
             self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
         } else if let Ok(i) = self.input.parse::<u64>() {
             let number = U64::from(i);

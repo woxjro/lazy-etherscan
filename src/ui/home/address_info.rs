@@ -1,6 +1,4 @@
-use crate::app::App;
-use crate::ethers::types::AddressInfo;
-use crate::route::ActiveBlock;
+use crate::{app::App, ethers::types::AddressInfo, route::ActiveBlock};
 use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
 
@@ -33,6 +31,20 @@ pub fn render<B: Backend>(
         };
 
         let mut details = vec![];
+
+        if let Some(token) = app
+            .erc20_tokens
+            .iter()
+            .find(|erc20_token| erc20_token.contract_address == address_info.address)
+        {
+            details.push(Line::from(
+                Span::raw(format!(
+                    "{:<17}: {} ({})",
+                    "ERC20", token.name, token.ticker
+                ))
+                .fg(Color::White),
+            ));
+        }
 
         if let Some(ens_id) = address_info.ens_id {
             details.push(Line::from(
