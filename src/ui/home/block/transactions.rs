@@ -1,7 +1,9 @@
-use crate::app::App;
-use crate::ethers::types::BlockWithTransactionReceipts;
-use crate::route::{ActiveBlock, RouteId};
-use crate::widget::Spinner;
+use crate::{
+    app::App,
+    ethers::types::{BlockWithTransactionReceipts, ERC20Token},
+    route::{ActiveBlock, RouteId},
+    widget::Spinner,
+};
 use ethers::core::{
     types::{Transaction, U64},
     utils::{format_ether, format_units},
@@ -68,12 +70,36 @@ pub fn render<B: Backend>(
                     .to_string(),
                 )
                 .fg(Color::White),
-                Cell::from(format!("{}", tx.from)).fg(Color::White),
-                Cell::from(tx.to.map_or("".to_owned(), |to| format!("{to}"))).fg(Color::White),
+                Cell::from(
+                    if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, tx.from) {
+                        token.ticker.to_string()
+                    } else {
+                        format!("{}", tx.from)
+                    },
+                )
+                .fg(
+                    if ERC20Token::find_by_address(&app.erc20_tokens, tx.from).is_some() {
+                        Color::Cyan
+                    } else {
+                        Color::White
+                    },
+                ),
+                Cell::from(tx.to.map_or("".to_owned(), |to| {
+                    if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
+                        token.ticker.to_string()
+                    } else {
+                        format!("{}", to)
+                    }
+                }))
+                .fg(tx.to.map_or(Color::White, |to| {
+                    if ERC20Token::find_by_address(&app.erc20_tokens, to).is_some() {
+                        Color::Cyan
+                    } else {
+                        Color::White
+                    }
+                })),
                 Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
-                Cell::from(format!(
-                    "{}",
-                    if let Some(transaction_receipts) = transaction_receipts {
+                Cell::from((if let Some(transaction_receipts) = transaction_receipts {
                         if let Some(transaction_receipt) = transaction_receipts
                             .iter()
                             .find(|receipt| receipt.transaction_hash == tx.hash)
@@ -88,8 +114,7 @@ pub fn render<B: Backend>(
                         }
                     } else {
                         Spinner::default().to_string()
-                    }
-                ))
+                    }).to_string())
                 .fg(Color::White),
                 Cell::from(
                     format_units(tx.gas_price.unwrap(), "gwei")

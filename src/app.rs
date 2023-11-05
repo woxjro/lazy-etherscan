@@ -2,33 +2,16 @@ pub mod block;
 pub mod event_handling;
 pub mod statistics;
 pub mod transaction;
-use crate::ethers::types::{BlockWithTransactionReceipts, TransactionWithReceipt};
-use crate::network::IoEvent;
-use crate::route::{ActiveBlock, Route};
-use crate::widget::StatefulList;
-use ethers::core::types::{Address, NameOrAddress, Transaction, TxHash, U64};
+use crate::{
+    ethers::types::{BlockWithTransactionReceipts, ERC20Token, TransactionWithReceipt},
+    network::IoEvent,
+    route::{ActiveBlock, Route},
+    widget::StatefulList,
+};
+use ethers::core::types::{NameOrAddress, Transaction, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::{fs::File, io::Read, sync::mpsc::Sender};
-
-use serde::{Deserialize, Deserializer};
-
-#[derive(Deserialize, Debug)]
-pub struct ERC20Token {
-    pub name: String,
-    pub ticker: String,
-    #[serde(deserialize_with = "deserialize_address_from_string")]
-    pub contract_address: Address,
-}
-
-fn deserialize_address_from_string<'de, D>(deserializer: D) -> Result<Address, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let s: String = Deserialize::deserialize(deserializer)?;
-
-    s.parse::<Address>().map_err(serde::de::Error::custom)
-}
 
 pub enum InputMode {
     Normal,
@@ -184,11 +167,7 @@ impl App {
     }
 
     pub fn submit_message(&mut self) {
-        if let Some(token) = self
-            .erc20_tokens
-            .iter()
-            .find(|erc20_token| erc20_token.ticker == self.input)
-        {
+        if let Some(token) = ERC20Token::find_by_ticker(&self.erc20_tokens, &self.input) {
             self.dispatch(IoEvent::GetNameOrAddressInfo {
                 name_or_address: NameOrAddress::Address(token.contract_address),
             })
