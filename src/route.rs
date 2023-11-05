@@ -4,6 +4,7 @@ use ethers::core::types::Transaction;
 #[derive(Clone)]
 pub enum RouteId {
     Welcome,
+    Searching(String),
     AddressInfo(Option<AddressInfo>),
     Block(Option<BlockWithTransactionReceipts<Transaction>>),
     TransactionsOfBlock(Option<BlockWithTransactionReceipts<Transaction>>),

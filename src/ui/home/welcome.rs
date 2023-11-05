@@ -8,9 +8,12 @@ pub fn render<B: Backend>(f: &mut Frame<B>, rect: Rect) {
         .border_type(BorderType::Plain);
 
     let [detail_rect] = *Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([Constraint::Ratio(1,1)].as_ref())
-            .split(rect) else { return; };
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Ratio(1, 1)].as_ref())
+        .split(rect)
+    else {
+        return;
+    };
 
     let banner = Paragraph::new(Text::from(
         cfonts::render(cfonts::Options {

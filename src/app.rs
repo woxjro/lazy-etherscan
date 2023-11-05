@@ -166,7 +166,7 @@ impl App {
         self.cursor_position = 0;
     }
 
-    pub fn submit_message(&mut self) {
+    pub fn submit_message(&mut self) -> String {
         if let Some(token) = ERC20Token::find_by_ticker(&self.erc20_tokens, &self.input) {
             self.dispatch(IoEvent::GetNameOrAddressInfo {
                 name_or_address: NameOrAddress::Address(token.contract_address),
@@ -180,7 +180,9 @@ impl App {
             self.dispatch(IoEvent::GetNameOrAddressInfo { name_or_address })
         }
 
+        let message = self.input.to_owned();
         self.input.clear();
         self.reset_cursor();
+        message
     }
 }

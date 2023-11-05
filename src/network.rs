@@ -77,6 +77,7 @@ impl<'a> Network<'a> {
                     }
                 };
                 let mut app = self.app.lock().await;
+                app.pop_current_route();
                 app.set_route(Route::new(
                     RouteId::AddressInfo(if let Ok(some) = res { some } else { None }),
                     ActiveBlock::Main,
@@ -88,6 +89,7 @@ impl<'a> Network<'a> {
                 let res = Self::get_block(self.endpoint, number).await;
                 let mut app = self.app.lock().await;
                 if let Ok(block) = res {
+                    app.pop_current_route();
                     app.set_route(Route::new(RouteId::Block(block), ActiveBlock::Main));
                 }
                 app.is_loading = false;
@@ -96,6 +98,7 @@ impl<'a> Network<'a> {
                 let res = Self::get_block(self.endpoint, hash).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
+                    app.pop_current_route();
                     app.set_route(Route::new(RouteId::Block(some), ActiveBlock::Main));
                 }
                 app.is_loading = false;

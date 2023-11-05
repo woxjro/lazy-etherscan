@@ -1,6 +1,7 @@
 mod address_info;
 mod block;
 mod latest_status;
+mod searching;
 mod statistics;
 mod transaction;
 mod welcome;
@@ -82,6 +83,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             RouteId::Welcome => {
                 welcome::render(f, rest);
             }
+            RouteId::Searching(message) => {
+                searching::render(f, &message, rest);
+            }
         }
     } else {
         let [sidebar, detail] = *Layout::default()
@@ -122,6 +126,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             }
             RouteId::Welcome => {
                 welcome::render(f, detail);
+            }
+            RouteId::Searching(message) => {
+                searching::render(f, &message, detail);
             }
         }
     }

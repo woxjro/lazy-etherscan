@@ -49,8 +49,12 @@ where
                     InputMode::Editing if key.kind == event::KeyEventKind::Press => {
                         match key.code {
                             event::KeyCode::Enter => {
-                                app.submit_message();
+                                let message = app.submit_message();
                                 app.input_mode = InputMode::Normal;
+                                app.set_route(Route::new(
+                                    RouteId::Searching(message),
+                                    ActiveBlock::Main,
+                                ));
                             }
                             event::KeyCode::Char(to_insert) => {
                                 app.enter_char(to_insert);
