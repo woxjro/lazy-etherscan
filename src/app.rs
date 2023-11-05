@@ -6,10 +6,29 @@ use crate::ethers::types::{BlockWithTransactionReceipts, TransactionWithReceipt}
 use crate::network::IoEvent;
 use crate::route::{ActiveBlock, Route};
 use crate::widget::StatefulList;
-use ethers::core::types::{NameOrAddress, Transaction, TxHash, U64};
+use ethers::core::types::{Address, NameOrAddress, Transaction, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
-use std::sync::mpsc::Sender;
+use std::{fs::File, io::Read, sync::mpsc::Sender};
+
+use serde::{Deserialize, Deserializer};
+
+#[derive(Deserialize)]
+pub struct ERC20Token {
+    name: String,
+    ticker: String,
+    #[serde(deserialize_with = "deserialize_address_from_string")]
+    contract_address: Address,
+}
+
+fn deserialize_address_from_string<'de, D>(deserializer: D) -> Result<Address, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+
+    s.parse::<Address>().map_err(serde::de::Error::custom)
+}
 
 pub enum InputMode {
     Normal,
@@ -35,10 +54,24 @@ pub struct App {
     pub withdrawals_table_state: TableState,
     //Transaction Detail
     pub transaction_detail_list_state: ListState,
+    //Token Data
+    pub erc20_tokens: Vec<ERC20Token>,
 }
 
 impl App {
     pub fn new(io_tx: Sender<IoEvent>) -> App {
+        let erc20_tokens = File::open("./data/tokens.json").map_or(vec![], |file| {
+            let mut buffer = String::new();
+            let mut file = std::io::BufReader::new(file);
+            if file.read_to_string(&mut buffer).is_ok() {
+                let tokens: Result<Vec<ERC20Token>, serde_json::Error> =
+                    serde_json::from_str(&buffer);
+                tokens.map_or(vec![], |tokens| tokens)
+            } else {
+                vec![]
+            }
+        });
+
         App {
             routes: vec![Route::default()],
             is_loading: false,
@@ -56,6 +89,8 @@ impl App {
             withdrawals_table_state: TableState::default(),
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
+            //Token Data
+            erc20_tokens,
         }
     }
 
