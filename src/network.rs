@@ -5,7 +5,8 @@ use crate::widget::StatefulList;
 use crate::Etherscan;
 use ethers::{
     core::types::{
-        Address, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TxHash, H256, U64,
+        Address, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TransactionReceipt,
+        TxHash, H256, U64,
     },
     etherscan::Client,
     providers::{Http, Middleware, Provider},
@@ -20,9 +21,9 @@ pub enum IoEvent {
     GetBlock { number: U64 },
     GetBlockByHash { hash: H256 },
     GetTransactionWithReceipt { transaction_hash: TxHash },
-    GetLatestBlocksAndTransactions { n: usize },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
+    InitialSetup { n: usize },
 }
 
 #[derive(Clone)]
@@ -107,14 +108,21 @@ impl<'a> Network<'a> {
                 }
                 app.is_loading = false;
             }
-            IoEvent::GetLatestBlocksAndTransactions { n } => {
-                let (blocks, transactions) = try_join(
+            IoEvent::InitialSetup { n } => {
+                let (statistics, blocks, transactions) = try_join3(
+                    Self::get_statistics(
+                        self.endpoint,
+                        self.etherscan
+                            .as_ref()
+                            .and_then(|etherscan| etherscan.api_key.to_owned()),
+                    ),
                     Self::get_latest_blocks(self.endpoint, n),
                     Self::get_latest_transactions(self.endpoint, n),
                 )
                 .await
                 .unwrap();
                 let mut app = self.app.lock().await;
+                app.statistics = statistics;
                 app.latest_blocks = Some(StatefulList::with_items(blocks));
                 app.latest_transactions = Some(StatefulList::with_items(transactions));
                 app.is_loading = false;
@@ -269,6 +277,23 @@ impl<'a> Network<'a> {
             }
         }
         Ok(latest_blocks)
+    }
+
+    async fn get_transaction_receipts(
+        endpoint: &'a str,
+        transaction_hashes: Vec<TxHash>,
+    ) -> Result<Vec<TransactionReceipt>, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let query = transaction_hashes
+            .iter()
+            .map(|hash| provider.get_transaction_receipt(hash.clone()))
+            .collect::<Vec<_>>();
+        let res = join_all(query).await;
+        let transaction_receips = res
+            .iter()
+            .map(|receipt| receipt.as_ref().unwrap().to_owned().unwrap())
+            .collect::<Vec<_>>();
+        Ok(transaction_receips)
     }
 
     async fn get_latest_transactions(
