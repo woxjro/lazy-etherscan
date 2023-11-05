@@ -257,15 +257,18 @@ impl<'a> Network<'a> {
 
         let blocks = join_all(blocks).await;
 
-        let mut res = vec![];
+        let mut latest_blocks = vec![];
         for block in blocks {
-            //TODO
-            res.push(BlockWithTransactionReceipts {
-                block: block.unwrap().unwrap(),
-                transaction_receipts: None,
-            });
+            if let Ok(block) = block {
+                if let Some(block) = block {
+                    latest_blocks.push(BlockWithTransactionReceipts {
+                        block,
+                        transaction_receipts: None,
+                    });
+                }
+            }
         }
-        Ok(res)
+        Ok(latest_blocks)
     }
 
     async fn get_latest_transactions(
