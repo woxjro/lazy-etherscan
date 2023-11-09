@@ -1,7 +1,9 @@
-use crate::app::App;
-use crate::ethers::types::BlockWithTransactionReceipts;
-use crate::route::ActiveBlock;
-use crate::widget::Spinner;
+use crate::{
+    app::App,
+    ethers::types::{BlockWithTransactionReceipts, ERC20Token},
+    route::ActiveBlock,
+    widget::Spinner,
+};
 use chrono::Utc;
 use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
@@ -111,10 +113,20 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             res.push(ListItem::new(format!(
                 " {:^11} | {:^11} | {:^11} | {:>19} |",
                 tx.transaction.hash,
-                tx.transaction.from,
-                tx.transaction
-                    .to
-                    .map_or("".to_owned(), |to| format!("{to}")),
+                if let Some(token) =
+                    ERC20Token::find_by_address(&app.erc20_tokens, tx.transaction.from)
+                {
+                    token.ticker.to_string()
+                } else {
+                    format!("{}", tx.transaction.from)
+                },
+                tx.transaction.to.map_or("".to_owned(), |to| {
+                    if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
+                        token.ticker.to_string()
+                    } else {
+                        format!("{}", to)
+                    }
+                }),
                 format_ether(tx.transaction.value)
             )));
         }

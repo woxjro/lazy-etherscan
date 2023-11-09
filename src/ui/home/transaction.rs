@@ -1,6 +1,9 @@
-use crate::app::{transaction::SelectableTransactionDetailItem, App};
-use crate::ethers::types::TransactionWithReceipt;
-use crate::route::ActiveBlock;
+use crate::{
+    app::transaction::SelectableTransactionDetailItem,
+    ethers::types::{ERC20Token, TransactionWithReceipt},
+    route::ActiveBlock,
+    App,
+};
 use ethers::core::{
     types::U64,
     utils::{format_ether, format_units},
@@ -77,7 +80,17 @@ pub fn render<B: Backend>(
                             .fg(Color::White)
                             .add_modifier(Modifier::BOLD),
                         Span::styled(
-                            format!("{:#x}", transaction.from),
+                            format!(
+                                "{:#x} {}",
+                                transaction.from,
+                                if let Some(token) =
+                                    ERC20Token::find_by_address(&app.erc20_tokens, transaction.from)
+                                {
+                                    format!("({}: {})", token.ticker, token.name)
+                                } else {
+                                    "".to_owned()
+                                }
+                            ),
                             Style::default()
                                 .fg(Color::Cyan)
                                 .add_modifier(Modifier::BOLD),
@@ -87,7 +100,17 @@ pub fn render<B: Backend>(
                     vec![
                         Span::raw(format!("{:<17}: ", "From")).fg(Color::White),
                         Span::styled(
-                            format!("{:#x}", transaction.from),
+                            format!(
+                                "{:#x} {}",
+                                transaction.from,
+                                if let Some(token) =
+                                    ERC20Token::find_by_address(&app.erc20_tokens, transaction.from)
+                                {
+                                    format!("({}: {})", token.ticker, token.name)
+                                } else {
+                                    "".to_owned()
+                                }
+                            ),
                             Style::default().fg(Color::Cyan),
                         ),
                     ]
@@ -104,7 +127,19 @@ pub fn render<B: Backend>(
                         Span::styled(
                             transaction
                                 .to
-                                .map_or("".to_owned(), |to| format!("{:#x}", to))
+                                .map_or("".to_owned(), |to| {
+                                    format!(
+                                        "{:#x} {}",
+                                        to,
+                                        if let Some(token) =
+                                            ERC20Token::find_by_address(&app.erc20_tokens, to)
+                                        {
+                                            format!("({}: {})", token.ticker, token.name)
+                                        } else {
+                                            "".to_owned()
+                                        }
+                                    )
+                                })
                                 .to_string(),
                             Style::default()
                                 .fg(Color::Cyan)
@@ -117,7 +152,19 @@ pub fn render<B: Backend>(
                         Span::styled(
                             transaction
                                 .to
-                                .map_or("".to_owned(), |to| format!("{:#x}", to))
+                                .map_or("".to_owned(), |to| {
+                                    format!(
+                                        "{:#x} {}",
+                                        to,
+                                        if let Some(token) =
+                                            ERC20Token::find_by_address(&app.erc20_tokens, to)
+                                        {
+                                            format!("({}: {})", token.ticker, token.name)
+                                        } else {
+                                            "".to_owned()
+                                        }
+                                    )
+                                })
                                 .to_string(),
                             Style::default().fg(Color::Cyan),
                         ),
