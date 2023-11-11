@@ -168,10 +168,14 @@ impl<'a> Network<'a> {
             .filter_map(|receipt| receipt.as_ref().ok().and_then(|receipt| receipt.clone()))
             .collect::<Vec<_>>();
 
-        Ok(Some(BlockWithTransactionReceipts {
-            block: block.unwrap(), //TODO
-            transaction_receipts: Some(transaction_receipts),
-        }))
+        if let Some(block) = block {
+            Ok(Some(BlockWithTransactionReceipts {
+                block,
+                transaction_receipts: Some(transaction_receipts),
+            }))
+        } else {
+            Ok(None)
+        }
     }
 
     //TODO: use `join`
