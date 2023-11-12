@@ -199,7 +199,7 @@ pub fn render<B: Backend>(
                     "{:<17}: {} ETH",
                     "Transaction Fee",
                     format_ether(
-                        transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap()
+                        transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap() //TODO gas_price.unwrap()
                     )
                 ))
                 .fg(Color::White),

@@ -87,6 +87,9 @@ where
                                         RouteId::Block(Some(blocks.items[i].to_owned())),
                                         ActiveBlock::Main,
                                     ));
+                                    app.dispatch(IoEvent::GetTransactionReceipts {
+                                        transactions: blocks.items[i].block.transactions.to_owned(),
+                                    });
                                 }
                             }
                         }

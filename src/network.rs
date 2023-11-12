@@ -21,6 +21,7 @@ pub enum IoEvent {
     GetBlock { number: U64 },
     GetBlockByHash { hash: H256 },
     GetTransactionWithReceipt { transaction_hash: TxHash },
+    GetTransactionReceipts { transactions: Vec<Transaction> },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
     InitialSetup { n: usize },
@@ -109,6 +110,41 @@ impl<'a> Network<'a> {
                 if let Ok(some) = res {
                     app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
                 }
+                app.is_loading = false;
+            }
+            IoEvent::GetTransactionReceipts { transactions } => {
+                let rate_limit = 120;
+                let splitted_transactions = transactions.chunks(rate_limit).collect::<Vec<_>>();
+
+                for transactions in splitted_transactions {
+                    let res = Self::get_transaction_receipts(self.endpoint, &transactions).await;
+                    let mut app = self.app.lock().await;
+                    let route = app.get_current_route();
+                    if let RouteId::Block(block_with_transaction_receipts) = route.get_id() {
+                        if let Some(block_with_transaction_receipts) =
+                            block_with_transaction_receipts
+                        {
+                            let mut transaction_receipts = block_with_transaction_receipts
+                                .transaction_receipts
+                                .unwrap_or(vec![]);
+
+                            if let Ok(receipts) = res {
+                                transaction_receipts.append(&mut receipts.to_owned());
+                            }
+
+                            let new_route = Route::new(
+                                RouteId::Block(Some(BlockWithTransactionReceipts {
+                                    block: block_with_transaction_receipts.block,
+                                    transaction_receipts: Some(transaction_receipts),
+                                })),
+                                route.get_active_block(),
+                            );
+                            app.pop_current_route();
+                            app.set_route(new_route);
+                        }
+                    }
+                }
+                let mut app = self.app.lock().await;
                 app.is_loading = false;
             }
             IoEvent::InitialSetup { n } => {
@@ -288,18 +324,24 @@ impl<'a> Network<'a> {
 
     async fn get_transaction_receipts(
         endpoint: &'a str,
-        transaction_hashes: Vec<TxHash>,
+        transactions: &[Transaction],
     ) -> Result<Vec<TransactionReceipt>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
-        let query = transaction_hashes
+        let query = transactions
             .iter()
-            .map(|hash| provider.get_transaction_receipt(hash.clone()))
+            .map(|tx| provider.get_transaction_receipt(tx.hash))
             .collect::<Vec<_>>();
         let res = join_all(query).await;
-        let transaction_receips = res
-            .iter()
-            .map(|receipt| receipt.as_ref().unwrap().to_owned().unwrap())
-            .collect::<Vec<_>>();
+        let mut transaction_receips = vec![];
+
+        for receipt in res {
+            if let Ok(receipt) = receipt {
+                if let Some(receipt) = receipt {
+                    transaction_receips.push(receipt);
+                }
+            }
+        }
+
         Ok(transaction_receips)
     }
 
