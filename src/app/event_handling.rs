@@ -199,7 +199,21 @@ where
                     event::KeyCode::Char('e') => {
                         if key.modifiers == event::KeyModifiers::CONTROL {
                             match app.get_current_route().get_active_block() {
-                                ActiveBlock::LatestBlocks | ActiveBlock::LatestTransactions => {
+                                ActiveBlock::LatestBlocks => {
+                                    let latest_blocks = app.latest_blocks.clone();
+                                    if let Some(blocks) = latest_blocks {
+                                        if let Some(i) = blocks.get_selected_item_index() {
+                                            app.dispatch(IoEvent::GetTransactionReceipts {
+                                                transactions: blocks.items[i]
+                                                    .block
+                                                    .transactions
+                                                    .to_owned(),
+                                            });
+                                        }
+                                    }
+                                    app.change_active_block(ActiveBlock::Main);
+                                }
+                                ActiveBlock::LatestTransactions => {
                                     app.change_active_block(ActiveBlock::Main);
                                 }
                                 _ => {}

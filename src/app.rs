@@ -5,10 +5,10 @@ pub mod transaction;
 use crate::{
     ethers::types::{BlockWithTransactionReceipts, ERC20Token, TransactionWithReceipt},
     network::IoEvent,
-    route::{ActiveBlock, Route},
+    route::{ActiveBlock, Route, RouteId},
     widget::StatefulList,
 };
-use ethers::core::types::{NameOrAddress, Transaction, TxHash, U64};
+use ethers::core::types::{NameOrAddress, Transaction, TransactionReceipt, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
 use std::{fs::File, io::Read, sync::mpsc::Sender};
@@ -98,6 +98,55 @@ impl App {
         self.routes.pop();
         self.routes
             .push(Route::new(current_route.get_id(), active_block));
+    }
+
+    pub fn update_block_with_transaction_receipts(
+        &mut self,
+        transaction_receipts: Vec<TransactionReceipt>,
+    ) {
+        self.routes = self
+            .routes
+            .to_owned()
+            .iter()
+            .map(|route| match route.get_id() {
+                RouteId::Block(block)
+                | RouteId::TransactionsOfBlock(block)
+                | RouteId::WithdrawalsOfBlock(block) => {
+                    let block = if let Some(block) = block {
+                        let mut receipts = transaction_receipts
+                            .iter()
+                            .filter(|receipt| receipt.block_number == block.block.number)
+                            .map(|receipt| receipt.to_owned())
+                            .collect::<Vec<_>>();
+
+                        let mut transaction_receipts = block
+                            .transaction_receipts
+                            .map_or(vec![], |receipts| receipts.to_owned());
+
+                        transaction_receipts.append(&mut receipts);
+                        Some(BlockWithTransactionReceipts {
+                            block: block.block.to_owned(),
+                            transaction_receipts: Some(transaction_receipts),
+                        })
+                    } else {
+                        None
+                    };
+
+                    Route::new(
+                        match route.get_id() {
+                            RouteId::Block(_) => RouteId::Block(block),
+                            RouteId::TransactionsOfBlock(_) => RouteId::TransactionsOfBlock(block),
+                            RouteId::WithdrawalsOfBlock(_) => RouteId::WithdrawalsOfBlock(block),
+                            _ => {
+                                panic!("never occur")
+                            }
+                        },
+                        route.get_active_block(),
+                    )
+                }
+                _ => route.to_owned(),
+            })
+            .collect::<Vec<_>>();
     }
 
     // Send a network event to the network thread

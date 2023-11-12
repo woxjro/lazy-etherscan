@@ -119,29 +119,8 @@ impl<'a> Network<'a> {
                 for transactions in splitted_transactions {
                     let res = Self::get_transaction_receipts(self.endpoint, &transactions).await;
                     let mut app = self.app.lock().await;
-                    let route = app.get_current_route();
-                    if let RouteId::Block(block_with_transaction_receipts) = route.get_id() {
-                        if let Some(block_with_transaction_receipts) =
-                            block_with_transaction_receipts
-                        {
-                            let mut transaction_receipts = block_with_transaction_receipts
-                                .transaction_receipts
-                                .unwrap_or(vec![]);
-
-                            if let Ok(receipts) = res {
-                                transaction_receipts.append(&mut receipts.to_owned());
-                            }
-
-                            let new_route = Route::new(
-                                RouteId::Block(Some(BlockWithTransactionReceipts {
-                                    block: block_with_transaction_receipts.block,
-                                    transaction_receipts: Some(transaction_receipts),
-                                })),
-                                route.get_active_block(),
-                            );
-                            app.pop_current_route();
-                            app.set_route(new_route);
-                        }
+                    if let Ok(receipts) = res {
+                        app.update_block_with_transaction_receipts(receipts);
                     }
                 }
                 let mut app = self.app.lock().await;
