@@ -66,7 +66,20 @@ pub fn render<B: Backend>(
         .transactions
         .iter()
         .enumerate()
-        .map(|(i, tx)| create_row(i, tx, app, transaction_receipts))
+        .map(|(i, tx)| {
+            if let Some(transaction_receipts) = transaction_receipts {
+                create_row(
+                    i,
+                    tx,
+                    app,
+                    transaction_receipts
+                        .iter()
+                        .find(|receipt| receipt.transaction_hash == tx.hash),
+                )
+            } else {
+                create_row(i, tx, app, None)
+            }
+        })
         .collect::<Vec<_>>();
 
     let rows = items
@@ -129,7 +142,7 @@ fn create_row<'a>(
     i: usize,
     tx: &Transaction,
     app: &App,
-    transaction_receipts: &Option<Vec<TransactionReceipt>>,
+    transaction_receipt: Option<&TransactionReceipt>,
 ) -> Vec<Cell<'a>> {
     let mut row = vec![
         Cell::from(format!(" {} ", i + 1)).fg(Color::White),
@@ -192,25 +205,15 @@ fn create_row<'a>(
 
     if app.is_toggled {
         row.push(
-            Cell::from(
-                (if let Some(transaction_receipts) = transaction_receipts {
-                    if let Some(transaction_receipt) = transaction_receipts
-                        .iter()
-                        .find(|receipt| receipt.transaction_hash == tx.hash)
-                    {
-                        transaction_receipt
-                            .gas_used
-                            .map_or(Spinner::default().to_string(), |gas_used| {
-                                format_ether(tx.gas_price.unwrap() * gas_used)
-                            })
-                    } else {
-                        Spinner::default().to_string()
-                    }
-                } else {
-                    Spinner::default().to_string()
-                })
-                .to_string(),
-            )
+            Cell::from(if let Some(transaction_receipt) = transaction_receipt {
+                transaction_receipt
+                    .gas_used
+                    .map_or(Spinner::default().to_string(), |gas_used| {
+                        format_ether(tx.gas_price.unwrap() * gas_used)
+                    })
+            } else {
+                Spinner::default().to_string()
+            })
             .fg(Color::White),
         );
     }
@@ -226,9 +229,36 @@ fn create_row<'a>(
 
     if app.is_toggled {
         row.append(&mut vec![
-            Cell::from("").fg(Color::White),
-            Cell::from("").fg(Color::White),
-            Cell::from("").fg(Color::White),
+            Cell::from(if let Some(transaction_receipt) = transaction_receipt {
+                transaction_receipt
+                    .gas_used
+                    .map_or("".to_string(), |gas_used| {
+                        format_units(gas_used, "gwei").unwrap().to_string()
+                    })
+            } else {
+                Spinner::default().to_string()
+            })
+            .fg(Color::White),
+            if let Some(transaction_receipt) = transaction_receipt {
+                transaction_receipt.status.map_or(
+                    Cell::from(Spinner::default().to_string()).fg(Color::White),
+                    |status| {
+                        if status == U64::from(0) {
+                            Cell::from("Failure".to_string()).fg(Color::Red)
+                        } else {
+                            Cell::from("Success".to_string()).fg(Color::Green)
+                        }
+                    },
+                )
+            } else {
+                Cell::from(Spinner::default().to_string()).fg(Color::White)
+            },
+            Cell::from(if let Some(transaction_receipt) = transaction_receipt {
+                transaction_receipt.logs.len().to_string()
+            } else {
+                Spinner::default().to_string()
+            })
+            .fg(Color::White),
         ]);
     }
 
