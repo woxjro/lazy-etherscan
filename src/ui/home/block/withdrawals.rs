@@ -17,7 +17,7 @@ pub fn render<B: Backend>(
 
     let selected_style = Style::default().add_modifier(Modifier::BOLD);
     let normal_style = Style::default().fg(Color::White);
-    let header_cells = ["Index", "Validator Index", "Address", "Amount"]
+    let header_cells = ["", "Index", "Validator Index", "Address", "Amount"]
         .iter()
         .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
     let header = Row::new(header_cells)
@@ -27,8 +27,10 @@ pub fn render<B: Backend>(
     let items = block.withdrawals.as_ref().map_or(vec![], |withdrawals| {
         withdrawals
             .iter()
-            .map(|withdrawal| {
+            .enumerate()
+            .map(|(i, withdrawal)| {
                 vec![
+                    Cell::from(format!("{}", i + 1)).fg(Color::White),
                     Cell::from(format!("{}", withdrawal.index)).fg(Color::White),
                     Cell::from(format!("{}", withdrawal.validator_index)).fg(Color::White),
                     Cell::from(format!("{}", withdrawal.address)).fg(Color::White),
@@ -62,6 +64,7 @@ pub fn render<B: Backend>(
         )
         .highlight_style(selected_style)
         .widths(&[
+            Constraint::Max(3),
             Constraint::Max(12), //Index
             Constraint::Max(16), //Validator Index
             Constraint::Max(12), //Address

@@ -24,6 +24,7 @@ pub fn render<B: Backend>(
     let selected_style = Style::default().add_modifier(Modifier::BOLD);
     let normal_style = Style::default().fg(Color::White);
     let header_cells = [
+        "",
         "Hash",
         "Method",
         "Type",
@@ -42,8 +43,10 @@ pub fn render<B: Backend>(
     let items = block
         .transactions
         .iter()
-        .map(|tx| {
+        .enumerate()
+        .map(|(i, tx)| {
             vec![
+                Cell::from(format!(" {} ", i + 1)).fg(Color::White),
                 Cell::from(format!("{}", tx.hash)).fg(Color::White),
                 if tx.to.is_some() {
                     if tx.input.len() >= 4 {
@@ -99,7 +102,8 @@ pub fn render<B: Backend>(
                     }
                 })),
                 Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
-                Cell::from((if let Some(transaction_receipts) = transaction_receipts {
+                Cell::from(
+                    (if let Some(transaction_receipts) = transaction_receipts {
                         if let Some(transaction_receipt) = transaction_receipts
                             .iter()
                             .find(|receipt| receipt.transaction_hash == tx.hash)
@@ -114,7 +118,9 @@ pub fn render<B: Backend>(
                         }
                     } else {
                         Spinner::default().to_string()
-                    }).to_string())
+                    })
+                    .to_string(),
+                )
                 .fg(Color::White),
                 Cell::from(
                     format_units(tx.gas_price.unwrap(), "gwei")
@@ -150,6 +156,7 @@ pub fn render<B: Backend>(
         )
         .highlight_style(selected_style)
         .widths(&[
+            Constraint::Max(4),
             Constraint::Max(12), //Hash
             Constraint::Max(18), //Method
             Constraint::Max(10), //Type
