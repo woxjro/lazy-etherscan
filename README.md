@@ -63,7 +63,8 @@ The basic usage is as follows:
     - Press `r` to refresh the "Latest Blocks".
 - Press `2` to navigate the "Latest Transactions" panel. Use `j` to move to a transaction below and `k` to move to a transaction above.
     - Press `r` to refresh the "Latest Transactions".
-
+- Press `<Ctrl+e>` to toggle the sidebar.
+- Press `<Ctrl+p>` to move to a previous screen.
 
 ## Roadmap
 Please see [this issue](https://github.com/woxjro/lazy-etherscan/issues/1).

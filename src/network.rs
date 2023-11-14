@@ -117,7 +117,7 @@ impl<'a> Network<'a> {
                 let splitted_transactions = transactions.chunks(rate_limit).collect::<Vec<_>>();
 
                 for transactions in splitted_transactions {
-                    let res = Self::get_transaction_receipts(self.endpoint, &transactions).await;
+                    let res = Self::get_transaction_receipts(self.endpoint, transactions).await;
                     let mut app = self.app.lock().await;
                     if let Ok(receipts) = res {
                         app.update_block_with_transaction_receipts(receipts);
@@ -288,15 +288,11 @@ impl<'a> Network<'a> {
         let blocks = join_all(blocks).await;
 
         let mut latest_blocks = vec![];
-        for block in blocks {
-            if let Ok(block) = block {
-                if let Some(block) = block {
-                    latest_blocks.push(BlockWithTransactionReceipts {
-                        block,
-                        transaction_receipts: None,
-                    });
-                }
-            }
+        for block in blocks.into_iter().flatten().flatten() {
+            latest_blocks.push(BlockWithTransactionReceipts {
+                block,
+                transaction_receipts: None,
+            });
         }
         Ok(latest_blocks)
     }
@@ -313,12 +309,8 @@ impl<'a> Network<'a> {
         let res = join_all(query).await;
         let mut transaction_receips = vec![];
 
-        for receipt in res {
-            if let Ok(receipt) = receipt {
-                if let Some(receipt) = receipt {
-                    transaction_receips.push(receipt);
-                }
-            }
+        for receipt in res.into_iter().flatten().flatten() {
+            transaction_receips.push(receipt);
         }
 
         Ok(transaction_receips)
