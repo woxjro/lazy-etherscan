@@ -5,7 +5,7 @@ use crate::{
     widget::Spinner,
 };
 use ethers::core::{
-    types::{Transaction, U64},
+    types::{Transaction, TransactionReceipt, U64},
     utils::{format_ether, format_units},
 };
 use ratatui::{prelude::*, widgets::*};
@@ -23,19 +23,41 @@ pub fn render<B: Backend>(
 
     let selected_style = Style::default().add_modifier(Modifier::BOLD);
     let normal_style = Style::default().fg(Color::White);
-    let header_cells = [
-        "",
-        "Hash",
-        "Method",
-        "Type",
-        "From",
-        "To",
-        "Value (ETH)",
-        "Fee",
-        "Gas Price (Gwei)",
-    ]
-    .iter()
-    .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
+    let header = if app.is_toggled {
+        vec![
+            "",
+            "Hash",
+            "Method",
+            "Type",
+            "From",
+            "To",
+            "Value (ETH)",
+            "Fee",
+            "Gas Price (Gwei)",
+            "Gas Used",
+            "Status",
+            "#(Log)",
+        ]
+    } else {
+        vec![
+            "",
+            "Hash",
+            "Method",
+            "Type",
+            "From",
+            "To",
+            "Value (ETH)",
+            //"Fee",
+            "Gas Price (Gwei)",
+            //"Gas Used",
+            //"Status",
+            //"#(Log)",
+        ]
+    };
+
+    let header_cells = header
+        .iter()
+        .map(|h| Cell::from(*h).style(Style::default().add_modifier(Modifier::BOLD)));
     let header = Row::new(header_cells)
         .style(normal_style)
         .height(1)
@@ -44,97 +66,40 @@ pub fn render<B: Backend>(
         .transactions
         .iter()
         .enumerate()
-        .map(|(i, tx)| {
-            vec![
-                Cell::from(format!(" {} ", i + 1)).fg(Color::White),
-                Cell::from(format!("{}", tx.hash)).fg(Color::White),
-                if tx.to.is_some() {
-                    if tx.input.len() >= 4 {
-                        Cell::from("ContractExecution").fg(Color::LightYellow) //TODO
-                    } else {
-                        Cell::from("Transfer").fg(Color::LightMagenta)
-                    }
-                } else {
-                    Cell::from("ContractDeployment").fg(Color::LightCyan)
-                },
-                Cell::from(
-                    (match tx.transaction_type {
-                        Some(i) => {
-                            if i == U64::from(1) {
-                                "AccessList"
-                            } else if i == U64::from(2) {
-                                "EIP-1559"
-                            } else {
-                                "Unknown"
-                            }
-                        }
-                        None => "Legacy",
-                    })
-                    .to_string(),
-                )
-                .fg(Color::White),
-                Cell::from(
-                    if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, tx.from) {
-                        token.ticker.to_string()
-                    } else {
-                        format!("{}", tx.from)
-                    },
-                )
-                .fg(
-                    if ERC20Token::find_by_address(&app.erc20_tokens, tx.from).is_some() {
-                        Color::Cyan
-                    } else {
-                        Color::White
-                    },
-                ),
-                Cell::from(tx.to.map_or("".to_owned(), |to| {
-                    if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
-                        token.ticker.to_string()
-                    } else {
-                        format!("{}", to)
-                    }
-                }))
-                .fg(tx.to.map_or(Color::White, |to| {
-                    if ERC20Token::find_by_address(&app.erc20_tokens, to).is_some() {
-                        Color::Cyan
-                    } else {
-                        Color::White
-                    }
-                })),
-                Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
-                Cell::from(
-                    (if let Some(transaction_receipts) = transaction_receipts {
-                        if let Some(transaction_receipt) = transaction_receipts
-                            .iter()
-                            .find(|receipt| receipt.transaction_hash == tx.hash)
-                        {
-                            transaction_receipt
-                                .gas_used
-                                .map_or(Spinner::default().to_string(), |gas_used| {
-                                    format_ether(tx.gas_price.unwrap() * gas_used)
-                                })
-                        } else {
-                            Spinner::default().to_string()
-                        }
-                    } else {
-                        Spinner::default().to_string()
-                    })
-                    .to_string(),
-                )
-                .fg(Color::White),
-                Cell::from(
-                    format_units(tx.gas_price.unwrap(), "gwei")
-                        .unwrap()
-                        .to_string(),
-                )
-                .fg(Color::White),
-            ]
-        })
+        .map(|(i, tx)| create_row(i, tx, app, transaction_receipts))
         .collect::<Vec<_>>();
 
     let rows = items
         .iter()
         .map(|cells| Row::new(cells.to_owned()).height(1).bottom_margin(1));
+
+    let widths = if app.is_toggled {
+        vec![
+            Constraint::Max(4),
+            Constraint::Max(12), //Hash
+            Constraint::Max(18), //Method
+            Constraint::Max(10), //Type
+            Constraint::Max(12), //From
+            Constraint::Max(12), //To
+            Constraint::Max(20), //Value (ETH)
+            Constraint::Max(10), //Fee
+            Constraint::Max(20), //Gas Price (Gwei)
+            Constraint::Max(10), //Gas Used
+            Constraint::Max(10), //Status
+            Constraint::Max(10), //#(Log)
+        ]
+    } else {
+        vec![
+            Constraint::Max(4),
+            Constraint::Max(12), //Hash
+            Constraint::Max(18), //Method
+            Constraint::Max(10), //Type
+            Constraint::Max(12), //From
+            Constraint::Max(12), //To
+            Constraint::Max(20), //Value (ETH)
+            Constraint::Max(20), //Gas Price (Gwei)
+        ]
+    };
 
     let t = Table::new(rows.to_owned())
         .header(header)
@@ -155,17 +120,117 @@ pub fn render<B: Backend>(
                 ),
         )
         .highlight_style(selected_style)
-        .widths(&[
-            Constraint::Max(4),
-            Constraint::Max(12), //Hash
-            Constraint::Max(18), //Method
-            Constraint::Max(10), //Type
-            Constraint::Max(12), //From
-            Constraint::Max(12), //To
-            Constraint::Max(20), //Value (ETH)
-            Constraint::Max(10), //Fee
-            Constraint::Max(20), //Gas Price (Gwei)
-        ]);
+        .widths(&widths);
 
     f.render_stateful_widget(t, rect, &mut app.transactions_table_state);
+}
+
+fn create_row<'a>(
+    i: usize,
+    tx: &Transaction,
+    app: &App,
+    transaction_receipts: &Option<Vec<TransactionReceipt>>,
+) -> Vec<Cell<'a>> {
+    let mut row = vec![
+        Cell::from(format!(" {} ", i + 1)).fg(Color::White),
+        Cell::from(format!("{}", tx.hash)).fg(Color::White),
+        if tx.to.is_some() {
+            if tx.input.len() >= 4 {
+                Cell::from("ContractExecution").fg(Color::LightYellow) //TODO
+            } else {
+                Cell::from("Transfer").fg(Color::LightMagenta)
+            }
+        } else {
+            Cell::from("ContractDeployment").fg(Color::LightCyan)
+        },
+        Cell::from(
+            (match tx.transaction_type {
+                Some(i) => {
+                    if i == U64::from(1) {
+                        "AccessList"
+                    } else if i == U64::from(2) {
+                        "EIP-1559"
+                    } else {
+                        "Unknown"
+                    }
+                }
+                None => "Legacy",
+            })
+            .to_string(),
+        )
+        .fg(Color::White),
+        Cell::from(
+            if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, tx.from) {
+                token.ticker.to_string()
+            } else {
+                format!("{}", tx.from)
+            },
+        )
+        .fg(
+            if ERC20Token::find_by_address(&app.erc20_tokens, tx.from).is_some() {
+                Color::Cyan
+            } else {
+                Color::White
+            },
+        ),
+        Cell::from(tx.to.map_or("".to_owned(), |to| {
+            if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
+                token.ticker.to_string()
+            } else {
+                format!("{}", to)
+            }
+        }))
+        .fg(tx.to.map_or(Color::White, |to| {
+            if ERC20Token::find_by_address(&app.erc20_tokens, to).is_some() {
+                Color::Cyan
+            } else {
+                Color::White
+            }
+        })),
+        Cell::from(format_ether(tx.value).to_string()).fg(Color::White),
+    ];
+
+    if app.is_toggled {
+        row.push(
+            Cell::from(
+                (if let Some(transaction_receipts) = transaction_receipts {
+                    if let Some(transaction_receipt) = transaction_receipts
+                        .iter()
+                        .find(|receipt| receipt.transaction_hash == tx.hash)
+                    {
+                        transaction_receipt
+                            .gas_used
+                            .map_or(Spinner::default().to_string(), |gas_used| {
+                                format_ether(tx.gas_price.unwrap() * gas_used)
+                            })
+                    } else {
+                        Spinner::default().to_string()
+                    }
+                } else {
+                    Spinner::default().to_string()
+                })
+                .to_string(),
+            )
+            .fg(Color::White),
+        );
+    }
+
+    row.push(
+        Cell::from(
+            format_units(tx.gas_price.unwrap(), "gwei")
+                .unwrap()
+                .to_string(),
+        )
+        .fg(Color::White),
+    );
+
+    if app.is_toggled {
+        row.append(&mut vec![
+            Cell::from("").fg(Color::White),
+            Cell::from("").fg(Color::White),
+            Cell::from("").fg(Color::White),
+        ]);
+    }
+
+    row
 }
