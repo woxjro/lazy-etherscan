@@ -8,10 +8,10 @@ use crate::{
     route::{ActiveBlock, Route, RouteId},
     widget::StatefulList,
 };
-use ethers::core::types::{NameOrAddress, Transaction, TransactionReceipt, TxHash, U64};
+use ethers::core::types::{Address, NameOrAddress, Transaction, TransactionReceipt, TxHash, U64};
 use ratatui::widgets::{ListState, TableState};
 use statistics::Statistics;
-use std::{fs::File, io::Read, sync::mpsc::Sender};
+use std::{collections::HashMap, fs::File, io::Read, sync::mpsc::Sender};
 
 pub enum InputMode {
     Normal,
@@ -26,6 +26,7 @@ pub struct App {
     pub statistics: Statistics,
     pub latest_blocks: Option<StatefulList<BlockWithTransactionReceipts<Transaction>>>,
     pub latest_transactions: Option<StatefulList<TransactionWithReceipt>>,
+    pub address2ens_id: HashMap<Address, Option<String>>,
     //Search
     pub input_mode: InputMode,
     pub input: String,
@@ -63,6 +64,7 @@ impl App {
             statistics: Statistics::new(),
             latest_blocks: None,
             latest_transactions: None,
+            address2ens_id: HashMap::new(),
             input_mode: InputMode::Normal,
             input: "".to_owned(),
             cursor_position: 0,

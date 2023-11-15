@@ -15,6 +15,8 @@ use futures::future::{join_all, try_join, try_join3};
 use std::{error::Error, sync::Arc};
 use tokio::sync::Mutex;
 
+const RATE_LIMIT: usize = 60;
+
 pub enum IoEvent {
     GetStatistics,
     GetNameOrAddressInfo { name_or_address: NameOrAddress },
@@ -24,6 +26,7 @@ pub enum IoEvent {
     GetTransactionReceipts { transactions: Vec<Transaction> },
     GetLatestBlocks { n: usize },
     GetLatestTransactions { n: usize },
+    LookupAddresses { addresses: Vec<Address> },
     InitialSetup { n: usize },
 }
 
@@ -113,8 +116,7 @@ impl<'a> Network<'a> {
                 app.is_loading = false;
             }
             IoEvent::GetTransactionReceipts { transactions } => {
-                let rate_limit = 120;
-                let splitted_transactions = transactions.chunks(rate_limit).collect::<Vec<_>>();
+                let splitted_transactions = transactions.chunks(RATE_LIMIT).collect::<Vec<_>>();
 
                 for transactions in splitted_transactions {
                     let res = Self::get_transaction_receipts(self.endpoint, transactions).await;
@@ -157,6 +159,22 @@ impl<'a> Network<'a> {
                     .unwrap();
                 let mut app = self.app.lock().await;
                 app.latest_transactions = Some(StatefulList::with_items(transactions));
+                app.is_loading = false;
+            }
+            IoEvent::LookupAddresses { addresses } => {
+                let results = Self::lookup_addresses(self.endpoint, &addresses)
+                    .await
+                    .unwrap();
+                let mut app = self.app.lock().await;
+
+                for (address, ens_id) in results {
+                    if ens_id.is_some() {
+                        app.address2ens_id.insert(address, ens_id);
+                    } else {
+                        app.address2ens_id.entry(address).or_insert(ens_id);
+                    }
+                }
+
                 app.is_loading = false;
             }
         }
@@ -401,5 +419,33 @@ impl<'a> Network<'a> {
             last_safe_block,
             last_finalized_block,
         })
+    }
+
+    async fn lookup_addresses(
+        endpoint: &'a str,
+        addresses: &[Address],
+    ) -> Result<Vec<(Address, Option<String>)>, Box<dyn Error>> {
+        let provider = Provider::<Http>::try_from(endpoint)?;
+        let query = addresses
+            .iter()
+            .map(|&address| provider.lookup_address(address))
+            .collect::<Vec<_>>();
+
+        let results = join_all(query).await;
+
+        let res = addresses
+            .iter()
+            .zip(results.iter())
+            .map(|(address, ens_id)| {
+                (
+                    address.to_owned(),
+                    ens_id
+                        .as_ref()
+                        .map_or(None, |ens_id| Some(ens_id.to_owned())),
+                )
+            })
+            .collect::<Vec<_>>();
+
+        Ok(res)
     }
 }
