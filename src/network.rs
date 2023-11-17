@@ -141,10 +141,25 @@ impl<'a> Network<'a> {
                 )
                 .await
                 .unwrap();
+                let mut addresses = vec![];
+                for transaction in &transactions {
+                    addresses.push(transaction.transaction.from);
+                    if let Some(to) = transaction.transaction.to {
+                        addresses.push(to);
+                    }
+                }
+
+                {
+                    let mut app = self.app.lock().await;
+                    app.statistics = statistics;
+
+                    app.latest_blocks = Some(StatefulList::with_items(blocks));
+                    app.latest_transactions = Some(StatefulList::with_items(transactions));
+                }
+
+                let _ = self.update_app_with_ens_ids(&addresses).await;
+
                 let mut app = self.app.lock().await;
-                app.statistics = statistics;
-                app.latest_blocks = Some(StatefulList::with_items(blocks));
-                app.latest_transactions = Some(StatefulList::with_items(transactions));
                 app.is_loading = false;
             }
             IoEvent::GetLatestBlocks { n } => {
@@ -157,24 +172,28 @@ impl<'a> Network<'a> {
                 let transactions = Self::get_latest_transactions(self.endpoint, n)
                     .await
                     .unwrap();
-                let mut app = self.app.lock().await;
-                app.latest_transactions = Some(StatefulList::with_items(transactions));
-                app.is_loading = false;
-            }
-            IoEvent::LookupAddresses { addresses } => {
-                let results = Self::lookup_addresses(self.endpoint, &addresses)
-                    .await
-                    .unwrap();
-                let mut app = self.app.lock().await;
 
-                for (address, ens_id) in results {
-                    if ens_id.is_some() {
-                        app.address2ens_id.insert(address, ens_id);
-                    } else {
-                        app.address2ens_id.entry(address).or_insert(ens_id);
+                let mut addresses = vec![];
+                for transaction in &transactions {
+                    addresses.push(transaction.transaction.from);
+                    if let Some(to) = transaction.transaction.to {
+                        addresses.push(to);
                     }
                 }
 
+                {
+                    let mut app = self.app.lock().await;
+                    app.latest_transactions = Some(StatefulList::with_items(transactions));
+                }
+
+                let _ = self.update_app_with_ens_ids(&addresses).await;
+
+                let mut app = self.app.lock().await;
+                app.is_loading = false;
+            }
+            IoEvent::LookupAddresses { addresses } => {
+                let _ = self.update_app_with_ens_ids(&addresses).await;
+                let mut app = self.app.lock().await;
                 app.is_loading = false;
             }
         }
@@ -419,6 +438,26 @@ impl<'a> Network<'a> {
             last_safe_block,
             last_finalized_block,
         })
+    }
+
+    async fn update_app_with_ens_ids(
+        &mut self,
+        addresses: &[Address],
+    ) -> Result<(), Box<dyn Error>> {
+        let chunked_addresses = addresses.chunks(RATE_LIMIT).collect::<Vec<_>>();
+        for addresses in chunked_addresses {
+            let results = Self::lookup_addresses(self.endpoint, &addresses).await?;
+            let mut app = self.app.lock().await;
+
+            for (address, ens_id) in results {
+                if ens_id.is_some() {
+                    app.address2ens_id.insert(address, ens_id);
+                } else {
+                    app.address2ens_id.entry(address).or_insert(ens_id);
+                }
+            }
+        }
+        Ok(())
     }
 
     async fn lookup_addresses(
