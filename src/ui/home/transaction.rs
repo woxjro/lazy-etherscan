@@ -87,6 +87,12 @@ pub fn render<B: Backend>(
                                     ERC20Token::find_by_address(&app.erc20_tokens, transaction.from)
                                 {
                                     format!("({}: {})", token.ticker, token.name)
+                                } else if let Some(ens_id) =
+                                    app.address2ens_id.get(&transaction.from)
+                                {
+                                    ens_id.as_ref().map_or("".to_string(), |ens_id| {
+                                        format!("({})", ens_id.to_owned())
+                                    })
                                 } else {
                                     "".to_owned()
                                 }
@@ -107,6 +113,12 @@ pub fn render<B: Backend>(
                                     ERC20Token::find_by_address(&app.erc20_tokens, transaction.from)
                                 {
                                     format!("({}: {})", token.ticker, token.name)
+                                } else if let Some(ens_id) =
+                                    app.address2ens_id.get(&transaction.from)
+                                {
+                                    ens_id.as_ref().map_or("".to_string(), |ens_id| {
+                                        format!("({})", ens_id.to_owned())
+                                    })
                                 } else {
                                     "".to_owned()
                                 }
@@ -135,6 +147,10 @@ pub fn render<B: Backend>(
                                             ERC20Token::find_by_address(&app.erc20_tokens, to)
                                         {
                                             format!("({}: {})", token.ticker, token.name)
+                                        } else if let Some(ens_id) = app.address2ens_id.get(&to) {
+                                            ens_id.as_ref().map_or("".to_string(), |ens_id| {
+                                                format!("({})", ens_id.to_owned())
+                                            })
                                         } else {
                                             "".to_owned()
                                         }
@@ -160,6 +176,10 @@ pub fn render<B: Backend>(
                                             ERC20Token::find_by_address(&app.erc20_tokens, to)
                                         {
                                             format!("({}: {})", token.ticker, token.name)
+                                        } else if let Some(ens_id) = app.address2ens_id.get(&to) {
+                                            ens_id.as_ref().map_or("".to_string(), |ens_id| {
+                                                format!("({})", ens_id.to_owned())
+                                            })
                                         } else {
                                             "".to_owned()
                                         }
