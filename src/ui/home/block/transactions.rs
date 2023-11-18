@@ -175,6 +175,10 @@ fn create_row<'a>(
         Cell::from(
             if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, tx.from) {
                 token.ticker.to_string()
+            } else if let Some(ens_id) = app.address2ens_id.get(&tx.from) {
+                ens_id
+                    .as_ref()
+                    .map_or(format!("{}", tx.from), |ens_id| ens_id.to_owned())
             } else {
                 format!("{}", tx.from)
             },
@@ -182,6 +186,12 @@ fn create_row<'a>(
         .fg(
             if ERC20Token::find_by_address(&app.erc20_tokens, tx.from).is_some() {
                 Color::Cyan
+            } else if let Some(ens_id) = app.address2ens_id.get(&tx.from) {
+                if ens_id.is_some() {
+                    Color::Cyan
+                } else {
+                    Color::White
+                }
             } else {
                 Color::White
             },
@@ -189,13 +199,23 @@ fn create_row<'a>(
         Cell::from(tx.to.map_or("".to_owned(), |to| {
             if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
                 token.ticker.to_string()
+            } else if let Some(ens_id) = app.address2ens_id.get(&to) {
+                ens_id
+                    .as_ref()
+                    .map_or(format!("{to}"), |ens_id| ens_id.to_owned())
             } else {
-                format!("{}", to)
+                format!("{to}")
             }
         }))
         .fg(tx.to.map_or(Color::White, |to| {
             if ERC20Token::find_by_address(&app.erc20_tokens, to).is_some() {
                 Color::Cyan
+            } else if let Some(ens_id) = app.address2ens_id.get(&to) {
+                if ens_id.is_some() {
+                    Color::Cyan
+                } else {
+                    Color::White
+                }
             } else {
                 Color::White
             }

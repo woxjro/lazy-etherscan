@@ -83,13 +83,24 @@ where
                             let latest_blocks = app.latest_blocks.clone();
                             if let Some(blocks) = latest_blocks {
                                 if let Some(i) = blocks.get_selected_item_index() {
+                                    let block = blocks.items[i].to_owned();
                                     app.set_route(Route::new(
-                                        RouteId::Block(Some(blocks.items[i].to_owned())),
+                                        RouteId::Block(Some(block.to_owned())),
                                         ActiveBlock::Main,
                                     ));
                                     app.dispatch(IoEvent::GetTransactionReceipts {
-                                        transactions: blocks.items[i].block.transactions.to_owned(),
+                                        transactions: block.block.transactions.to_owned(),
                                     });
+
+                                    let mut addresses = vec![];
+                                    for transaction in block.block.transactions {
+                                        addresses.push(transaction.from);
+                                        if let Some(to) = transaction.to {
+                                            addresses.push(to);
+                                        }
+                                    }
+
+                                    app.dispatch(IoEvent::LookupAddresses { addresses });
                                 }
                             }
                         }

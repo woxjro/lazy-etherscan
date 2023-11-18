@@ -446,7 +446,7 @@ impl<'a> Network<'a> {
     ) -> Result<(), Box<dyn Error>> {
         let chunked_addresses = addresses.chunks(RATE_LIMIT).collect::<Vec<_>>();
         for addresses in chunked_addresses {
-            let results = Self::lookup_addresses(self.endpoint, &addresses).await?;
+            let results = Self::lookup_addresses(self.endpoint, addresses).await?;
             let mut app = self.app.lock().await;
 
             for (address, ens_id) in results {
