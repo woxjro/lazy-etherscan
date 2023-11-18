@@ -32,7 +32,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             },
         ))
         .title(format!(
-            "Serach by Address / Txn Hash / Block / Token / Domain Name ({})",
+            "Search by Address / Txn Hash / Block / Token / Domain Name ({})",
             match app.input_mode {
                 InputMode::Normal => "Press 'q' to exit, 'i' to start editing.",
                 InputMode::Editing => "Press 'Esc' to stop editing, 'Enter' to search.",
