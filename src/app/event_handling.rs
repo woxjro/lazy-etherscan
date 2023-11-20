@@ -144,6 +144,7 @@ where
                                                         name_or_address: NameOrAddress::Address(
                                                             address,
                                                         ),
+                                                        is_searching: false,
                                                     });
                                                 }
                                             }
@@ -186,6 +187,7 @@ where
                                                     name_or_address: NameOrAddress::Address(
                                                         transaction.transaction.from,
                                                     ),
+                                                    is_searching: false,
                                                 });
                                             }
                                         }
@@ -196,6 +198,7 @@ where
                                                         name_or_address: NameOrAddress::Address(
                                                             address,
                                                         ),
+                                                        is_searching: false,
                                                     });
                                                 }
                                             }

@@ -19,15 +19,34 @@ const RATE_LIMIT: usize = 60;
 
 pub enum IoEvent {
     GetStatistics,
-    GetNameOrAddressInfo { name_or_address: NameOrAddress },
-    GetBlock { number: U64 },
-    GetBlockByHash { hash: H256 },
-    GetTransactionWithReceipt { transaction_hash: TxHash },
-    GetTransactionReceipts { transactions: Vec<Transaction> },
-    GetLatestBlocks { n: usize },
-    GetLatestTransactions { n: usize },
-    LookupAddresses { addresses: Vec<Address> },
-    InitialSetup { n: usize },
+    GetNameOrAddressInfo {
+        name_or_address: NameOrAddress,
+        is_searching: bool,
+    },
+    GetBlock {
+        number: U64,
+    },
+    GetBlockByHash {
+        hash: H256,
+    },
+    GetTransactionWithReceipt {
+        transaction_hash: TxHash,
+    },
+    GetTransactionReceipts {
+        transactions: Vec<Transaction>,
+    },
+    GetLatestBlocks {
+        n: usize,
+    },
+    GetLatestTransactions {
+        n: usize,
+    },
+    LookupAddresses {
+        addresses: Vec<Address>,
+    },
+    InitialSetup {
+        n: usize,
+    },
 }
 
 #[derive(Clone)]
@@ -66,7 +85,10 @@ impl<'a> Network<'a> {
                 }
                 app.is_loading = false;
             }
-            IoEvent::GetNameOrAddressInfo { name_or_address } => {
+            IoEvent::GetNameOrAddressInfo {
+                name_or_address,
+                is_searching,
+            } => {
                 let res = match name_or_address {
                     NameOrAddress::Name(name) => Self::get_name_info(self.endpoint, &name).await,
                     NameOrAddress::Address(address) => {
@@ -81,7 +103,9 @@ impl<'a> Network<'a> {
                     }
                 };
                 let mut app = self.app.lock().await;
-                app.pop_current_route();
+                if is_searching {
+                    app.pop_current_route();
+                }
                 app.set_route(Route::new(
                     RouteId::AddressInfo(if let Ok(some) = res { some } else { None }),
                     ActiveBlock::Main,

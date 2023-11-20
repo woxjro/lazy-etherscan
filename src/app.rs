@@ -221,6 +221,7 @@ impl App {
         if let Some(token) = ERC20Token::find_by_ticker(&self.erc20_tokens, &self.input) {
             self.dispatch(IoEvent::GetNameOrAddressInfo {
                 name_or_address: NameOrAddress::Address(token.contract_address),
+                is_searching: true,
             })
         } else if let Ok(transaction_hash) = self.input.parse::<TxHash>() {
             self.dispatch(IoEvent::GetTransactionWithReceipt { transaction_hash });
@@ -228,7 +229,10 @@ impl App {
             let number = U64::from(i);
             self.dispatch(IoEvent::GetBlock { number });
         } else if let Ok(name_or_address) = self.input.parse::<NameOrAddress>() {
-            self.dispatch(IoEvent::GetNameOrAddressInfo { name_or_address })
+            self.dispatch(IoEvent::GetNameOrAddressInfo {
+                name_or_address,
+                is_searching: true,
+            })
         }
 
         let message = self.input.to_owned();
