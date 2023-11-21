@@ -95,15 +95,14 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^11} | {:^11} | {:^11} | {:^20} |", //TODO: remove these magic numbers
-            "Hash", "From", "To", "Value (ETH)"
+            "{:^22} | {:^22} | {:^11} |", //TODO: remove these magic numbers
+            "From", "To", "Value (ETH)"
         )),
         ListItem::new(format!(
-            "{}+{}+{}+{}|",
+            "{}+{}+{}|",
+            "-".repeat(23),
+            "-".repeat(24),
             "-".repeat(13),
-            "-".repeat(13),
-            "-".repeat(13),
-            "-".repeat(22),
         )),
     ];
     let transaction_list = if let Some(latest_transactions) = app.latest_transactions.as_ref() {
@@ -111,23 +110,32 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
         for tx in latest_transactions.items.clone() {
             res.push(ListItem::new(format!(
-                " {:^11} | {:^11} | {:^11} | {:>19} |",
-                tx.transaction.hash,
+                "{:^22} | {:^22} | {:>10} |",
                 if let Some(token) =
                     ERC20Token::find_by_address(&app.erc20_tokens, tx.transaction.from)
                 {
                     token.ticker.to_string()
+                } else if let Some(ens_id) = app.address2ens_id.get(&tx.transaction.from) {
+                    ens_id
+                        .as_ref()
+                        .map_or(format!("{}", tx.transaction.from), |ens_id| {
+                            ens_id.to_owned()
+                        })
                 } else {
                     format!("{}", tx.transaction.from)
                 },
                 tx.transaction.to.map_or("".to_owned(), |to| {
                     if let Some(token) = ERC20Token::find_by_address(&app.erc20_tokens, to) {
                         token.ticker.to_string()
+                    } else if let Some(ens_id) = app.address2ens_id.get(&to) {
+                        ens_id
+                            .as_ref()
+                            .map_or(format!("{to}"), |ens_id| ens_id.to_owned())
                     } else {
                         format!("{}", to)
                     }
                 }),
-                format_ether(tx.transaction.value)
+                &format_ether(tx.transaction.value)[..11]
             )));
         }
         List::new(res)
