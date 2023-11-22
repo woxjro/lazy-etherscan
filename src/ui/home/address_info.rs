@@ -67,6 +67,23 @@ pub fn render<B: Backend>(
             .fg(Color::White),
         ));
 
+        if let Some(contract_metadata) = address_info.contract_metadata {
+            details.push(Line::from(
+                Span::raw(format!("{:<17}:", "CONTRACT METADATA")).fg(Color::White),
+            ));
+
+            let source_code = contract_metadata.items[0]
+                .source_code()
+                .replace("\\n", "\n");
+            let source_code = source_code.split('\n').collect::<Vec<_>>();
+
+            for line in source_code {
+                details.push(Line::from(
+                    Span::raw(format!("{:<19}{}", "", line)).fg(Color::White),
+                ));
+            }
+        }
+
         let details = Paragraph::new(details)
             .block(detail_block.to_owned())
             .alignment(Alignment::Left)
