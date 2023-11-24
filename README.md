@@ -75,8 +75,9 @@ Contributions are kindly requested to be postponed until further notice.
 Crash reports are welcome, please create an issue to do that.
 
 ## Sponsors
-This project has been developed with a grant from the [Ethereum Foundation](https://ethereum.org/en/foundation/).
-![demo](resources/ethereum_foundation.png)
+This project has been developed with a grant from the [Ethereum Foundation](https://ethereum.org/en/foundation/) and [Gitcoin](https://www.gitcoin.co/).
+![ethereum foundation](resources/ethereum_foundation.png)
+<img src="resources/gitcoin.jpg" alt="gitcoin" width="50%"/>
 
 ## Acknowledgement
 `lazy-etherscan` is written in [Rust](https://www.rust-lang.org/) and is built on top of [ratatui](https://github.com/ratatui-org/ratatui).
