@@ -1,0 +1,6 @@
+[book]
+authors = ["woxjro"]
+language = "en"
+multilingual = false
+src = "src"
+title = "lazy-etherscan"
