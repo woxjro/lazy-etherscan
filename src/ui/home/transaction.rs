@@ -1,6 +1,9 @@
 use crate::{
     app::transaction::SelectableTransactionDetailItem,
-    ethers::types::{ERC20Token, TransactionWithReceipt},
+    ethers::{
+        transaction::calculate_transaction_fee,
+        types::{ERC20Token, TransactionWithReceipt},
+    },
     route::ActiveBlock,
     App,
 };
@@ -218,21 +221,23 @@ pub fn render<B: Backend>(
                 Span::raw(format!(
                     "{:<17}: {} ETH",
                     "Transaction Fee",
-                    format_ether(
-                        transaction.gas_price.unwrap() * transaction_receipt.gas_used.unwrap() //TODO gas_price.unwrap()
-                    )
-                ))
-                .fg(Color::White),
-            ),
-            Line::from(
-                Span::raw(format!(
-                    "{:<17}: {} Gwei",
-                    "Gas Price",
-                    format_units(transaction.gas_price.unwrap(), "gwei").unwrap()
+                    calculate_transaction_fee(&transaction, &transaction_receipt, None)
+                        .unwrap_or("".to_string())
                 ))
                 .fg(Color::White),
             ),
         ];
+
+        if let Some(gas_price) = transaction.gas_price {
+            details.push(Line::from(
+                Span::raw(format!(
+                    "{:<17}: {} Gwei",
+                    "Gas Price",
+                    format_units(gas_price, "gwei").unwrap()
+                ))
+                .fg(Color::White),
+            ));
+        }
 
         let input_data = transaction
             .input

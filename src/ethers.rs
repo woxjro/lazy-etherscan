@@ -61,3 +61,34 @@ pub mod types {
         }
     }
 } /* types */
+
+pub mod transaction {
+    use ethers::{
+        core::types::{Block, Transaction, TransactionReceipt},
+        utils::format_ether,
+    };
+
+    pub fn calculate_transaction_fee(
+        transaction: &Transaction,
+        transaction_receipt: &TransactionReceipt,
+        _block: Option<Block<Transaction>>,
+    ) -> Option<String> {
+        if let Some(gas_used) = transaction_receipt.gas_used {
+            // Legacy
+            if let Some(gas_price) = transaction.gas_price {
+                Some(format_ether(gas_price * gas_used))
+            } else {
+                //EIP-1559
+                Some(format_ether(
+                    std::cmp::min(
+                        transaction.max_fee_per_gas.unwrap(),
+                        //block.base_fee_per_gas.unwrap() +
+                        transaction.max_priority_fee_per_gas.unwrap(),
+                    ) * gas_used,
+                ))
+            }
+        } else {
+            None // the the client is running in light client mode.
+        }
+    }
+} /* transaction */
