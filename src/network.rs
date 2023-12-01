@@ -115,20 +115,56 @@ impl<'a> Network<'a> {
             }
             IoEvent::GetBlock { number } => {
                 let res = Self::get_block(self.endpoint, number).await;
-                let mut app = self.app.lock().await;
                 if let Ok(block) = res {
-                    app.pop_current_route();
-                    app.set_route(Route::new(RouteId::Block(block), ActiveBlock::Main));
+                    {
+                        let mut app = self.app.lock().await;
+                        app.pop_current_route();
+                        app.set_route(Route::new(
+                            RouteId::Block(block.to_owned()),
+                            ActiveBlock::Main,
+                        ));
+                    }
+
+                    if let Some(block) = block {
+                        let mut addresses = vec![];
+                        for transaction in block.block.transactions {
+                            addresses.push(transaction.from);
+                            if let Some(to) = transaction.to {
+                                addresses.push(to);
+                            }
+                        }
+
+                        let _ = self.update_app_with_ens_ids(&addresses).await;
+                    }
                 }
+                let mut app = self.app.lock().await;
                 app.is_loading = false;
             }
             IoEvent::GetBlockByHash { hash } => {
                 let res = Self::get_block(self.endpoint, hash).await;
-                let mut app = self.app.lock().await;
-                if let Ok(some) = res {
-                    app.pop_current_route();
-                    app.set_route(Route::new(RouteId::Block(some), ActiveBlock::Main));
+                if let Ok(block) = res {
+                    {
+                        let mut app = self.app.lock().await;
+                        app.pop_current_route();
+                        app.set_route(Route::new(
+                            RouteId::Block(block.to_owned()),
+                            ActiveBlock::Main,
+                        ));
+                    }
+
+                    if let Some(block) = block {
+                        let mut addresses = vec![];
+                        for transaction in block.block.transactions {
+                            addresses.push(transaction.from);
+                            if let Some(to) = transaction.to {
+                                addresses.push(to);
+                            }
+                        }
+
+                        let _ = self.update_app_with_ens_ids(&addresses).await;
+                    }
                 }
+                let mut app = self.app.lock().await;
                 app.is_loading = false;
             }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
@@ -164,7 +200,7 @@ impl<'a> Network<'a> {
                     Self::get_latest_transactions(self.endpoint, n),
                 )
                 .await
-                .unwrap();
+                .unwrap(); //TODO: remove unwrap
                 let mut addresses = vec![];
                 for transaction in &transactions {
                     addresses.push(transaction.transaction.from);
