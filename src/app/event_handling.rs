@@ -44,6 +44,12 @@ where
                                 app.pop_current_route();
                             }
                         }
+                        event::KeyCode::Char('?') => {
+                            app.show_popup = true;
+                        }
+                        event::KeyCode::Esc => {
+                            app.show_popup = false;
+                        }
                         _ => {}
                     },
                     InputMode::Editing if key.kind == event::KeyEventKind::Press => {
@@ -477,6 +483,12 @@ where
                         }
                         _ => {}
                     },
+                    event::KeyCode::Char('?') => {
+                        app.show_popup = true;
+                    }
+                    event::KeyCode::Esc => {
+                        app.show_popup = false;
+                    }
                     _ => {}
                 }
             }

@@ -136,4 +136,58 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             }
         }
     }
+
+    let size = f.size();
+    if app.show_popup {
+        let block = Block::default()
+            .title("Keybindings - Press Esc to close the popup")
+            .borders(Borders::ALL);
+
+        //TODO: Enter
+        let input = Paragraph::new(vec![
+            Line::from(Span::raw(format!(" {:<4}: {}", "j", "Down")).fg(Color::White)),
+            Line::from(Span::raw(format!(" {:<4}: {}", "k", "Up")).fg(Color::White)),
+            Line::from(
+                Span::raw(format!(" {:<4}: {}", "s", "Move to the Search Bar")).fg(Color::White),
+            ),
+            Line::from(
+                Span::raw(format!(" {:<4}: {}", "1", "Move to the Latest Blocks")).fg(Color::White),
+            ),
+            Line::from(
+                Span::raw(format!(
+                    " {:<4}: {}",
+                    "2", "Move to the Latest Transactions"
+                ))
+                .fg(Color::White),
+            ),
+        ])
+        .style(Style::default().fg(Color::Green))
+        .block(block.to_owned());
+
+        let area = centered_rect(60, 20, size);
+        f.render_widget(Clear, area); //this clears out the background
+        f.render_widget(block, area);
+        f.render_widget(input, area);
+    }
+}
+
+/// helper function to create a centered rect using up certain percentage of the available rect `r`
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage((100 - percent_y) / 2),
+            Constraint::Percentage(percent_y),
+            Constraint::Percentage((100 - percent_y) / 2),
+        ])
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage((100 - percent_x) / 2),
+            Constraint::Percentage(percent_x),
+            Constraint::Percentage((100 - percent_x) / 2),
+        ])
+        .split(popup_layout[1])[1]
 }
