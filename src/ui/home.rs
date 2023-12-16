@@ -15,9 +15,9 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // Just draw the block and the group on the same area and build the group
     let outer = f.size();
 
-    let [searchbar, rest] = *Layout::default()
+    let [searchbar, rest, navigation_bar] = *Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Max(3), Constraint::Min(0)].as_ref())
+        .constraints([Constraint::Max(3), Constraint::Min(0), Constraint::Max(1)].as_ref())
         .split(outer)
     else {
         return;
@@ -45,6 +45,10 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .style(Style::default().fg(Color::White))
         .block(searchbar_block);
     f.render_widget(input, searchbar);
+
+    let message = Paragraph::new(" <up>/<down>: k/j, <esc>: Cancel, q: Quit, ?: Keybindings, 1-2: Jump to panel, s: Focus on the Search bar")
+        .style(Style::default().fg(Color::White));
+    f.render_widget(message, navigation_bar);
 
     match app.input_mode {
         InputMode::Normal =>
