@@ -81,7 +81,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
         let text = if i == Statistics::ETHUSD_INDEX {
             if let Some(ethusd) = app.statistics.ethusd.as_ref() {
-                format!("{:.4} USD/ETH ", ethusd)
+                format!("{:.4} USD/ETH", ethusd)
             } else {
                 Spinner::default().to_string()
             }
@@ -99,7 +99,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             }
         } else if i == Statistics::LAST_SAFE_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_safe_block.as_ref() {
-                format!("#{} ", block.number.unwrap())
+                format!("#{}", block.number.unwrap())
             } else {
                 Spinner::default().to_string()
             }
@@ -111,7 +111,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             }
         } else if i == Statistics::LAST_FINALIZED_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_finalized_block.as_ref() {
-                format!("#{} ", block.number.unwrap())
+                format!("#{}", block.number.unwrap())
             } else {
                 Spinner::default().to_string()
             }

@@ -21,6 +21,7 @@ pub enum InputMode {
 pub struct App {
     routes: Vec<Route>,
     io_tx: Option<Sender<IoEvent>>,
+    pub endpoint: String,
     pub is_loading: bool,
     pub is_toggled: bool,
     pub show_popup: bool,
@@ -44,7 +45,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(io_tx: Sender<IoEvent>) -> App {
+    pub fn new(io_tx: Sender<IoEvent>, endpoint: &str) -> App {
         let erc20_tokens = File::open("./data/tokens.json").map_or(vec![], |file| {
             let mut buffer = String::new();
             let mut file = std::io::BufReader::new(file);
@@ -59,6 +60,7 @@ impl App {
 
         App {
             routes: vec![Route::default()],
+            endpoint: endpoint.to_owned(),
             is_loading: false,
             is_toggled: false,
             show_popup: false,

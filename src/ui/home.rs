@@ -85,7 +85,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 transaction::render(f, app, transaction, rest);
             }
             RouteId::Welcome => {
-                welcome::render(f, rest);
+                welcome::render(f, app, rest);
             }
             RouteId::Searching(message) => {
                 searching::render(f, &message, rest);
@@ -129,7 +129,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 transaction::render(f, app, transaction, detail);
             }
             RouteId::Welcome => {
-                welcome::render(f, detail);
+                welcome::render(f, app, detail);
             }
             RouteId::Searching(message) => {
                 searching::render(f, &message, detail);

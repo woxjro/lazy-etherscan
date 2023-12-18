@@ -76,11 +76,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let (sync_io_tx, sync_io_rx) = std::sync::mpsc::channel::<IoEvent>();
 
+    let args = Args::parse();
+
     // create app and run it
-    let app = Arc::new(Mutex::new(App::new(sync_io_tx)));
+    let app = Arc::new(Mutex::new(App::new(sync_io_tx, &args.endpoint)));
     let cloned_app = Arc::clone(&app);
 
-    let args = Args::parse();
     std::thread::spawn(move || {
         let mut network = Network::new(
             &app,
