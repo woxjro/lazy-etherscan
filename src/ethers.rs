@@ -1,6 +1,9 @@
 pub mod types {
     use ethers::{
-        core::types::{Address, Block, Transaction, TransactionReceipt, U256},
+        core::{
+            abi::Abi,
+            types::{Address, Block, Transaction, TransactionReceipt, U256},
+        },
         etherscan::contract::ContractMetadata,
     };
     use serde::{Deserialize, Deserializer};
@@ -12,7 +15,8 @@ pub mod types {
         pub address: Address,
         pub ens_id: Option<String>,
         pub avatar_url: Option<Url>,
-        pub contract_metadata: Option<ContractMetadata>,
+        pub contract_abi: Option<Abi>,
+        pub contract_source_code: Option<ContractMetadata>,
         pub balance: U256,
     }
 

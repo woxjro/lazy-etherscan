@@ -483,6 +483,24 @@ where
                         }
                         _ => {}
                     },
+                    event::KeyCode::Right => match app.get_current_route().get_id() {
+                        RouteId::AddressInfo(address_info) => {
+                            if let Some(address_info) = address_info {
+                                app.selectable_contract_detail_item =
+                                    app.selectable_contract_detail_item.next(&address_info);
+                            }
+                        }
+                        _ => {}
+                    },
+                    event::KeyCode::Left => match app.get_current_route().get_id() {
+                        RouteId::AddressInfo(address_info) => {
+                            if let Some(address_info) = address_info {
+                                app.selectable_contract_detail_item =
+                                    app.selectable_contract_detail_item.previous(&address_info);
+                            }
+                        }
+                        _ => {}
+                    },
                     event::KeyCode::Char('?') => {
                         app.show_popup = true;
                     }

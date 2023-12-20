@@ -1,6 +1,11 @@
-use crate::{app::App, ethers::types::AddressInfo, route::ActiveBlock};
+use crate::{
+    app::{address::SelectableContractDetailItem, App},
+    ethers::types::AddressInfo,
+    route::ActiveBlock,
+};
 use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
+use serde_json;
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
@@ -22,9 +27,9 @@ pub fn render<B: Backend>(
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);
 
-        let [detail_rect] = *Layout::default()
+        let [detail_rect, contract_detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Ratio(1, 1)].as_ref())
+            .constraints([Constraint::Max(6), Constraint::Min(3)].as_ref())
             .split(rect)
         else {
             return;
@@ -67,21 +72,96 @@ pub fn render<B: Backend>(
             .fg(Color::White),
         ));
 
-        if let Some(contract_metadata) = address_info.contract_metadata {
-            details.push(Line::from(
-                Span::raw(format!("{:<17}:", "CONTRACT METADATA")).fg(Color::White),
-            ));
+        let source_code_lines =
+            if let Some(contract_source_code) = address_info.contract_source_code {
+                let mut details = vec![];
+                let source_code = contract_source_code.items[0]
+                    .source_code()
+                    .replace("\\n", "\n");
+                let source_code = source_code.split('\n').collect::<Vec<_>>();
 
-            let source_code = contract_metadata.items[0]
-                .source_code()
-                .replace("\\n", "\n");
-            let source_code = source_code.split('\n').collect::<Vec<_>>();
+                for line in source_code {
+                    details.push(Line::from(
+                        Span::raw(format!("{:<5}{}", "", line)).fg(Color::White),
+                    ));
+                }
+                details
+            } else {
+                vec![]
+            };
 
-            for line in source_code {
+        let abi_lines = if let Some(contract_abi) = address_info.contract_abi {
+            let mut details = vec![];
+            let contract_abi =
+                serde_json::to_string_pretty(&serde_json::json!(contract_abi)).unwrap();
+
+            let contract_abi_lines = contract_abi.split('\n').collect::<Vec<_>>();
+
+            for line in contract_abi_lines {
                 details.push(Line::from(
-                    Span::raw(format!("{:<19}{}", "", line)).fg(Color::White),
+                    Span::raw(format!("{:<5}{}", "", line)).fg(Color::White),
                 ));
             }
+            details
+        } else {
+            vec![]
+        };
+
+        if app.is_toggled {
+            //TODO
+            let chunks = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)])
+                .split(contract_detail_rect);
+
+            let block = Block::default();
+            f.render_widget(block, contract_detail_rect);
+
+            f.render_widget(
+                Paragraph::new(source_code_lines)
+                    .alignment(Alignment::Left)
+                    .wrap(Wrap { trim: false }),
+                chunks[0],
+            );
+
+            f.render_widget(
+                Paragraph::new(abi_lines)
+                    .alignment(Alignment::Left)
+                    .wrap(Wrap { trim: false }),
+                chunks[1],
+            );
+        } else {
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(2), Constraint::Min(0)])
+                .split(contract_detail_rect);
+
+            let block = Block::default();
+            f.render_widget(block, contract_detail_rect);
+
+            let titles = ["SOURCE CODE", "ABI"]
+                .iter()
+                .map(|t| Line::from(t.to_owned()))
+                .collect();
+
+            let tabs = Tabs::new(titles)
+                .block(Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::TOP))
+                .select(app.selectable_contract_detail_item.into())
+                .style(Style::default())
+                .highlight_style(Style::default().bold());
+            f.render_widget(tabs, chunks[0]);
+
+            let inner = match app.selectable_contract_detail_item {
+                SelectableContractDetailItem::ContractSourceCode => {
+                    Paragraph::new(source_code_lines)
+                        .alignment(Alignment::Left)
+                        .wrap(Wrap { trim: false })
+                }
+                SelectableContractDetailItem::ContractAbi => Paragraph::new(abi_lines)
+                    .alignment(Alignment::Left)
+                    .wrap(Wrap { trim: false }),
+            };
+            f.render_widget(inner, chunks[1]);
         }
 
         let details = Paragraph::new(details)

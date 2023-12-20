@@ -305,7 +305,8 @@ impl<'a> Network<'a> {
             address,
             balance,
             avatar_url,
-            contract_metadata: None,
+            contract_abi: None,
+            contract_source_code: None,
             ens_id: Some(ens_id.to_owned()),
         }))
     }
@@ -325,13 +326,24 @@ impl<'a> Network<'a> {
             None
         };
 
-        let contract_metadata = if let Some(api_key) = etherscan_api_key {
+        let contract_source_code = if let Some(api_key) = etherscan_api_key.to_owned() {
             let client = Client::builder()
                 .with_api_key(api_key)
                 .chain(Chain::Mainnet)?
                 .build()?;
 
             client.contract_source_code(address).await.ok()
+        } else {
+            None
+        };
+
+        let contract_abi = if let Some(api_key) = etherscan_api_key {
+            let client = Client::builder()
+                .with_api_key(api_key)
+                .chain(Chain::Mainnet)?
+                .build()?;
+
+            client.contract_abi(address).await.ok()
         } else {
             None
         };
@@ -343,7 +355,8 @@ impl<'a> Network<'a> {
             address,
             balance,
             avatar_url,
-            contract_metadata,
+            contract_abi,
+            contract_source_code,
             ens_id,
         }))
     }

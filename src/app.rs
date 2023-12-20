@@ -1,3 +1,4 @@
+pub mod address;
 pub mod block;
 pub mod event_handling;
 pub mod statistics;
@@ -38,6 +39,8 @@ pub struct App {
     pub block_detail_list_state: ListState,
     pub transactions_table_state: TableState,
     pub withdrawals_table_state: TableState,
+    //Address Detail
+    pub selectable_contract_detail_item: address::SelectableContractDetailItem,
     //Transaction Detail
     pub transaction_detail_list_state: ListState,
     //Token Data
@@ -76,6 +79,8 @@ impl App {
             block_detail_list_state: ListState::default(),
             transactions_table_state: TableState::default(),
             withdrawals_table_state: TableState::default(),
+            //Address Detail
+            selectable_contract_detail_item: address::SelectableContractDetailItem::default(),
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
             //Token Data
