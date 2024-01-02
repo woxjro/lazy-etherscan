@@ -29,7 +29,7 @@ pub fn render<B: Backend>(
 
         let [detail_rect, contract_detail_rect] = *Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Max(6), Constraint::Min(3)].as_ref())
+            .constraints([Constraint::Max(7), Constraint::Min(3)].as_ref())
             .split(rect)
         else {
             return;
@@ -80,10 +80,11 @@ pub fn render<B: Backend>(
                     .replace("\\n", "\n");
                 let source_code = source_code.split('\n').collect::<Vec<_>>();
 
-                for line in source_code {
-                    details.push(Line::from(
-                        Span::raw(format!("{:<5}{}", "", line)).fg(Color::White),
-                    ));
+                for (idx, line) in source_code.iter().enumerate() {
+                    details.push(Line::from(vec![
+                        Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
+                        Span::raw(format!("{}", line)).fg(Color::White),
+                    ]));
                 }
                 details
             } else {
@@ -97,38 +98,72 @@ pub fn render<B: Backend>(
 
             let contract_abi_lines = contract_abi.split('\n').collect::<Vec<_>>();
 
-            for line in contract_abi_lines {
-                details.push(Line::from(
-                    Span::raw(format!("{:<5}{}", "", line)).fg(Color::White),
-                ));
+            for (idx, line) in contract_abi_lines.iter().enumerate() {
+                details.push(Line::from(vec![
+                    Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
+                    Span::raw(format!("{}", line)).fg(Color::White),
+                ]));
             }
             details
         } else {
             vec![]
         };
 
+        let create_block = |title| {
+            Block::default()
+                .borders(Borders::ALL)
+                .gray()
+                .title(Span::styled(
+                    title,
+                    Style::default().add_modifier(Modifier::BOLD),
+                ))
+        };
+
         if app.is_toggled {
             //TODO
             let chunks = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)])
+                .constraints([Constraint::Ratio(3, 5), Constraint::Ratio(2, 5)])
                 .split(contract_detail_rect);
 
-            let block = Block::default();
-            f.render_widget(block, contract_detail_rect);
-
+            // render SOURCE CODE
+            let block = Block::default().padding(Padding::new(1, 0, 0, 1));
             f.render_widget(
-                Paragraph::new(source_code_lines)
+                Paragraph::new(source_code_lines.to_owned())
                     .alignment(Alignment::Left)
+                    .block(create_block("SOURCE CODE"))
+                    .scroll((0 as u16, 0)) //TODO
                     .wrap(Wrap { trim: false }),
-                chunks[0],
+                block.inner(chunks[0]),
             );
 
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[0]),
+                &mut ScrollbarState::default().content_length(source_code_lines.len() as u16),
+            );
+
+            // render ABI
+            let block = Block::default().padding(Padding::new(0, 1, 0, 1));
             f.render_widget(
-                Paragraph::new(abi_lines)
+                Paragraph::new(abi_lines.to_owned())
                     .alignment(Alignment::Left)
+                    .block(create_block("ABI"))
+                    .scroll((0 as u16, 0)) //TODO
                     .wrap(Wrap { trim: false }),
-                chunks[1],
+                block.inner(chunks[1]),
+            );
+
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[1]),
+                &mut ScrollbarState::default().content_length(abi_lines.len() as u16),
             );
         } else {
             let chunks = Layout::default()
@@ -136,8 +171,7 @@ pub fn render<B: Backend>(
                 .constraints([Constraint::Length(2), Constraint::Min(0)])
                 .split(contract_detail_rect);
 
-            let block = Block::default();
-            f.render_widget(block, contract_detail_rect);
+            let block = Block::default().padding(Padding::horizontal(2));
 
             let titles = ["SOURCE CODE", "ABI"]
                 .iter()
@@ -148,20 +182,44 @@ pub fn render<B: Backend>(
                 .block(Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::TOP))
                 .select(app.selectable_contract_detail_item.into())
                 .style(Style::default())
-                .highlight_style(Style::default().bold());
-            f.render_widget(tabs, chunks[0]);
+                .highlight_style(Style::default().bold().green());
+            f.render_widget(tabs, block.inner(chunks[0]));
 
             let inner = match app.selectable_contract_detail_item {
                 SelectableContractDetailItem::ContractSourceCode => {
-                    Paragraph::new(source_code_lines)
+                    Paragraph::new(source_code_lines.to_owned())
+                        .block(
+                            Block::default()
+                                .borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
+                        )
                         .alignment(Alignment::Left)
+                        .scroll((0 as u16, 0)) //TODO
                         .wrap(Wrap { trim: false })
                 }
-                SelectableContractDetailItem::ContractAbi => Paragraph::new(abi_lines)
+                SelectableContractDetailItem::ContractAbi => Paragraph::new(abi_lines.to_owned())
+                    .block(
+                        Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
+                    )
                     .alignment(Alignment::Left)
+                    .scroll((0 as u16, 0)) //TODO
                     .wrap(Wrap { trim: false }),
             };
-            f.render_widget(inner, chunks[1]);
+            let block = Block::default().padding(Padding::new(2, 2, 0, 1));
+            f.render_widget(inner, block.inner(chunks[1]));
+
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[1]),
+                &mut ScrollbarState::default().content_length(match app
+                    .selectable_contract_detail_item
+                {
+                    SelectableContractDetailItem::ContractSourceCode => source_code_lines.len(),
+                    SelectableContractDetailItem::ContractAbi => abi_lines.len(),
+                } as u16),
+            );
         }
 
         let details = Paragraph::new(details)
