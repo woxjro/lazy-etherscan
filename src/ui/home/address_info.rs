@@ -90,7 +90,9 @@ pub fn render<B: Backend>(
             } else {
                 vec![]
             };
-
+        app.source_code_scroll_state = app
+            .source_code_scroll_state
+            .content_length(source_code_lines.len() as u16);
         let abi_lines = if let Some(contract_abi) = address_info.contract_abi {
             let mut details = vec![];
             let contract_abi =
@@ -108,22 +110,12 @@ pub fn render<B: Backend>(
         } else {
             vec![]
         };
-
-        let create_block = |title| {
-            Block::default()
-                .borders(Borders::ALL)
-                .gray()
-                .title(Span::styled(
-                    title,
-                    Style::default().add_modifier(Modifier::BOLD),
-                ))
-        };
+        app.abi_scroll_state = app.abi_scroll_state.content_length(abi_lines.len() as u16);
 
         if app.is_toggled {
-            //TODO
             let chunks = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([Constraint::Ratio(3, 5), Constraint::Ratio(2, 5)])
+                .constraints([Constraint::Ratio(2, 3), Constraint::Ratio(1, 3)])
                 .split(contract_detail_rect);
 
             // render SOURCE CODE
@@ -131,8 +123,28 @@ pub fn render<B: Backend>(
             f.render_widget(
                 Paragraph::new(source_code_lines.to_owned())
                     .alignment(Alignment::Left)
-                    .block(create_block("SOURCE CODE"))
-                    .scroll((0 as u16, 0)) //TODO
+                    .block(
+                        if let SelectableContractDetailItem::ContractSourceCode =
+                            app.selectable_contract_detail_item
+                        {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .green()
+                                .title(Span::styled(
+                                    "SOURCE CODE",
+                                    Style::default().add_modifier(Modifier::BOLD).green(),
+                                ))
+                        } else {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .gray()
+                                .title(Span::styled(
+                                    "SOURCE CODE",
+                                    Style::default().add_modifier(Modifier::BOLD),
+                                ))
+                        },
+                    )
+                    .scroll((app.source_code_scroll, 0))
                     .wrap(Wrap { trim: false }),
                 block.inner(chunks[0]),
             );
@@ -143,7 +155,7 @@ pub fn render<B: Backend>(
                     .begin_symbol(Some("▲"))
                     .end_symbol(Some("▼")),
                 block.inner(chunks[0]),
-                &mut ScrollbarState::default().content_length(source_code_lines.len() as u16),
+                &mut app.source_code_scroll_state,
             );
 
             // render ABI
@@ -151,8 +163,28 @@ pub fn render<B: Backend>(
             f.render_widget(
                 Paragraph::new(abi_lines.to_owned())
                     .alignment(Alignment::Left)
-                    .block(create_block("ABI"))
-                    .scroll((0 as u16, 0)) //TODO
+                    .block(
+                        if let SelectableContractDetailItem::ContractAbi =
+                            app.selectable_contract_detail_item
+                        {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .green()
+                                .title(Span::styled(
+                                    "ABI",
+                                    Style::default().add_modifier(Modifier::BOLD).green(),
+                                ))
+                        } else {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .gray()
+                                .title(Span::styled(
+                                    "ABI",
+                                    Style::default().add_modifier(Modifier::BOLD),
+                                ))
+                        },
+                    )
+                    .scroll((app.abi_scroll, 0))
                     .wrap(Wrap { trim: false }),
                 block.inner(chunks[1]),
             );
@@ -163,7 +195,7 @@ pub fn render<B: Backend>(
                     .begin_symbol(Some("▲"))
                     .end_symbol(Some("▼")),
                 block.inner(chunks[1]),
-                &mut ScrollbarState::default().content_length(abi_lines.len() as u16),
+                &mut app.abi_scroll_state,
             );
         } else {
             let chunks = Layout::default()
@@ -193,7 +225,7 @@ pub fn render<B: Backend>(
                                 .borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
                         )
                         .alignment(Alignment::Left)
-                        .scroll((0 as u16, 0)) //TODO
+                        .scroll((app.source_code_scroll, 0))
                         .wrap(Wrap { trim: false })
                 }
                 SelectableContractDetailItem::ContractAbi => Paragraph::new(abi_lines.to_owned())
@@ -201,7 +233,7 @@ pub fn render<B: Backend>(
                         Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
                     )
                     .alignment(Alignment::Left)
-                    .scroll((0 as u16, 0)) //TODO
+                    .scroll((app.abi_scroll, 0))
                     .wrap(Wrap { trim: false }),
             };
             let block = Block::default().padding(Padding::new(2, 2, 0, 1));
@@ -213,12 +245,12 @@ pub fn render<B: Backend>(
                     .begin_symbol(Some("▲"))
                     .end_symbol(Some("▼")),
                 block.inner(chunks[1]),
-                &mut ScrollbarState::default().content_length(match app
-                    .selectable_contract_detail_item
-                {
-                    SelectableContractDetailItem::ContractSourceCode => source_code_lines.len(),
-                    SelectableContractDetailItem::ContractAbi => abi_lines.len(),
-                } as u16),
+                &mut match app.selectable_contract_detail_item {
+                    SelectableContractDetailItem::ContractSourceCode => {
+                        app.source_code_scroll_state
+                    }
+                    SelectableContractDetailItem::ContractAbi => app.abi_scroll_state,
+                },
             );
         }
 

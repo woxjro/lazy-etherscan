@@ -10,7 +10,7 @@ use crate::{
     widget::StatefulList,
 };
 use ethers::core::types::{Address, NameOrAddress, Transaction, TransactionReceipt, TxHash, U64};
-use ratatui::widgets::{ListState, TableState};
+use ratatui::widgets::{ListState, ScrollbarState, TableState};
 use statistics::Statistics;
 use std::{collections::HashMap, fs::File, io::Read, sync::mpsc::Sender};
 
@@ -41,6 +41,10 @@ pub struct App {
     pub withdrawals_table_state: TableState,
     //Address Detail
     pub selectable_contract_detail_item: address::SelectableContractDetailItem,
+    pub source_code_scroll_state: ScrollbarState,
+    pub source_code_scroll: u16,
+    pub abi_scroll_state: ScrollbarState,
+    pub abi_scroll: u16,
     //Transaction Detail
     pub transaction_detail_list_state: ListState,
     //Token Data
@@ -81,6 +85,10 @@ impl App {
             withdrawals_table_state: TableState::default(),
             //Address Detail
             selectable_contract_detail_item: address::SelectableContractDetailItem::default(),
+            source_code_scroll_state: ScrollbarState::default(),
+            abi_scroll_state: ScrollbarState::default(),
+            source_code_scroll: 0,
+            abi_scroll: 0,
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
             //Token Data

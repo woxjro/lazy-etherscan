@@ -1,6 +1,6 @@
 use crate::app::{
-    block::SelectableBlockDetailItem, statistics::Statistics,
-    transaction::SelectableTransactionDetailItem, App, InputMode,
+    address::SelectableContractDetailItem, block::SelectableBlockDetailItem,
+    statistics::Statistics, transaction::SelectableTransactionDetailItem, App, InputMode,
 };
 use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::network::IoEvent;
@@ -355,6 +355,20 @@ where
                                     }
                                 }
                             }
+                            RouteId::AddressInfo(_) => match app.selectable_contract_detail_item {
+                                SelectableContractDetailItem::ContractSourceCode => {
+                                    app.source_code_scroll =
+                                        app.source_code_scroll.saturating_add(1);
+                                    app.source_code_scroll_state = app
+                                        .source_code_scroll_state
+                                        .position(app.source_code_scroll);
+                                }
+                                SelectableContractDetailItem::ContractAbi => {
+                                    app.abi_scroll = app.abi_scroll.saturating_add(1);
+                                    app.abi_scroll_state =
+                                        app.abi_scroll_state.position(app.abi_scroll);
+                                }
+                            },
                             _ => {}
                         },
                         _ => {}
@@ -460,6 +474,20 @@ where
                                     }
                                 }
                             }
+                            RouteId::AddressInfo(_) => match app.selectable_contract_detail_item {
+                                SelectableContractDetailItem::ContractSourceCode => {
+                                    app.source_code_scroll =
+                                        app.source_code_scroll.saturating_sub(1);
+                                    app.source_code_scroll_state = app
+                                        .source_code_scroll_state
+                                        .position(app.source_code_scroll);
+                                }
+                                SelectableContractDetailItem::ContractAbi => {
+                                    app.abi_scroll = app.abi_scroll.saturating_sub(1);
+                                    app.abi_scroll_state =
+                                        app.abi_scroll_state.position(app.abi_scroll);
+                                }
+                            },
                             _ => {}
                         },
                         _ => {}
