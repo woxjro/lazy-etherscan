@@ -5,7 +5,6 @@ use crate::{
 };
 use ethers::core::utils::format_ether;
 use ratatui::{prelude::*, widgets::*};
-use serde_json;
 
 pub fn render<B: Backend>(
     f: &mut Frame<B>,
@@ -83,7 +82,7 @@ pub fn render<B: Backend>(
                 for (idx, line) in source_code.iter().enumerate() {
                     details.push(Line::from(vec![
                         Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
-                        Span::raw(format!("{}", line)).fg(Color::White),
+                        Span::raw(line.to_string()).fg(Color::White),
                     ]));
                 }
                 details
@@ -103,7 +102,7 @@ pub fn render<B: Backend>(
             for (idx, line) in contract_abi_lines.iter().enumerate() {
                 details.push(Line::from(vec![
                     Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
-                    Span::raw(format!("{}", line)).fg(Color::White),
+                    Span::raw(line.to_string()).fg(Color::White),
                 ]));
             }
             details
