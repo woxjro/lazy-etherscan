@@ -62,7 +62,7 @@ impl From<usize> for SelectableBlockDetailItem {
         } else if i == 3 {
             Self::ParentHash
         } else {
-            panic!()
+            unreachable!()
         }
     }
 }

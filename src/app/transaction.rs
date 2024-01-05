@@ -40,7 +40,7 @@ impl From<usize> for SelectableTransactionDetailItem {
         } else if i == 1 {
             Self::To
         } else {
-            panic!()
+            unreachable!()
         }
     }
 }

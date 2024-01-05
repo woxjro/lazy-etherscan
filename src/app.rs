@@ -156,9 +156,7 @@ impl App {
                             RouteId::Block(_) => RouteId::Block(block),
                             RouteId::TransactionsOfBlock(_) => RouteId::TransactionsOfBlock(block),
                             RouteId::WithdrawalsOfBlock(_) => RouteId::WithdrawalsOfBlock(block),
-                            _ => {
-                                panic!("never occur")
-                            }
+                            _ => unreachable!(),
                         },
                         route.get_active_block(),
                     )
