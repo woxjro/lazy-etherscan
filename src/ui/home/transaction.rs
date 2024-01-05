@@ -38,9 +38,9 @@ pub fn render<B: Backend>(
             .borders(Borders::ALL)
             .border_type(BorderType::Plain);
 
-        let [detail_rect] = *Layout::default()
+        let [detail_rect, input_data_rect] = *Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Ratio(1, 1)].as_ref())
+            .constraints([Constraint::Max(11), Constraint::Min(1)].as_ref())
             .split(rect)
         else {
             return;
@@ -248,17 +248,43 @@ pub fn render<B: Backend>(
             .map(|window| window.iter().collect::<String>())
             .collect::<Vec<String>>();
 
-        for (i, row) in input_data.iter().enumerate() {
-            if i == 0 {
-                details.push(Line::from(
-                    Span::raw(format!("{:<17}: {}", "Input Data", row)).fg(Color::White),
-                ));
-            } else {
-                details.push(Line::from(
-                    Span::raw(format!("{:<19}{}", "", row)).fg(Color::White),
-                ));
-            }
+        let mut raw_input_data = vec![];
+        for (idx, line) in input_data.iter().enumerate() {
+            raw_input_data.push(Line::from(vec![
+                Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
+                Span::raw(line.to_string()).fg(Color::White),
+            ]));
         }
+
+        let block = Block::default().padding(Padding::new(1, 1, 0, 1));
+        app.input_data_scroll_state = app
+            .input_data_scroll_state
+            .content_length(raw_input_data.len() as u16);
+        f.render_widget(
+            Paragraph::new(raw_input_data.to_owned())
+                .alignment(Alignment::Left)
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .white()
+                        .title(Span::styled(
+                            "INPUT DATA",
+                            Style::default().add_modifier(Modifier::BOLD).white(),
+                        )),
+                )
+                .scroll((app.input_data_scroll, 0))
+                .wrap(Wrap { trim: false }),
+            block.inner(input_data_rect),
+        );
+
+        f.render_stateful_widget(
+            Scrollbar::default()
+                .orientation(ScrollbarOrientation::VerticalRight)
+                .begin_symbol(Some("▲"))
+                .end_symbol(Some("▼")),
+            block.inner(input_data_rect),
+            &mut app.input_data_scroll_state,
+        );
 
         let details = Paragraph::new(details)
             .block(detail_block.to_owned())
