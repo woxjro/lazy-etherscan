@@ -71,10 +71,4 @@ impl<T> StatefulList<T> {
     pub fn get_selected_item_index(&self) -> Option<usize> {
         self.state.selected().map(|state| state - self.header_size)
     }
-
-    /*
-    fn unselect(&mut self) {
-        self.state.select(None);
-    }
-    */
 }
