@@ -59,3 +59,45 @@ impl From<SelectableTransactionDetailItem> for usize {
         }
     }
 }
+
+pub enum SelectableInputDataDetailItem {
+    InputData,        //0
+    DecodedInputData, //1
+}
+
+impl SelectableInputDataDetailItem {
+    pub fn next(&self) -> Self {
+        match self {
+            Self::InputData => Self::DecodedInputData,
+            Self::DecodedInputData => Self::InputData,
+        }
+    }
+
+    pub fn previous(&self) -> Self {
+        match self {
+            Self::InputData => Self::DecodedInputData,
+            Self::DecodedInputData => Self::InputData,
+        }
+    }
+}
+
+impl From<usize> for SelectableInputDataDetailItem {
+    fn from(i: usize) -> Self {
+        if i == 0 {
+            Self::InputData
+        } else if i == 1 {
+            Self::DecodedInputData
+        } else {
+            unreachable!()
+        }
+    }
+}
+
+impl From<SelectableInputDataDetailItem> for usize {
+    fn from(val: SelectableInputDataDetailItem) -> Self {
+        match val {
+            SelectableInputDataDetailItem::InputData => 0,
+            SelectableInputDataDetailItem::DecodedInputData => 1,
+        }
+    }
+}
