@@ -363,7 +363,11 @@ where
                                     }
                                 }
                             }
-                            RouteId::AddressInfo(_) => match app.selectable_contract_detail_item {
+                            RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
+                                app.contract_list_state.selected().unwrap_or(
+                                    SelectableContractDetailItem::ContractSourceCode.into(),
+                                ),
+                            ) {
                                 SelectableContractDetailItem::ContractSourceCode => {
                                     app.source_code_scroll =
                                         app.source_code_scroll.saturating_add(1);
@@ -482,7 +486,11 @@ where
                                     }
                                 }
                             }
-                            RouteId::AddressInfo(_) => match app.selectable_contract_detail_item {
+                            RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
+                                app.contract_list_state.selected().unwrap_or(
+                                    SelectableContractDetailItem::ContractSourceCode.into(),
+                                ),
+                            ) {
                                 SelectableContractDetailItem::ContractSourceCode => {
                                     app.source_code_scroll =
                                         app.source_code_scroll.saturating_sub(1);
@@ -523,8 +531,15 @@ where
                         if let RouteId::AddressInfo(address_info) = app.get_current_route().get_id()
                         {
                             if let Some(address_info) = address_info {
-                                app.selectable_contract_detail_item =
-                                    app.selectable_contract_detail_item.next(&address_info);
+                                app.contract_list_state.select(Some(
+                                    SelectableContractDetailItem::from(
+                                        app.contract_list_state.selected().unwrap_or(
+                                            SelectableContractDetailItem::ContractSourceCode.into(),
+                                        ),
+                                    )
+                                    .next(&address_info)
+                                    .into(),
+                                ))
                             }
                         }
                     }
@@ -532,8 +547,15 @@ where
                         if let RouteId::AddressInfo(address_info) = app.get_current_route().get_id()
                         {
                             if let Some(address_info) = address_info {
-                                app.selectable_contract_detail_item =
-                                    app.selectable_contract_detail_item.previous(&address_info);
+                                app.contract_list_state.select(Some(
+                                    SelectableContractDetailItem::from(
+                                        app.contract_list_state.selected().unwrap_or(
+                                            SelectableContractDetailItem::ContractSourceCode.into(),
+                                        ),
+                                    )
+                                    .previous(&address_info)
+                                    .into(),
+                                ))
                             }
                         }
                     }

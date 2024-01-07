@@ -124,7 +124,11 @@ pub fn render<B: Backend>(
                     .alignment(Alignment::Left)
                     .block(
                         if let SelectableContractDetailItem::ContractSourceCode =
-                            app.selectable_contract_detail_item
+                            SelectableContractDetailItem::from(
+                                app.contract_list_state.selected().unwrap_or(
+                                    SelectableContractDetailItem::ContractSourceCode.into(),
+                                ),
+                            )
                         {
                             Block::default()
                                 .borders(Borders::ALL)
@@ -164,7 +168,11 @@ pub fn render<B: Backend>(
                     .alignment(Alignment::Left)
                     .block(
                         if let SelectableContractDetailItem::ContractAbi =
-                            app.selectable_contract_detail_item
+                            SelectableContractDetailItem::from(
+                                app.contract_list_state.selected().unwrap_or(
+                                    SelectableContractDetailItem::ContractSourceCode.into(),
+                                ),
+                            )
                         {
                             Block::default()
                                 .borders(Borders::ALL)
@@ -211,12 +219,20 @@ pub fn render<B: Backend>(
 
             let tabs = Tabs::new(titles)
                 .block(Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::TOP))
-                .select(app.selectable_contract_detail_item.into())
+                .select(
+                    app.contract_list_state
+                        .selected()
+                        .unwrap_or(SelectableContractDetailItem::ContractSourceCode.into()),
+                )
                 .style(Style::default())
                 .highlight_style(Style::default().bold().green());
             f.render_widget(tabs, block.inner(chunks[0]));
 
-            let inner = match app.selectable_contract_detail_item {
+            let inner = match SelectableContractDetailItem::from(
+                app.contract_list_state
+                    .selected()
+                    .unwrap_or(SelectableContractDetailItem::ContractSourceCode.into()),
+            ) {
                 SelectableContractDetailItem::ContractSourceCode => {
                     Paragraph::new(source_code_lines.to_owned())
                         .block(
@@ -244,7 +260,11 @@ pub fn render<B: Backend>(
                     .begin_symbol(Some("▲"))
                     .end_symbol(Some("▼")),
                 block.inner(chunks[1]),
-                &mut match app.selectable_contract_detail_item {
+                &mut match SelectableContractDetailItem::from(
+                    app.contract_list_state
+                        .selected()
+                        .unwrap_or(SelectableContractDetailItem::ContractSourceCode.into()),
+                ) {
                     SelectableContractDetailItem::ContractSourceCode => {
                         app.source_code_scroll_state
                     }

@@ -40,7 +40,7 @@ pub struct App {
     pub transactions_table_state: TableState,
     pub withdrawals_table_state: TableState,
     //Address Detail
-    pub selectable_contract_detail_item: address::SelectableContractDetailItem,
+    pub contract_list_state: ListState,
     pub source_code_scroll_state: ScrollbarState,
     pub source_code_scroll: u16,
     pub abi_scroll_state: ScrollbarState,
@@ -86,7 +86,9 @@ impl App {
             transactions_table_state: TableState::default(),
             withdrawals_table_state: TableState::default(),
             //Address Detail
-            selectable_contract_detail_item: address::SelectableContractDetailItem::default(),
+            contract_list_state: ListState::default().with_selected(Some(
+                address::SelectableContractDetailItem::ContractSourceCode.into(),
+            )),
             source_code_scroll_state: ScrollbarState::default(),
             abi_scroll_state: ScrollbarState::default(),
             source_code_scroll: 0,
