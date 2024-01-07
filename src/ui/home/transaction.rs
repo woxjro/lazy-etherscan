@@ -256,35 +256,55 @@ pub fn render<B: Backend>(
             ]));
         }
 
-        let block = Block::default().padding(Padding::new(1, 1, 0, 1));
         app.input_data_scroll_state = app
             .input_data_scroll_state
             .content_length(raw_input_data.len() as u16);
-        f.render_widget(
-            Paragraph::new(raw_input_data.to_owned())
-                .alignment(Alignment::Left)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .white()
-                        .title(Span::styled(
-                            "INPUT DATA",
-                            Style::default().add_modifier(Modifier::BOLD).white(),
-                        )),
-                )
-                .scroll((app.input_data_scroll, 0))
-                .wrap(Wrap { trim: false }),
-            block.inner(input_data_rect),
-        );
 
-        f.render_stateful_widget(
-            Scrollbar::default()
-                .orientation(ScrollbarOrientation::VerticalRight)
-                .begin_symbol(Some("▲"))
-                .end_symbol(Some("▼")),
-            block.inner(input_data_rect),
-            &mut app.input_data_scroll_state,
-        );
+        if app.is_toggled {
+        } else {
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(2), Constraint::Min(0)])
+                .split(input_data_rect);
+
+            let titles = ["INPUT DATA", "DECODED INPUT DATA"]
+                .iter()
+                .map(|t| Line::from(t.to_owned()))
+                .collect();
+
+            let tabs = Tabs::new(titles)
+                .block(Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::TOP))
+                .select(app.selectable_contract_detail_item.into())
+                .style(Style::default())
+                .highlight_style(Style::default().bold().green());
+            f.render_widget(
+                tabs,
+                Block::default()
+                    .padding(Padding::horizontal(1))
+                    .inner(chunks[0]),
+            );
+
+            let block = Block::default().padding(Padding::new(1, 1, 0, 1));
+            f.render_widget(
+                Paragraph::new(raw_input_data.to_owned())
+                    .alignment(Alignment::Left)
+                    .block(
+                        Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
+                    )
+                    .scroll((app.input_data_scroll, 0))
+                    .wrap(Wrap { trim: false }),
+                block.inner(chunks[1]),
+            );
+
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[1]),
+                &mut app.input_data_scroll_state,
+            );
+        }
 
         let details = Paragraph::new(details)
             .block(detail_block.to_owned())
