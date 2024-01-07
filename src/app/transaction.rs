@@ -1,8 +1,9 @@
 use crate::ethers::types::TransactionWithReceipt;
 
 pub enum SelectableTransactionDetailItem {
-    From,
-    To,
+    From,      //0
+    To,        //1
+    InputData, //2
 }
 
 impl SelectableTransactionDetailItem {
@@ -15,20 +16,22 @@ impl SelectableTransactionDetailItem {
                     Self::From
                 }
             }
-            Self::To => Self::From,
+            Self::To => Self::InputData,
+            Self::InputData => Self::From,
         }
     }
 
     pub fn previous(&self, transaction: &TransactionWithReceipt) -> Self {
         match self {
-            Self::From => {
+            Self::From => Self::InputData,
+            Self::To => Self::From,
+            Self::InputData => {
                 if transaction.transaction.to.is_some() {
                     Self::To
                 } else {
                     Self::From
                 }
             }
-            Self::To => Self::From,
         }
     }
 }
@@ -39,6 +42,8 @@ impl From<usize> for SelectableTransactionDetailItem {
             Self::From
         } else if i == 1 {
             Self::To
+        } else if i == 2 {
+            Self::InputData
         } else {
             unreachable!()
         }
@@ -50,6 +55,7 @@ impl From<SelectableTransactionDetailItem> for usize {
         match val {
             SelectableTransactionDetailItem::From => 0,
             SelectableTransactionDetailItem::To => 1,
+            SelectableTransactionDetailItem::InputData => 2,
         }
     }
 }

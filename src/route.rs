@@ -10,6 +10,7 @@ pub enum RouteId {
     TransactionsOfBlock(Option<BlockWithTransactionReceipts<Transaction>>),
     WithdrawalsOfBlock(Option<BlockWithTransactionReceipts<Transaction>>),
     Transaction(Option<TransactionWithReceipt>),
+    InputDataOfTransaction(Option<TransactionWithReceipt>),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]

@@ -209,6 +209,14 @@ where
                                                 }
                                             }
                                         }
+                                        SelectableTransactionDetailItem::InputData => {
+                                            app.set_route(Route::new(
+                                                RouteId::InputDataOfTransaction(
+                                                    transaction.to_owned(),
+                                                ),
+                                                ActiveBlock::Main,
+                                            ));
+                                        }
                                     }
                                 }
                             }

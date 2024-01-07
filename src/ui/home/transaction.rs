@@ -4,7 +4,7 @@ use crate::{
         transaction::calculate_transaction_fee,
         types::{ERC20Token, TransactionWithReceipt},
     },
-    route::ActiveBlock,
+    route::{ActiveBlock, RouteId},
     App,
 };
 use ethers::core::{
@@ -40,7 +40,7 @@ pub fn render<B: Backend>(
 
         let [detail_rect, input_data_rect] = *Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Max(11), Constraint::Min(1)].as_ref())
+            .constraints([Constraint::Max(15), Constraint::Min(1)].as_ref())
             .split(rect)
         else {
             return;
@@ -239,6 +239,35 @@ pub fn render<B: Backend>(
             ));
         }
 
+        details.push(Line::from(
+            if app.transaction_detail_list_state.selected()
+                == Some(SelectableTransactionDetailItem::InputData.into())
+            {
+                Span::raw(format!(
+                    "{:<17}: {}",
+                    "Input Data",
+                    if let RouteId::InputDataOfTransaction(_) = app.get_current_route().get_id() {
+                        "▼"
+                    } else {
+                        "▶"
+                    }
+                ))
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD)
+            } else {
+                Span::raw(format!(
+                    "{:<17}: {}",
+                    "Input Data",
+                    if let RouteId::InputDataOfTransaction(_) = app.get_current_route().get_id() {
+                        "▼"
+                    } else {
+                        "▶"
+                    }
+                ))
+                .fg(Color::White)
+            },
+        ));
+
         let input_data = transaction
             .input
             .to_string()
@@ -273,7 +302,23 @@ pub fn render<B: Backend>(
                 .collect();
 
             let tabs = Tabs::new(titles)
-                .block(Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::TOP))
+                .block(
+                    Block::default()
+                        .borders(Borders::RIGHT | Borders::LEFT | Borders::TOP)
+                        .border_style(
+                            if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                                if let RouteId::InputDataOfTransaction(_) =
+                                    app.get_current_route().get_id()
+                                {
+                                    Style::default().fg(Color::Green)
+                                } else {
+                                    Style::default().fg(Color::White)
+                                }
+                            } else {
+                                Style::default().fg(Color::White)
+                            },
+                        ),
+                )
                 .select(app.selectable_contract_detail_item.into())
                 .style(Style::default())
                 .highlight_style(Style::default().bold().green());
@@ -289,7 +334,23 @@ pub fn render<B: Backend>(
                 Paragraph::new(raw_input_data.to_owned())
                     .alignment(Alignment::Left)
                     .block(
-                        Block::default().borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM),
+                        Block::default()
+                            .borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM)
+                            .border_style(
+                                if let ActiveBlock::Main =
+                                    app.get_current_route().get_active_block()
+                                {
+                                    if let RouteId::InputDataOfTransaction(_) =
+                                        app.get_current_route().get_id()
+                                    {
+                                        Style::default().fg(Color::Green)
+                                    } else {
+                                        Style::default().fg(Color::White)
+                                    }
+                                } else {
+                                    Style::default().fg(Color::White)
+                                },
+                            ),
                     )
                     .scroll((app.input_data_scroll, 0))
                     .wrap(Wrap { trim: false }),

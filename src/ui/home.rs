@@ -81,7 +81,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             RouteId::WithdrawalsOfBlock(block_with_transaction_receipts) => {
                 block::render(f, app, block_with_transaction_receipts, rest);
             }
-            RouteId::Transaction(transaction) => {
+            RouteId::Transaction(transaction) | RouteId::InputDataOfTransaction(transaction) => {
                 transaction::render(f, app, transaction, rest);
             }
             RouteId::Welcome => {
@@ -125,7 +125,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             RouteId::WithdrawalsOfBlock(block) => {
                 block::render(f, app, block, detail);
             }
-            RouteId::Transaction(transaction) => {
+            RouteId::Transaction(transaction) | RouteId::InputDataOfTransaction(transaction) => {
                 transaction::render(f, app, transaction, detail);
             }
             RouteId::Welcome => {
