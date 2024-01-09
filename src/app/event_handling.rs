@@ -366,6 +366,22 @@ where
                                     }
                                 }
                             }
+                            RouteId::InputDataOfTransaction(_) => {
+                                match SelectableInputDataDetailItem::from(
+                                    app.input_data_detail_list_state
+                                        .selected()
+                                        .unwrap_or(SelectableInputDataDetailItem::InputData.into()),
+                                ) {
+                                    SelectableInputDataDetailItem::InputData => {
+                                        app.input_data_scroll =
+                                            app.input_data_scroll.saturating_add(1);
+                                        app.input_data_scroll_state = app
+                                            .input_data_scroll_state
+                                            .position(app.input_data_scroll);
+                                    }
+                                    SelectableInputDataDetailItem::DecodedInputData => {}
+                                }
+                            }
                             RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
                                 app.contract_list_state.selected().unwrap_or(
                                     SelectableContractDetailItem::ContractSourceCode.into(),
@@ -487,6 +503,22 @@ where
                                             SelectableTransactionDetailItem::From.into(),
                                         ));
                                     }
+                                }
+                            }
+                            RouteId::InputDataOfTransaction(_) => {
+                                match SelectableInputDataDetailItem::from(
+                                    app.input_data_detail_list_state
+                                        .selected()
+                                        .unwrap_or(SelectableInputDataDetailItem::InputData.into()),
+                                ) {
+                                    SelectableInputDataDetailItem::InputData => {
+                                        app.input_data_scroll =
+                                            app.input_data_scroll.saturating_sub(1);
+                                        app.input_data_scroll_state = app
+                                            .input_data_scroll_state
+                                            .position(app.input_data_scroll);
+                                    }
+                                    SelectableInputDataDetailItem::DecodedInputData => {}
                                 }
                             }
                             RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
