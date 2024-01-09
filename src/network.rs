@@ -12,7 +12,13 @@ use ethers::{
     providers::{Http, Middleware, Provider},
 };
 use futures::future::{join_all, try_join, try_join3};
-use std::{error::Error, sync::Arc};
+use std::{
+    fs::File,
+    io::Write,
+    process::Command,
+    {error::Error, sync::Arc},
+};
+use tempfile::tempdir;
 use tokio::sync::Mutex;
 
 const RATE_LIMIT: usize = 60;
@@ -168,7 +174,14 @@ impl<'a> Network<'a> {
                 app.is_loading = false;
             }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
-                let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
+                let res = Self::get_transaction_with_receipt(
+                    self.endpoint,
+                    self.etherscan
+                        .as_ref()
+                        .and_then(|etherscan| etherscan.api_key.to_owned()),
+                    transaction_hash,
+                )
+                .await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
                     app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
@@ -363,6 +376,7 @@ impl<'a> Network<'a> {
 
     async fn get_transaction_with_receipt(
         endpoint: &'a str,
+        etherscan_api_key: Option<String>,
         transaction_hash: TxHash,
     ) -> Result<Option<TransactionWithReceipt>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
@@ -370,10 +384,44 @@ impl<'a> Network<'a> {
         let transaction_receipt = provider.get_transaction_receipt(transaction_hash).await?;
         if let Some(transaction) = transaction {
             if let Some(transaction_receipt) = transaction_receipt {
+                let decoded_input_data = if let Some(api_key) = etherscan_api_key {
+                    let client = Client::builder()
+                        .with_api_key(api_key)
+                        .chain(Chain::Mainnet)?
+                        .build()?;
+
+                    if let Some(to) = transaction.to {
+                        let abi = client.contract_abi(to).await?;
+
+                        let s = serde_json::to_string(&abi)?;
+
+                        let dir = tempdir()?;
+                        let file_path = dir.path().join("lazy-etherscan.tmp.abi.json");
+                        let mut file = File::create(file_path.to_owned())?;
+                        writeln!(file, "{}", s)?;
+
+                        let output = Command::new("ethereum-input-data-decoder")
+                            .args([
+                                "--abi",
+                                file_path.to_str().unwrap(),
+                                &transaction.input.to_string(),
+                            ])
+                            .output()?;
+
+                        drop(file);
+                        dir.close()?;
+                        Some(String::from_utf8(output.stdout)?)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
                 Ok(Some(TransactionWithReceipt {
                     transaction,
                     transaction_receipt,
-                    decoded_input_data: None,
+                    decoded_input_data,
                 }))
             } else {
                 Ok(None)

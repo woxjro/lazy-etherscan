@@ -23,7 +23,7 @@ pub fn render<B: Backend>(
         let TransactionWithReceipt {
             transaction,
             transaction_receipt,
-            decoded_input_data: _,
+            decoded_input_data,
         } = transaction_with_receipt;
 
         let detail_block = Block::default()
@@ -286,7 +286,16 @@ pub fn render<B: Backend>(
             ]));
         }
 
-        let raw_decoded_input_data: Vec<Line> = vec![Line::from("")];
+        let mut raw_decoded_input_data = vec![];
+
+        if let Some(decoded_input_data) = decoded_input_data {
+            for (idx, line) in decoded_input_data.split("\n").enumerate() {
+                raw_decoded_input_data.push(Line::from(vec![
+                    Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
+                    Span::raw(line.to_string()).fg(Color::White),
+                ]));
+            }
+        }
 
         app.input_data_scroll_state = app
             .input_data_scroll_state
@@ -435,29 +444,39 @@ pub fn render<B: Backend>(
 
             let block = Block::default().padding(Padding::new(1, 1, 0, 1));
             f.render_widget(
-                Paragraph::new(raw_input_data.to_owned())
-                    .alignment(Alignment::Left)
-                    .block(
-                        Block::default()
-                            .borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM)
-                            .border_style(
-                                if let ActiveBlock::Main =
-                                    app.get_current_route().get_active_block()
+                Paragraph::new(
+                    match app
+                        .input_data_detail_list_state
+                        .selected()
+                        .map_or(SelectableInputDataDetailItem::InputData, |i| {
+                            SelectableInputDataDetailItem::from(i)
+                        }) {
+                        SelectableInputDataDetailItem::InputData => raw_input_data.to_owned(),
+                        SelectableInputDataDetailItem::DecodedInputData => {
+                            raw_decoded_input_data.to_owned()
+                        }
+                    },
+                )
+                .alignment(Alignment::Left)
+                .block(
+                    Block::default()
+                        .borders(Borders::RIGHT | Borders::LEFT | Borders::BOTTOM)
+                        .border_style(
+                            if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                                if let RouteId::InputDataOfTransaction(_) =
+                                    app.get_current_route().get_id()
                                 {
-                                    if let RouteId::InputDataOfTransaction(_) =
-                                        app.get_current_route().get_id()
-                                    {
-                                        Style::default().fg(Color::Green)
-                                    } else {
-                                        Style::default().fg(Color::White)
-                                    }
+                                    Style::default().fg(Color::Green)
                                 } else {
                                     Style::default().fg(Color::White)
-                                },
-                            ),
-                    )
-                    .scroll((app.input_data_scroll, 0))
-                    .wrap(Wrap { trim: false }),
+                                }
+                            } else {
+                                Style::default().fg(Color::White)
+                            },
+                        ),
+                )
+                .scroll((app.input_data_scroll, 0))
+                .wrap(Wrap { trim: false }),
                 block.inner(chunks[1]),
             );
 
