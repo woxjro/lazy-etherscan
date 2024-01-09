@@ -285,11 +285,110 @@ pub fn render<B: Backend>(
             ]));
         }
 
+        let raw_decoded_input_data: Vec<Line> = vec![Line::from("")];
+
         app.input_data_scroll_state = app
             .input_data_scroll_state
             .content_length(raw_input_data.len() as u16);
 
+        app.decoded_input_data_scroll_state = app
+            .decoded_input_data_scroll_state
+            .content_length(raw_decoded_input_data.len() as u16);
+
         if app.is_toggled {
+            let chunks = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)])
+                .split(input_data_rect);
+
+            // render INPUT DATA
+            let block = Block::default().padding(Padding::new(1, 0, 0, 1));
+            f.render_widget(
+                Paragraph::new(raw_input_data.to_owned())
+                    .alignment(Alignment::Left)
+                    .block(
+                        if let SelectableInputDataDetailItem::InputData =
+                            SelectableInputDataDetailItem::from(
+                                app.input_data_detail_list_state
+                                    .selected()
+                                    .unwrap_or(SelectableInputDataDetailItem::InputData.into()),
+                            )
+                        {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .green()
+                                .title(Span::styled(
+                                    "INPUT DATA",
+                                    Style::default().add_modifier(Modifier::BOLD).green(),
+                                ))
+                        } else {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .gray()
+                                .title(Span::styled(
+                                    "INPUT DATA",
+                                    Style::default().add_modifier(Modifier::BOLD),
+                                ))
+                        },
+                    )
+                    .scroll((app.input_data_scroll, 0))
+                    .wrap(Wrap { trim: false }),
+                block.inner(chunks[0]),
+            );
+
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[0]),
+                &mut app.input_data_scroll_state,
+            );
+
+            // render DECODED INPUT DATA
+            let block = Block::default().padding(Padding::new(0, 1, 0, 1));
+            f.render_widget(
+                Paragraph::new(raw_decoded_input_data)
+                    .alignment(Alignment::Left)
+                    .block(
+                        //FIXME
+                        if let SelectableInputDataDetailItem::DecodedInputData =
+                            SelectableInputDataDetailItem::from(
+                                app.input_data_detail_list_state
+                                    .selected()
+                                    .unwrap_or(SelectableInputDataDetailItem::InputData.into()),
+                            )
+                        {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .green()
+                                .title(Span::styled(
+                                    "DECODED INPUT DATA",
+                                    Style::default().add_modifier(Modifier::BOLD).green(),
+                                ))
+                        } else {
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .gray()
+                                .title(Span::styled(
+                                    "DECODED INPUT DATA",
+                                    Style::default().add_modifier(Modifier::BOLD),
+                                ))
+                        },
+                    )
+                    .scroll((app.decoded_input_data_scroll, 0))
+                    .wrap(Wrap { trim: false }),
+                block.inner(chunks[1]),
+            );
+
+            f.render_stateful_widget(
+                Scrollbar::default()
+                    .orientation(ScrollbarOrientation::VerticalRight)
+                    .begin_symbol(Some("▲"))
+                    .end_symbol(Some("▼")),
+                block.inner(chunks[1]),
+                &mut app.decoded_input_data_scroll_state,
+            );
         } else {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)

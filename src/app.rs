@@ -50,6 +50,8 @@ pub struct App {
     pub input_data_detail_list_state: ListState,
     pub input_data_scroll_state: ScrollbarState,
     pub input_data_scroll: u16,
+    pub decoded_input_data_scroll_state: ScrollbarState,
+    pub decoded_input_data_scroll: u16,
     //Token Data
     pub erc20_tokens: Vec<ERC20Token>,
 }
@@ -99,6 +101,8 @@ impl App {
             input_data_detail_list_state: ListState::default(),
             input_data_scroll_state: ScrollbarState::default(),
             input_data_scroll: 0,
+            decoded_input_data_scroll_state: ScrollbarState::default(),
+            decoded_input_data_scroll: 0,
             //Token Data
             erc20_tokens,
         }
