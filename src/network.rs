@@ -373,6 +373,7 @@ impl<'a> Network<'a> {
                 Ok(Some(TransactionWithReceipt {
                     transaction,
                     transaction_receipt,
+                    decoded_input_data: None,
                 }))
             } else {
                 Ok(None)
@@ -466,6 +467,7 @@ impl<'a> Network<'a> {
             result.push(TransactionWithReceipt {
                 transaction: transactions[i].to_owned(),
                 transaction_receipt: receipts[i].to_owned(),
+                decoded_input_data: None,
             });
         }
 

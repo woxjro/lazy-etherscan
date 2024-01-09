@@ -24,6 +24,7 @@ pub mod types {
     pub struct TransactionWithReceipt {
         pub transaction: Transaction,
         pub transaction_receipt: TransactionReceipt,
+        pub decoded_input_data: Option<String>,
     }
 
     #[derive(Clone, Debug, PartialEq)]

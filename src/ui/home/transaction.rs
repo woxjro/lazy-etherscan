@@ -23,6 +23,7 @@ pub fn render<B: Backend>(
         let TransactionWithReceipt {
             transaction,
             transaction_receipt,
+            decoded_input_data: _,
         } = transaction_with_receipt;
 
         let detail_block = Block::default()
