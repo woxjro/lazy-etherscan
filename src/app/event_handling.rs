@@ -1,6 +1,9 @@
 use crate::app::{
-    address::SelectableContractDetailItem, block::SelectableBlockDetailItem,
-    statistics::Statistics, transaction::SelectableTransactionDetailItem, App, InputMode,
+    address::SelectableContractDetailItem,
+    block::SelectableBlockDetailItem,
+    statistics::Statistics,
+    transaction::{SelectableInputDataDetailItem, SelectableTransactionDetailItem},
+    App, InputMode,
 };
 use crate::ethers::types::BlockWithTransactionReceipts;
 use crate::network::IoEvent;
@@ -528,34 +531,78 @@ where
                         _ => {}
                     },
                     event::KeyCode::Right => {
-                        if let RouteId::AddressInfo(address_info) = app.get_current_route().get_id()
-                        {
-                            if let Some(address_info) = address_info {
-                                app.contract_list_state.select(Some(
-                                    SelectableContractDetailItem::from(
-                                        app.contract_list_state.selected().unwrap_or(
-                                            SelectableContractDetailItem::ContractSourceCode.into(),
-                                        ),
-                                    )
-                                    .next(&address_info)
-                                    .into(),
-                                ))
+                        if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                            match app.get_current_route().get_id() {
+                                RouteId::AddressInfo(address_info) => {
+                                    if let Some(address_info) = address_info {
+                                        app.contract_list_state.select(Some(
+                                        SelectableContractDetailItem::from(
+                                            app.contract_list_state.selected().unwrap_or(
+                                                SelectableContractDetailItem::ContractSourceCode
+                                                    .into(),
+                                            ),
+                                        )
+                                        .next(&address_info)
+                                        .into(),
+                                    ))
+                                    }
+                                }
+                                RouteId::Transaction(transaction)
+                                | RouteId::InputDataOfTransaction(transaction) => {
+                                    if transaction.is_some() {
+                                        app.input_data_detail_list_state.select(Some(
+                                            SelectableInputDataDetailItem::from(
+                                                app.input_data_detail_list_state
+                                                    .selected()
+                                                    .unwrap_or(
+                                                        SelectableInputDataDetailItem::InputData
+                                                            .into(),
+                                                    ),
+                                            )
+                                            .next()
+                                            .into(),
+                                        ));
+                                    }
+                                }
+                                _ => {}
                             }
                         }
                     }
                     event::KeyCode::Left => {
-                        if let RouteId::AddressInfo(address_info) = app.get_current_route().get_id()
-                        {
-                            if let Some(address_info) = address_info {
-                                app.contract_list_state.select(Some(
-                                    SelectableContractDetailItem::from(
-                                        app.contract_list_state.selected().unwrap_or(
-                                            SelectableContractDetailItem::ContractSourceCode.into(),
-                                        ),
-                                    )
-                                    .previous(&address_info)
-                                    .into(),
-                                ))
+                        if let ActiveBlock::Main = app.get_current_route().get_active_block() {
+                            match app.get_current_route().get_id() {
+                                RouteId::AddressInfo(address_info) => {
+                                    if let Some(address_info) = address_info {
+                                        app.contract_list_state.select(Some(
+                                        SelectableContractDetailItem::from(
+                                            app.contract_list_state.selected().unwrap_or(
+                                                SelectableContractDetailItem::ContractSourceCode
+                                                    .into(),
+                                            ),
+                                        )
+                                        .previous(&address_info)
+                                        .into(),
+                                    ))
+                                    }
+                                }
+                                RouteId::Transaction(transaction)
+                                | RouteId::InputDataOfTransaction(transaction) => {
+                                    if transaction.is_some() {
+                                        app.input_data_detail_list_state.select(Some(
+                                            SelectableInputDataDetailItem::from(
+                                                app.input_data_detail_list_state
+                                                    .selected()
+                                                    .unwrap_or(
+                                                        SelectableInputDataDetailItem::InputData
+                                                            .into(),
+                                                    ),
+                                            )
+                                            .previous()
+                                            .into(),
+                                        ));
+                                    }
+                                }
+                                _ => {}
                             }
                         }
                     }

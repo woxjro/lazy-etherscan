@@ -47,6 +47,7 @@ pub struct App {
     pub abi_scroll: u16,
     //Transaction Detail
     pub transaction_detail_list_state: ListState,
+    pub input_data_detail_list_state: ListState,
     pub input_data_scroll_state: ScrollbarState,
     pub input_data_scroll: u16,
     //Token Data
@@ -95,6 +96,7 @@ impl App {
             abi_scroll: 0,
             //Transaction Detail
             transaction_detail_list_state: ListState::default(),
+            input_data_detail_list_state: ListState::default(),
             input_data_scroll_state: ScrollbarState::default(),
             input_data_scroll: 0,
             //Token Data

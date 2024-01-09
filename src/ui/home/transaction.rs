@@ -1,5 +1,5 @@
 use crate::{
-    app::{address::SelectableContractDetailItem, transaction::SelectableTransactionDetailItem},
+    app::transaction::{SelectableInputDataDetailItem, SelectableTransactionDetailItem},
     ethers::{
         transaction::calculate_transaction_fee,
         types::{ERC20Token, TransactionWithReceipt},
@@ -320,9 +320,9 @@ pub fn render<B: Backend>(
                         ),
                 )
                 .select(
-                    app.contract_list_state
+                    app.input_data_detail_list_state
                         .selected()
-                        .unwrap_or(SelectableContractDetailItem::ContractSourceCode.into()),
+                        .unwrap_or(SelectableInputDataDetailItem::InputData.into()),
                 )
                 .style(Style::default())
                 .highlight_style(Style::default().bold().green());
