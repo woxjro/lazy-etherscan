@@ -14,6 +14,7 @@
 
 - [lazy-etherscan](#lazy-etherscan)
   - [Features](#features)
+  - [Prerequisites](#prerequisites)
   - [Build](#build)
   - [Configurations & Usage](#configurations--usage)
   - [Roadmap](#roadmap)
@@ -28,6 +29,12 @@
 - **No Browser Required** - Use it effortlessly even in environments where browsers are unavailable, such as within servers.
 - **Developer Friendly** - Operate efficiently using keyboard shortcuts.
 - **Easily Switch Endpoints** - Switch between endpoints, including Mainnet, Testnets, custom node connections, and even BSC endpoints.
+
+## Prerequisites
+To see transactions' decoded input data, you have to preinstall [`ethereum-input-data-decoder`](https://github.com/miguelmota/ethereum-input-data-decoder). Please run the following command.
+```sh
+npm install -g ethereum-input-data-decoder
+```
 
 ## Build
 This software has been tested and verified to work correctly on the following operating systems:
