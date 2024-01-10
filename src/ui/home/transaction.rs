@@ -289,7 +289,7 @@ pub fn render<B: Backend>(
         let mut raw_decoded_input_data = vec![];
 
         if let Some(decoded_input_data) = decoded_input_data {
-            for (idx, line) in decoded_input_data.split("\n").enumerate() {
+            for (idx, line) in decoded_input_data.split('\n').enumerate() {
                 raw_decoded_input_data.push(Line::from(vec![
                     Span::raw(format!("{:>3}  ", idx + 1)).fg(Color::Gray),
                     Span::raw(line.to_string()).fg(Color::White),

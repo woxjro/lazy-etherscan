@@ -123,6 +123,9 @@ where
                                         )),
                                         ActiveBlock::Main,
                                     ));
+                                    app.dispatch(IoEvent::GetDecodedInputData {
+                                        transaction: transactions.items[i].transaction.to_owned(),
+                                    });
                                 }
                             }
                         }

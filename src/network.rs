@@ -41,6 +41,9 @@ pub enum IoEvent {
     GetTransactionReceipts {
         transactions: Vec<Transaction>,
     },
+    GetDecodedInputData {
+        transaction: Transaction,
+    },
     GetLatestBlocks {
         n: usize,
     },
@@ -172,6 +175,45 @@ impl<'a> Network<'a> {
                 }
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+            }
+            IoEvent::GetDecodedInputData { transaction } => {
+                let res = Self::get_decoded_input_data(
+                    self.etherscan
+                        .as_ref()
+                        .and_then(|etherscan| etherscan.api_key.to_owned()),
+                    transaction,
+                )
+                .await;
+
+                let mut app = self.app.lock().await;
+                if let Ok(decoded_input_data) = res {
+                    let current_route = app.get_current_route();
+                    match current_route.get_id() {
+                        RouteId::Transaction(transaction)
+                        | RouteId::InputDataOfTransaction(transaction) => {
+                            app.pop_current_route();
+                            let new_transaction = transaction.map_or(None, |transaction| {
+                                Some(TransactionWithReceipt {
+                                    transaction: transaction.transaction,
+                                    transaction_receipt: transaction.transaction_receipt,
+                                    decoded_input_data,
+                                })
+                            });
+                            let new_route_id = match current_route.get_id() {
+                                RouteId::Transaction(_) => RouteId::Transaction(new_transaction),
+                                RouteId::InputDataOfTransaction(_) => {
+                                    RouteId::InputDataOfTransaction(new_transaction)
+                                }
+                                _ => unreachable!(),
+                            };
+                            app.set_route(Route::new(
+                                new_route_id,
+                                current_route.get_active_block(),
+                            ));
+                        }
+                        _ => {}
+                    }
+                }
             }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
                 let res = Self::get_transaction_with_receipt(
@@ -374,6 +416,48 @@ impl<'a> Network<'a> {
         }))
     }
 
+    async fn get_decoded_input_data(
+        etherscan_api_key: Option<String>,
+        transaction: Transaction,
+    ) -> Result<Option<String>, Box<dyn Error>> {
+        let decoded_input_data = if let Some(api_key) = etherscan_api_key {
+            let client = Client::builder()
+                .with_api_key(api_key)
+                .chain(Chain::Mainnet)?
+                .build()?;
+
+            if let Some(to) = transaction.to {
+                let abi = client.contract_abi(to).await?;
+
+                let s = serde_json::to_string(&abi)?;
+
+                let dir = tempdir()?;
+                let file_path = dir.path().join("lazy-etherscan.tmp.abi.json");
+                let mut file = File::create(&file_path)?;
+                writeln!(file, "{}", s)?;
+
+                let output = Command::new("ethereum-input-data-decoder")
+                    .args([
+                        "--abi",
+                        file_path.to_str().unwrap(),
+                        &transaction.input.to_string(),
+                    ])
+                    .output()
+                    .map_or(None, |output| String::from_utf8(output.stdout).ok());
+
+                drop(file);
+                dir.close()?;
+
+                output
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        Ok(decoded_input_data)
+    }
+
     async fn get_transaction_with_receipt(
         endpoint: &'a str,
         etherscan_api_key: Option<String>,
@@ -397,7 +481,7 @@ impl<'a> Network<'a> {
 
                         let dir = tempdir()?;
                         let file_path = dir.path().join("lazy-etherscan.tmp.abi.json");
-                        let mut file = File::create(file_path.to_owned())?;
+                        let mut file = File::create(&file_path)?;
                         writeln!(file, "{}", s)?;
 
                         let output = Command::new("ethereum-input-data-decoder")
@@ -406,11 +490,13 @@ impl<'a> Network<'a> {
                                 file_path.to_str().unwrap(),
                                 &transaction.input.to_string(),
                             ])
-                            .output()?;
+                            .output()
+                            .map_or(None, |output| String::from_utf8(output.stdout).ok());
 
                         drop(file);
                         dir.close()?;
-                        Some(String::from_utf8(output.stdout)?)
+
+                        output
                     } else {
                         None
                     }
