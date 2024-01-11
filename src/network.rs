@@ -326,7 +326,6 @@ impl<'a> Network<'a> {
         }))
     }
 
-    //TODO: use `join`
     async fn get_address_info(
         endpoint: &'a str,
         address: Address,
@@ -340,21 +339,20 @@ impl<'a> Network<'a> {
             None
         };
 
-        let contract_source_code = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
-            client.contract_source_code(address).await.ok()
-        } else {
-            None
-        };
-
-        let contract_abi = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
-            client.contract_abi(address).await.ok()
-        } else {
-            None
-        };
+        let (contract_source_code, contract_abi) =
+            if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
+                try_join(
+                    client.contract_source_code(address),
+                    client.contract_abi(address),
+                )
+                .await
+                .map_or((None, None), |res| (Some(res.0), Some(res.1)))
+            } else {
+                (None, None)
+            };
 
         let balance = provider.get_balance(address, None).await?;
 
-        //TODO: Not Found
         Ok(Some(AddressInfo {
             address,
             balance,
