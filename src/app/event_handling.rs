@@ -493,19 +493,16 @@ where
                                     }
                                 }
                             }
-                            RouteId::Transaction(transaction) => {
-                                if let Some(transaction) = transaction.as_ref() {
-                                    if let Some(i) = app.transaction_detail_list_state.selected() {
-                                        app.transaction_detail_list_state.select(Some(
-                                            SelectableTransactionDetailItem::from(i)
-                                                .previous(transaction)
-                                                .into(),
-                                        ));
-                                    } else {
-                                        app.transaction_detail_list_state.select(Some(
-                                            SelectableTransactionDetailItem::From.into(),
-                                        ));
-                                    }
+                            RouteId::Transaction(Some(transaction)) => {
+                                if let Some(i) = app.transaction_detail_list_state.selected() {
+                                    app.transaction_detail_list_state.select(Some(
+                                        SelectableTransactionDetailItem::from(i)
+                                            .previous(&transaction)
+                                            .into(),
+                                    ));
+                                } else {
+                                    app.transaction_detail_list_state
+                                        .select(Some(SelectableTransactionDetailItem::From.into()));
                                 }
                             }
                             RouteId::InputDataOfTransaction(_) => {
@@ -568,9 +565,8 @@ where
                     event::KeyCode::Right => {
                         if let ActiveBlock::Main = app.get_current_route().get_active_block() {
                             match app.get_current_route().get_id() {
-                                RouteId::AddressInfo(address_info) => {
-                                    if let Some(address_info) = address_info {
-                                        app.contract_list_state.select(Some(
+                                RouteId::AddressInfo(Some(address_info)) => {
+                                    app.contract_list_state.select(Some(
                                         SelectableContractDetailItem::from(
                                             app.contract_list_state.selected().unwrap_or(
                                                 SelectableContractDetailItem::ContractSourceCode
@@ -580,24 +576,18 @@ where
                                         .next(&address_info)
                                         .into(),
                                     ))
-                                    }
                                 }
-                                RouteId::Transaction(transaction)
-                                | RouteId::InputDataOfTransaction(transaction) => {
-                                    if transaction.is_some() {
-                                        app.input_data_detail_list_state.select(Some(
-                                            SelectableInputDataDetailItem::from(
-                                                app.input_data_detail_list_state
-                                                    .selected()
-                                                    .unwrap_or(
-                                                        SelectableInputDataDetailItem::InputData
-                                                            .into(),
-                                                    ),
-                                            )
-                                            .next()
-                                            .into(),
-                                        ));
-                                    }
+                                RouteId::Transaction(Some(_))
+                                | RouteId::InputDataOfTransaction(Some(_)) => {
+                                    app.input_data_detail_list_state.select(Some(
+                                        SelectableInputDataDetailItem::from(
+                                            app.input_data_detail_list_state.selected().unwrap_or(
+                                                SelectableInputDataDetailItem::InputData.into(),
+                                            ),
+                                        )
+                                        .next()
+                                        .into(),
+                                    ));
                                 }
                                 _ => {}
                             }
@@ -606,9 +596,8 @@ where
                     event::KeyCode::Left => {
                         if let ActiveBlock::Main = app.get_current_route().get_active_block() {
                             match app.get_current_route().get_id() {
-                                RouteId::AddressInfo(address_info) => {
-                                    if let Some(address_info) = address_info {
-                                        app.contract_list_state.select(Some(
+                                RouteId::AddressInfo(Some(address_info)) => {
+                                    app.contract_list_state.select(Some(
                                         SelectableContractDetailItem::from(
                                             app.contract_list_state.selected().unwrap_or(
                                                 SelectableContractDetailItem::ContractSourceCode
@@ -618,24 +607,18 @@ where
                                         .previous(&address_info)
                                         .into(),
                                     ))
-                                    }
                                 }
-                                RouteId::Transaction(transaction)
-                                | RouteId::InputDataOfTransaction(transaction) => {
-                                    if transaction.is_some() {
-                                        app.input_data_detail_list_state.select(Some(
-                                            SelectableInputDataDetailItem::from(
-                                                app.input_data_detail_list_state
-                                                    .selected()
-                                                    .unwrap_or(
-                                                        SelectableInputDataDetailItem::InputData
-                                                            .into(),
-                                                    ),
-                                            )
-                                            .previous()
-                                            .into(),
-                                        ));
-                                    }
+                                RouteId::Transaction(Some(_))
+                                | RouteId::InputDataOfTransaction(Some(_)) => {
+                                    app.input_data_detail_list_state.select(Some(
+                                        SelectableInputDataDetailItem::from(
+                                            app.input_data_detail_list_state.selected().unwrap_or(
+                                                SelectableInputDataDetailItem::InputData.into(),
+                                            ),
+                                        )
+                                        .previous()
+                                        .into(),
+                                    ));
                                 }
                                 _ => {}
                             }

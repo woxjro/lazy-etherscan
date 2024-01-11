@@ -194,13 +194,11 @@ impl<'a> Network<'a> {
                         RouteId::Transaction(transaction)
                         | RouteId::InputDataOfTransaction(transaction) => {
                             app.pop_current_route();
-                            let new_transaction = transaction.map_or(None, |transaction| {
-                                Some(TransactionWithReceipt {
+                            let new_transaction = transaction.map(|transaction| TransactionWithReceipt {
                                     transaction: transaction.transaction,
                                     transaction_receipt: transaction.transaction_receipt,
                                     decoded_input_data,
-                                })
-                            });
+                                });
                             let new_route_id = match current_route.get_id() {
                                 RouteId::Transaction(_) => RouteId::Transaction(new_transaction),
                                 RouteId::InputDataOfTransaction(_) => {
