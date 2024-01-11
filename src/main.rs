@@ -11,26 +11,9 @@ use crossterm::{event, execute, terminal};
 use log::LevelFilter;
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
-use serde::Deserialize;
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
-use std::{
-    error::Error,
-    fs, io,
-    io::{BufReader, Read},
-    sync::Arc,
-    time::Duration,
-};
+use std::{error::Error, io, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
-
-#[derive(Deserialize, Debug)]
-struct Settings {
-    etherscan: Option<Etherscan>,
-}
-
-#[derive(Deserialize, Clone, Debug)]
-pub struct Etherscan {
-    api_key: Option<String>,
-}
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -58,11 +41,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ])
     .unwrap();
 
-    let settings: Option<Settings> = match read_file("./settings.toml".to_owned()) {
-        Ok(s) => toml::from_str(&s).unwrap_or(None),
-        Err(_) => None,
-    };
-
     // setup terminal
     terminal::enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -83,13 +61,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let cloned_app = Arc::clone(&app);
 
     std::thread::spawn(move || {
-        let mut network = Network::new(
-            &app,
-            &args.endpoint,
-            settings
-                .as_ref()
-                .map_or(&None, |settings| &settings.etherscan),
-        );
+        let mut network = Network::new(&app, &args.endpoint);
         start_tokio(sync_io_rx, &mut network);
     });
 
@@ -110,19 +82,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
-}
-
-fn read_file(path: String) -> Result<String, String> {
-    let mut file_content = String::new();
-
-    let mut fr = fs::File::open(path)
-        .map(BufReader::new)
-        .map_err(|e| e.to_string())?;
-
-    fr.read_to_string(&mut file_content)
-        .map_err(|e| e.to_string())?;
-
-    Ok(file_content)
 }
 
 async fn start_ui<B: Backend>(

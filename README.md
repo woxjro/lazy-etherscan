@@ -31,6 +31,15 @@
 - **Easily Switch Endpoints** - Switch between endpoints, including Mainnet, Testnets, custom node connections, and even BSC endpoints.
 
 ## Prerequisites
+### Optional: Etherscan API Key
+To see statistics information about Ethereum, you have to set an Etherscan's free API key.
+You can get it from [here](https://etherscan.io/apis).
+And add it to your environment variables. If you are using `zsh`, run the following command.
+```sh
+$ echo 'export ETHERSCAN_API_KEY=XXXXXXXXXXXX' >> ~/.zshenv
+```
+
+### Optional: [`ethereum-input-data-decoder`](https://github.com/miguelmota/ethereum-input-data-decoder)
 To see transactions' decoded input data, you have to preinstall [`ethereum-input-data-decoder`](https://github.com/miguelmota/ethereum-input-data-decoder). Please run the following command.
 ```sh
 npm install -g ethereum-input-data-decoder
@@ -48,15 +57,6 @@ $ cargo run --
 ```
 
 ## Configurations & Usage
-### Ethereum Statistics
-To see statistics information about Ethereum, you have to set an Etherscan's free API key.
-You can get it from [here](https://etherscan.io/apis).
-And set it to `api_key` field in `settings.toml`. You can use a setting template file (`settings.example.toml`).
-```sh
-$ mv ./settings.example.toml ./settings.toml
-```
-
-### Configurations
 Please check the various settings such as endpoints using the following command:
 ```sh
 cargo run -- --help

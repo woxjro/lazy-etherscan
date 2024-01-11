@@ -3,7 +3,6 @@ use crate::{
     ethers::types::{AddressInfo, BlockWithTransactionReceipts, TransactionWithReceipt},
     route::{ActiveBlock, Route, RouteId},
     widget::StatefulList,
-    Etherscan,
 };
 use ethers::{
     core::types::{
@@ -64,32 +63,17 @@ pub enum IoEvent {
 pub struct Network<'a> {
     pub app: &'a Arc<Mutex<App>>,
     endpoint: &'a str,
-    etherscan: &'a Option<Etherscan>,
 }
 
 impl<'a> Network<'a> {
-    pub fn new(
-        app: &'a Arc<Mutex<App>>,
-        endpoint: &'a str,
-        etherscan: &'a Option<Etherscan>,
-    ) -> Self {
-        Self {
-            app,
-            endpoint,
-            etherscan,
-        }
+    pub fn new(app: &'a Arc<Mutex<App>>, endpoint: &'a str) -> Self {
+        Self { app, endpoint }
     }
 
     pub async fn handle_network_event(&mut self, io_event: IoEvent) {
         match io_event {
             IoEvent::GetStatistics => {
-                let res = Self::get_statistics(
-                    self.endpoint,
-                    self.etherscan
-                        .as_ref()
-                        .and_then(|etherscan| etherscan.api_key.to_owned()),
-                )
-                .await;
+                let res = Self::get_statistics(self.endpoint).await;
                 let mut app = self.app.lock().await;
                 if let Ok(statistics) = res {
                     app.statistics = statistics;
@@ -103,14 +87,7 @@ impl<'a> Network<'a> {
                 let res = match name_or_address {
                     NameOrAddress::Name(name) => Self::get_name_info(self.endpoint, &name).await,
                     NameOrAddress::Address(address) => {
-                        Self::get_address_info(
-                            self.endpoint,
-                            self.etherscan
-                                .as_ref()
-                                .and_then(|etherscan| etherscan.api_key.to_owned()),
-                            address,
-                        )
-                        .await
+                        Self::get_address_info(self.endpoint, address).await
                     }
                 };
                 let mut app = self.app.lock().await;
@@ -179,13 +156,7 @@ impl<'a> Network<'a> {
                 app.is_loading = false;
             }
             IoEvent::GetDecodedInputData { transaction } => {
-                let res = Self::get_decoded_input_data(
-                    self.etherscan
-                        .as_ref()
-                        .and_then(|etherscan| etherscan.api_key.to_owned()),
-                    transaction,
-                )
-                .await;
+                let res = Self::get_decoded_input_data(transaction).await;
 
                 let mut app = self.app.lock().await;
                 if let Ok(decoded_input_data) = res {
@@ -194,7 +165,8 @@ impl<'a> Network<'a> {
                         RouteId::Transaction(transaction)
                         | RouteId::InputDataOfTransaction(transaction) => {
                             app.pop_current_route();
-                            let new_transaction = transaction.map(|transaction| TransactionWithReceipt {
+                            let new_transaction =
+                                transaction.map(|transaction| TransactionWithReceipt {
                                     transaction: transaction.transaction,
                                     transaction_receipt: transaction.transaction_receipt,
                                     decoded_input_data,
@@ -216,14 +188,7 @@ impl<'a> Network<'a> {
                 }
             }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
-                let res = Self::get_transaction_with_receipt(
-                    self.endpoint,
-                    self.etherscan
-                        .as_ref()
-                        .and_then(|etherscan| etherscan.api_key.to_owned()),
-                    transaction_hash,
-                )
-                .await;
+                let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
                 let mut app = self.app.lock().await;
                 if let Ok(some) = res {
                     app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
@@ -245,12 +210,7 @@ impl<'a> Network<'a> {
             }
             IoEvent::InitialSetup { n } => {
                 let (statistics, blocks, transactions) = try_join3(
-                    Self::get_statistics(
-                        self.endpoint,
-                        self.etherscan
-                            .as_ref()
-                            .and_then(|etherscan| etherscan.api_key.to_owned()),
-                    ),
+                    Self::get_statistics(self.endpoint),
                     Self::get_latest_blocks(self.endpoint, n),
                     Self::get_latest_transactions(self.endpoint, n),
                 )
@@ -369,7 +329,6 @@ impl<'a> Network<'a> {
     //TODO: use `join`
     async fn get_address_info(
         endpoint: &'a str,
-        etherscan_api_key: Option<String>,
         address: Address,
     ) -> Result<Option<AddressInfo>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
@@ -381,29 +340,19 @@ impl<'a> Network<'a> {
             None
         };
 
-        let contract_source_code = if let Some(api_key) = etherscan_api_key.to_owned() {
-            let client = Client::builder()
-                .with_api_key(api_key)
-                .chain(Chain::Mainnet)?
-                .build()?;
-
+        let contract_source_code = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
             client.contract_source_code(address).await.ok()
         } else {
             None
         };
 
-        let contract_abi = if let Some(api_key) = etherscan_api_key {
-            let client = Client::builder()
-                .with_api_key(api_key)
-                .chain(Chain::Mainnet)?
-                .build()?;
-
+        let contract_abi = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
             client.contract_abi(address).await.ok()
         } else {
             None
         };
 
-        let balance = provider.get_balance(address, None /* TODO */).await?;
+        let balance = provider.get_balance(address, None).await?;
 
         //TODO: Not Found
         Ok(Some(AddressInfo {
@@ -417,15 +366,9 @@ impl<'a> Network<'a> {
     }
 
     async fn get_decoded_input_data(
-        etherscan_api_key: Option<String>,
         transaction: Transaction,
     ) -> Result<Option<String>, Box<dyn Error>> {
-        let decoded_input_data = if let Some(api_key) = etherscan_api_key {
-            let client = Client::builder()
-                .with_api_key(api_key)
-                .chain(Chain::Mainnet)?
-                .build()?;
-
+        let decoded_input_data = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
             if let Some(to) = transaction.to {
                 let abi = client.contract_abi(to).await?;
 
@@ -460,7 +403,6 @@ impl<'a> Network<'a> {
 
     async fn get_transaction_with_receipt(
         endpoint: &'a str,
-        etherscan_api_key: Option<String>,
         transaction_hash: TxHash,
     ) -> Result<Option<TransactionWithReceipt>, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
@@ -468,12 +410,7 @@ impl<'a> Network<'a> {
         let transaction_receipt = provider.get_transaction_receipt(transaction_hash).await?;
         if let Some(transaction) = transaction {
             if let Some(transaction_receipt) = transaction_receipt {
-                let decoded_input_data = if let Some(api_key) = etherscan_api_key {
-                    let client = Client::builder()
-                        .with_api_key(api_key)
-                        .chain(Chain::Mainnet)?
-                        .build()?;
-
+                let decoded_input_data = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
                     if let Some(to) = transaction.to {
                         let abi = client.contract_abi(to).await?;
 
@@ -608,22 +545,14 @@ impl<'a> Network<'a> {
         Ok(result)
     }
 
-    async fn get_statistics(
-        endpoint: &'a str,
-        etherscan_api_key: Option<String>,
-    ) -> Result<Statistics, Box<dyn Error>> {
+    async fn get_statistics(endpoint: &'a str) -> Result<Statistics, Box<dyn Error>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
 
         let mut ethusd = None;
         let mut node_count = None;
         let mut suggested_base_fee = None;
         let mut med_gas_price = None;
-        if let Some(api_key) = etherscan_api_key {
-            let client = Client::builder()
-                .with_api_key(api_key)
-                .chain(Chain::Mainnet)?
-                .build()?;
-
+        if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
             let (eth_price, total_node_count, gas_oracle) =
                 try_join3(client.eth_price(), client.node_count(), client.gas_oracle()).await?;
 
