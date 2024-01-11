@@ -1,6 +1,6 @@
 [package]
 name = "lazy-etherscan"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["woxjro <usuzawa.yoshi.55z@st.kyoto-u.ac.jp>"]
 license = "MIT"
