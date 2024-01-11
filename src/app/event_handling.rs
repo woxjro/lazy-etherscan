@@ -384,7 +384,13 @@ where
                                             .input_data_scroll_state
                                             .position(app.input_data_scroll);
                                     }
-                                    SelectableInputDataDetailItem::DecodedInputData => {}
+                                    SelectableInputDataDetailItem::DecodedInputData => {
+                                        app.decoded_input_data_scroll =
+                                            app.decoded_input_data_scroll.saturating_add(1);
+                                        app.decoded_input_data_scroll_state = app
+                                            .decoded_input_data_scroll_state
+                                            .position(app.decoded_input_data_scroll);
+                                    }
                                 }
                             }
                             RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
@@ -520,7 +526,13 @@ where
                                             .input_data_scroll_state
                                             .position(app.input_data_scroll);
                                     }
-                                    SelectableInputDataDetailItem::DecodedInputData => {}
+                                    SelectableInputDataDetailItem::DecodedInputData => {
+                                        app.decoded_input_data_scroll =
+                                            app.decoded_input_data_scroll.saturating_sub(1);
+                                        app.decoded_input_data_scroll_state = app
+                                            .decoded_input_data_scroll_state
+                                            .position(app.decoded_input_data_scroll);
+                                    }
                                 }
                             }
                             RouteId::AddressInfo(_) => match SelectableContractDetailItem::from(
