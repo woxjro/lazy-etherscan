@@ -3,9 +3,12 @@ mod fee_info;
 mod gas_info;
 mod transactions;
 mod withdrawals;
-use crate::app::App;
-use crate::ethers::types::BlockWithTransactionReceipts;
-use crate::route::{ActiveBlock, RouteId};
+use crate::{
+    app::App,
+    ethers::types::BlockWithTransactionReceipts,
+    route::{ActiveBlock, RouteId},
+};
+
 use ethers::core::types::Transaction;
 use ratatui::{prelude::*, widgets::*};
 

@@ -1,5 +1,7 @@
-use crate::app::{block::SelectableBlockDetailItem, App};
-use crate::route::{ActiveBlock, RouteId};
+use crate::{
+    app::{block::SelectableBlockDetailItem, App},
+    route::{ActiveBlock, RouteId},
+};
 use ethers::core::{
     types::{Block as EBlock, Transaction},
     utils::{format_ether, format_units},

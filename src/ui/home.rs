@@ -5,8 +5,10 @@ mod searching;
 mod statistics;
 mod transaction;
 mod welcome;
-use crate::app::{App, InputMode};
-use crate::route::{ActiveBlock, RouteId};
+use crate::{
+    app::{App, InputMode},
+    route::{ActiveBlock, RouteId},
+};
 use ratatui::{prelude::*, widgets::*};
 
 /// /home

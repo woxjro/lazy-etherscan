@@ -1,8 +1,10 @@
-use crate::app::{statistics::Statistics, App};
-use crate::ethers::types::{AddressInfo, BlockWithTransactionReceipts, TransactionWithReceipt};
-use crate::route::{ActiveBlock, Route, RouteId};
-use crate::widget::StatefulList;
-use crate::Etherscan;
+use crate::{
+    app::{statistics::Statistics, App},
+    ethers::types::{AddressInfo, BlockWithTransactionReceipts, TransactionWithReceipt},
+    route::{ActiveBlock, Route, RouteId},
+    widget::StatefulList,
+    Etherscan,
+};
 use ethers::{
     core::types::{
         Address, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TransactionReceipt,

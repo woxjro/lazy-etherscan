@@ -1,5 +1,7 @@
-use crate::app::{statistics::Statistics, App};
-use crate::widget::Spinner;
+use crate::{
+    app::{statistics::Statistics, App},
+    widget::Spinner,
+};
 use ethers::core::utils::format_units;
 use ratatui::{prelude::*, widgets::*};
 
