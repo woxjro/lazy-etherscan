@@ -1,13 +1,15 @@
-use crate::app::{
-    address::SelectableContractDetailItem,
-    block::SelectableBlockDetailItem,
-    statistics::Statistics,
-    transaction::{SelectableInputDataDetailItem, SelectableTransactionDetailItem},
-    App, InputMode,
+use crate::{
+    app::{
+        address::SelectableContractDetailItem,
+        block::SelectableBlockDetailItem,
+        statistics::Statistics,
+        transaction::{SelectableInputDataDetailItem, SelectableTransactionDetailItem},
+        App, InputMode,
+    },
+    ethers::types::BlockWithTransactionReceipts,
+    network::IoEvent,
+    route::{ActiveBlock, Route, RouteId},
 };
-use crate::ethers::types::BlockWithTransactionReceipts;
-use crate::network::IoEvent;
-use crate::route::{ActiveBlock, Route, RouteId};
 use crossterm::event;
 use ethers::core::types::NameOrAddress;
 use log::debug;
