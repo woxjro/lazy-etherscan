@@ -29,6 +29,12 @@
 - **No Browser Required** - Use it effortlessly even in environments where browsers are unavailable, such as within servers.
 - **Developer Friendly** - Operate efficiently using keyboard shortcuts.
 - **Easily Switch Endpoints** - Switch between endpoints, including Mainnet, Testnets, custom node connections, and even BSC endpoints.
+- **Rich Search Functionality** - You can search by the following words.
+    - Address
+    - Block Number
+    - ENS ID
+    - Transaction Hash
+    - Ticker Name (`USDT`, `BNB`,`UNI`, ...)
 
 ## Prerequisites
 ### Optional: Etherscan API Key
@@ -42,7 +48,7 @@ $ echo 'export ETHERSCAN_API_KEY=XXXXXXXXXXXX' >> ~/.zshenv
 ### Optional: [`ethereum-input-data-decoder`](https://github.com/miguelmota/ethereum-input-data-decoder)
 To see transactions' decoded input data, you have to preinstall [`ethereum-input-data-decoder`](https://github.com/miguelmota/ethereum-input-data-decoder). Please run the following command.
 ```sh
-npm install -g ethereum-input-data-decoder
+$ npm install -g ethereum-input-data-decoder
 ```
 
 ## Build
@@ -59,7 +65,7 @@ $ cargo run --
 ## Configurations & Usage
 Please check the various settings such as endpoints using the following command:
 ```sh
-cargo run -- --help
+$ cargo run -- --help
 ```
 
 ### Usage
