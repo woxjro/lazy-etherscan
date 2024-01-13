@@ -44,7 +44,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
     let header = vec![
         ListItem::new(format!(
-            " {:^12} | {:^11} | {:^12} | {:^13} |", //TODO: remove these magic numbers
+            " {:^12} | {:^11} | {:^12} | {:^13} |",
             "Block Height", "Hash", "Transactions", "Time"
         )),
         ListItem::new(format!(
@@ -53,7 +53,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             "-".repeat(13),
             "-".repeat(14),
             "-".repeat(15),
-        )), //TODO: remove these magic numbers
+        )),
     ];
     let block_list = if let Some(latest_blocks) = app.latest_blocks.as_ref() {
         let mut res = header;
@@ -65,7 +65,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             } = block_with_transaction_receipts;
 
             res.push(ListItem::new(format!(
-                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |", //TODO: remove these magic numbers
+                "{:>13} | {:>12} | {:>7} txns | {:>4} secs ago |",
                 block.number.unwrap(),
                 block.hash.unwrap(),
                 block.transactions.len(),
@@ -95,7 +95,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
 
     let header = vec![
         ListItem::new(format!(
-            "{:^22} | {:^22} | {:^11} |", //TODO: remove these magic numbers
+            "{:^22} | {:^22} | {:^11} |",
             "From", "To", "Value (ETH)"
         )),
         ListItem::new(format!(

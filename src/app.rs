@@ -186,7 +186,6 @@ impl App {
             if let Err(e) = io_tx.send(action) {
                 self.is_loading = false;
                 println!("Error from dispatch {}", e);
-                // TODO: handle error
             };
         }
     }

@@ -215,7 +215,7 @@ impl<'a> Network<'a> {
                     Self::get_latest_transactions(self.endpoint, n),
                 )
                 .await
-                .unwrap(); //TODO: remove unwrap
+                .unwrap();
                 let mut addresses = vec![];
                 for transaction in &transactions {
                     addresses.push(transaction.transaction.from);
@@ -305,7 +305,6 @@ impl<'a> Network<'a> {
         }
     }
 
-    //TODO: use `join`
     async fn get_name_info(
         endpoint: &'a str,
         ens_id: &str,
@@ -314,8 +313,8 @@ impl<'a> Network<'a> {
         let address = provider.resolve_name(ens_id).await?;
 
         let avatar_url = provider.resolve_avatar(ens_id).await.ok();
-        let balance = provider.get_balance(address, None /* TODO */).await?;
-        //TODO: Not Found (impl LazyEtherscanError)
+        let balance = provider.get_balance(address, None).await?;
+
         Ok(Some(AddressInfo {
             address,
             balance,

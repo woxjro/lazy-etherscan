@@ -149,7 +149,7 @@ fn create_row<'a>(
         Cell::from(format!("{}", tx.hash)).fg(Color::White),
         if tx.to.is_some() {
             if tx.input.len() >= 4 {
-                Cell::from("ContractExecution").fg(Color::LightYellow) //TODO
+                Cell::from("ContractExecution").fg(Color::LightYellow)
             } else {
                 Cell::from("Transfer").fg(Color::LightMagenta)
             }
