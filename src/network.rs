@@ -4,6 +4,7 @@ use crate::{
     route::{ActiveBlock, Route, RouteId},
     widget::StatefulList,
 };
+use anyhow::Result;
 use ethers::{
     core::types::{
         Address, BlockId, BlockNumber, Chain, NameOrAddress, Transaction, TransactionReceipt,
@@ -70,7 +71,7 @@ impl<'a> Network<'a> {
         Self { app, endpoint }
     }
 
-    pub async fn handle_network_event(&mut self, io_event: IoEvent) {
+    pub async fn handle_network_event(&mut self, io_event: IoEvent) -> Result<()> {
         match io_event {
             IoEvent::GetStatistics => {
                 let res = Self::get_statistics(self.endpoint).await;
@@ -79,6 +80,7 @@ impl<'a> Network<'a> {
                     app.statistics = statistics;
                 }
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetNameOrAddressInfo {
                 name_or_address,
@@ -100,6 +102,7 @@ impl<'a> Network<'a> {
                 ));
 
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetBlock { number } => {
                 let res = Self::get_block(self.endpoint, number).await;
@@ -127,6 +130,7 @@ impl<'a> Network<'a> {
                 }
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetBlockByHash { hash } => {
                 let res = Self::get_block(self.endpoint, hash).await;
@@ -154,6 +158,7 @@ impl<'a> Network<'a> {
                 }
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetDecodedInputData { transaction } => {
                 let res = Self::get_decoded_input_data(transaction).await;
@@ -186,6 +191,7 @@ impl<'a> Network<'a> {
                         _ => {}
                     }
                 }
+                Ok(())
             }
             IoEvent::GetTransactionWithReceipt { transaction_hash } => {
                 let res = Self::get_transaction_with_receipt(self.endpoint, transaction_hash).await;
@@ -194,6 +200,7 @@ impl<'a> Network<'a> {
                     app.set_route(Route::new(RouteId::Transaction(some), ActiveBlock::Main));
                 }
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetTransactionReceipts { transactions } => {
                 let splitted_transactions = transactions.chunks(RATE_LIMIT).collect::<Vec<_>>();
@@ -207,6 +214,7 @@ impl<'a> Network<'a> {
                 }
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::InitialSetup { n } => {
                 let (statistics, blocks, transactions) = try_join3(
@@ -214,8 +222,7 @@ impl<'a> Network<'a> {
                     Self::get_latest_blocks(self.endpoint, n),
                     Self::get_latest_transactions(self.endpoint, n),
                 )
-                .await
-                .unwrap();
+                .await?;
                 let mut addresses = vec![];
                 for transaction in &transactions {
                     addresses.push(transaction.transaction.from);
@@ -236,17 +243,17 @@ impl<'a> Network<'a> {
 
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetLatestBlocks { n } => {
-                let blocks = Self::get_latest_blocks(self.endpoint, n).await.unwrap();
+                let blocks = Self::get_latest_blocks(self.endpoint, n).await?;
                 let mut app = self.app.lock().await;
                 app.latest_blocks = Some(StatefulList::with_items(blocks));
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::GetLatestTransactions { n } => {
-                let transactions = Self::get_latest_transactions(self.endpoint, n)
-                    .await
-                    .unwrap();
+                let transactions = Self::get_latest_transactions(self.endpoint, n).await?;
 
                 let mut addresses = vec![];
                 for transaction in &transactions {
@@ -265,11 +272,13 @@ impl<'a> Network<'a> {
 
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
             IoEvent::LookupAddresses { addresses } => {
                 let _ = self.update_app_with_ens_ids(&addresses).await;
                 let mut app = self.app.lock().await;
                 app.is_loading = false;
+                Ok(())
             }
         }
     }
@@ -362,9 +371,7 @@ impl<'a> Network<'a> {
         }))
     }
 
-    async fn get_decoded_input_data(
-        transaction: Transaction,
-    ) -> Result<Option<String>, Box<dyn Error>> {
+    async fn get_decoded_input_data(transaction: Transaction) -> Result<Option<String>> {
         let decoded_input_data = if let Ok(client) = Client::new_from_env(Chain::Mainnet) {
             if let Some(to) = transaction.to {
                 let abi = client.contract_abi(to).await?;
@@ -401,7 +408,7 @@ impl<'a> Network<'a> {
     async fn get_transaction_with_receipt(
         endpoint: &'a str,
         transaction_hash: TxHash,
-    ) -> Result<Option<TransactionWithReceipt>, Box<dyn Error>> {
+    ) -> Result<Option<TransactionWithReceipt>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let transaction = provider.get_transaction(transaction_hash).await?;
         let transaction_receipt = provider.get_transaction_receipt(transaction_hash).await?;
@@ -454,7 +461,7 @@ impl<'a> Network<'a> {
     async fn get_latest_blocks(
         endpoint: &'a str,
         n: usize,
-    ) -> Result<Vec<BlockWithTransactionReceipts<Transaction>>, Box<dyn Error>> {
+    ) -> Result<Vec<BlockWithTransactionReceipts<Transaction>>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let block_number = provider.get_block_number().await?;
 
@@ -479,7 +486,7 @@ impl<'a> Network<'a> {
     async fn get_transaction_receipts(
         endpoint: &'a str,
         transactions: &[Transaction],
-    ) -> Result<Vec<TransactionReceipt>, Box<dyn Error>> {
+    ) -> Result<Vec<TransactionReceipt>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let query = transactions
             .iter()
@@ -498,7 +505,7 @@ impl<'a> Network<'a> {
     async fn get_latest_transactions(
         endpoint: &'a str,
         n: usize,
-    ) -> Result<Vec<TransactionWithReceipt>, Box<dyn Error>> {
+    ) -> Result<Vec<TransactionWithReceipt>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
 
         let block = provider.get_block(BlockNumber::Latest).await?;
@@ -542,7 +549,7 @@ impl<'a> Network<'a> {
         Ok(result)
     }
 
-    async fn get_statistics(endpoint: &'a str) -> Result<Statistics, Box<dyn Error>> {
+    async fn get_statistics(endpoint: &'a str) -> Result<Statistics> {
         let provider = Provider::<Http>::try_from(endpoint)?;
 
         let mut ethusd = None;
@@ -598,7 +605,7 @@ impl<'a> Network<'a> {
     async fn lookup_addresses(
         endpoint: &'a str,
         addresses: &[Address],
-    ) -> Result<Vec<(Address, Option<String>)>, Box<dyn Error>> {
+    ) -> Result<Vec<(Address, Option<String>)>> {
         let provider = Provider::<Http>::try_from(endpoint)?;
         let query = addresses
             .iter()

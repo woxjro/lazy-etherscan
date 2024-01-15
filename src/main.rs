@@ -4,6 +4,7 @@ mod network;
 mod route;
 mod ui;
 mod widget;
+use anyhow::Result;
 use app::{event_handling::event_handling, App};
 use chrono::Utc;
 use clap::Parser;
@@ -12,7 +13,7 @@ use log::LevelFilter;
 use network::{IoEvent, Network};
 use ratatui::prelude::*;
 use simplelog::{ColorChoice, CombinedLogger, Config, TermLogger, TerminalMode, WriteLogger};
-use std::{error::Error, io, sync::Arc, time::Duration};
+use std::{io, sync::Arc, time::Duration};
 use tokio::sync::Mutex;
 
 #[derive(Parser, Debug)]
@@ -24,7 +25,7 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     let _ = std::fs::create_dir("logs");
     CombinedLogger::init(vec![
         TermLogger::new(
@@ -36,10 +37,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         WriteLogger::new(
             LevelFilter::Debug,
             Config::default(),
-            std::fs::File::create(format!("logs/{}.log", Utc::now().format("%Y%m%d%H%M"))).unwrap(),
+            std::fs::File::create(format!("logs/{}.log", Utc::now().format("%Y%m%d%H%M")))?,
         ),
-    ])
-    .unwrap();
+    ])?;
 
     // setup terminal
     terminal::enable_raw_mode()?;
@@ -84,10 +84,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn start_ui<B: Backend>(
-    terminal: &mut Terminal<B>,
-    app: &Arc<Mutex<App>>,
-) -> Result<(), Box<dyn Error>> {
+async fn start_ui<B: Backend>(terminal: &mut Terminal<B>, app: &Arc<Mutex<App>>) -> Result<()> {
     let mut is_first_render = true;
 
     loop {
@@ -102,7 +99,7 @@ async fn start_ui<B: Backend>(
         }
 
         if is_first_render {
-            let height = terminal.size().unwrap().height as usize;
+            let height = terminal.size()?.height as usize;
             app.dispatch(IoEvent::InitialSetup {
                 n: (height - 3 * 4) / 2 - 4,
             });
@@ -115,6 +112,6 @@ async fn start_ui<B: Backend>(
 #[tokio::main]
 async fn start_tokio(io_rx: std::sync::mpsc::Receiver<IoEvent>, network: &mut Network) {
     while let Ok(io_event) = io_rx.recv() {
-        network.handle_network_event(io_event).await;
+        let _ = network.handle_network_event(io_event).await;
     }
 }
