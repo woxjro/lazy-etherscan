@@ -111,7 +111,7 @@ pub fn render_home_layout<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             return;
         };
 
-        statistics::render(f, app, statistics);
+        let _ = statistics::render(f, app, statistics);
         latest_status::render(f, app, latest_status);
 
         match app.get_current_route().get_id() {

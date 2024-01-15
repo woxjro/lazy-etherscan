@@ -68,6 +68,7 @@ pub mod types {
 } /* types */
 
 pub mod transaction {
+    use anyhow::{bail, Context, Result};
     use ethers::{
         core::types::{Block, Transaction, TransactionReceipt},
         utils::format_ether,
@@ -77,23 +78,25 @@ pub mod transaction {
         transaction: &Transaction,
         transaction_receipt: &TransactionReceipt,
         _block: Option<Block<Transaction>>,
-    ) -> Option<String> {
+    ) -> Result<String> {
         if let Some(gas_used) = transaction_receipt.gas_used {
             // Legacy
             if let Some(gas_price) = transaction.gas_price {
-                Some(format_ether(gas_price * gas_used))
+                Ok(format_ether(gas_price * gas_used))
             } else {
                 //EIP-1559
-                Some(format_ether(
+                Ok(format_ether(
                     std::cmp::min(
-                        transaction.max_fee_per_gas.unwrap(),
+                        transaction.max_fee_per_gas.context("Fee per gas is None")?,
                         //block.base_fee_per_gas.unwrap() +
-                        transaction.max_priority_fee_per_gas.unwrap(),
+                        transaction
+                            .max_priority_fee_per_gas
+                            .context("Max Priority Fee Per Gas is NOne")?,
                     ) * gas_used,
                 ))
             }
         } else {
-            None // the the client is running in light client mode.
+            bail!("The client is running in light client mode.")
         }
     }
 } /* transaction */

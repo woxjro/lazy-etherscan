@@ -4,6 +4,7 @@ use crate::{
     route::{ActiveBlock, RouteId},
     widget::Spinner,
 };
+use anyhow::Result;
 use ethers::core::{
     types::{Transaction, TransactionReceipt, U64},
     utils::{format_ether, format_units},
@@ -15,7 +16,7 @@ pub fn render<B: Backend>(
     app: &mut App,
     block_with_transaction_receipts: &BlockWithTransactionReceipts<Transaction>,
     rect: Rect,
-) {
+) -> Result<()> {
     let BlockWithTransactionReceipts {
         block,
         transaction_receipts,
@@ -136,6 +137,7 @@ pub fn render<B: Backend>(
         .widths(&widths);
 
     f.render_stateful_widget(t, rect, &mut app.transactions_table_state);
+    Ok(())
 }
 
 fn create_row<'a>(

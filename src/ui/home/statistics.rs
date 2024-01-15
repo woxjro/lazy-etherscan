@@ -2,17 +2,18 @@ use crate::{
     app::{statistics::Statistics, App},
     widget::Spinner,
 };
+use anyhow::{bail, Context, Result};
 use ethers::core::utils::format_units;
 use ratatui::{prelude::*, widgets::*};
 
-pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
+pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) -> Result<()> {
     let [right_statistics, left_statistics] = *Layout::default()
         .direction(Direction::Horizontal)
         .margin(0)
         .constraints([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)].as_ref())
         .split(rect)
     else {
-        return;
+        bail!("Failed to create statistics columns.")
     };
 
     let [statistics0, statistics1, statistics2] = *Layout::default()
@@ -28,7 +29,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         )
         .split(right_statistics)
     else {
-        return;
+        bail!("Failed to create statistics rows.")
     };
 
     let [statistics3, statistics4, statistics5] = *Layout::default()
@@ -44,7 +45,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         )
         .split(left_statistics)
     else {
-        return;
+        bail!("Failed to create statistics rows.")
     };
 
     let statistic_items = [
@@ -78,7 +79,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             .constraints([Constraint::Length(1)].as_ref())
             .split(statistic_item)
         else {
-            return;
+            bail!("Failed to create a rect.")
         };
 
         let text = if i == Statistics::ETHUSD_INDEX {
@@ -89,7 +90,7 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             }
         } else if i == Statistics::SUGGESTED_BASE_FEE_INDEX {
             if let Some(suggested_base_fee) = app.statistics.suggested_base_fee {
-                format!("{} Gwei", format_units(suggested_base_fee, "gwei").unwrap())
+                format!("{} Gwei", format_units(suggested_base_fee, "gwei")?)
             } else {
                 Spinner::default().to_string()
             }
@@ -101,19 +102,22 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
             }
         } else if i == Statistics::LAST_SAFE_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_safe_block.as_ref() {
-                format!("#{}", block.number.unwrap())
+                format!("#{}", block.number.context("Block Number is None")?)
             } else {
                 Spinner::default().to_string()
             }
         } else if i == Statistics::MED_GAS_PRICE_INDEX {
             if let Some(med_gas_price) = app.statistics.med_gas_price {
-                format!("{} Gwei", format_units(med_gas_price, "gwei").unwrap())
+                format!(
+                    "{} Gwei",
+                    format_units(med_gas_price, "gwei").context("Failed to parse gas price")?
+                )
             } else {
                 Spinner::default().to_string()
             }
         } else if i == Statistics::LAST_FINALIZED_BLOCK_INDEX {
             if let Some(block) = app.statistics.last_finalized_block.as_ref() {
-                format!("#{}", block.number.unwrap())
+                format!("#{}", block.number.context("Block Number is None")?)
             } else {
                 Spinner::default().to_string()
             }
@@ -129,4 +133,5 @@ pub fn render<B: Backend>(f: &mut Frame<B>, app: &mut App, rect: Rect) {
         f.render_widget(paragraph, text_rect);
         f.render_widget(block, statistic_item.to_owned());
     }
+    Ok(())
 }

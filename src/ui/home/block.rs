@@ -37,7 +37,8 @@ pub fn render<B: Backend>(
         if let RouteId::WithdrawalsOfBlock(_) = app.get_current_route().get_id() {
             withdrawals::render(f, app, &block_with_transaction_receipts, transactions_rect);
         } else {
-            transactions::render(f, app, &block_with_transaction_receipts, transactions_rect);
+            let _ =
+                transactions::render(f, app, &block_with_transaction_receipts, transactions_rect);
         }
 
         let [block_info_rect, fee_info_rect, gas_info_rect] = *Layout::default()
