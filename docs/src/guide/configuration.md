@@ -5,7 +5,7 @@ The default endpoint is https://eth.public-rpc.com, and you can also set your pr
 You can find free endpoints from [ChainList](https://chainlist.org/chain/1).
 To set your endpoint, run with a `--endpoint` option.
 ```sh
-cargo run -- --endpoint=https://rpc.flashbots.net
+$ lazy-etherscan --endpoint=https://rpc.flashbots.net
 ```
 
 In the case of the L2 blockchain networks and BSC RPC endpoints listed below,
@@ -21,5 +21,5 @@ it has been confirmed that this software works to some extent.
 ## Other Configuration
 To check other configurations, run the following command.
 ```sh
-cargo run -- --help
+$ lazy-etherscan --help
 ```

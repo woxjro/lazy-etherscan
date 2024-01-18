@@ -1,5 +1,6 @@
 # Introduction
 
+`lazy-etherscan` is an Ethereum blockchain explorer that can be used from your terminal.
 
 ![demo](../resources/screenshots/demo.gif)
 
@@ -19,6 +20,3 @@
 - [Installation](guide/installation.md)
 - [Configuration](guide/configuration.md)
 - [Usage](guide/usage.md)
-
-
-TODO
