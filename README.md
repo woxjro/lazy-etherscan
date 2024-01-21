@@ -83,9 +83,8 @@ The basic usage is as follows:
 Please see [this issue](https://github.com/woxjro/lazy-etherscan/issues/1).
 
 ## Contributing
-This project is currently in the Proof of Concept (PoC) stage.
-Contributions are kindly requested to be postponed until further notice.
-Crash reports are welcome, please create an issue to do that.
+Any contributions are welcome!
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Sponsors
 This project has been developed with a grant from the [Ethereum Foundation](https://ethereum.org/en/foundation/) and [Gitcoin](https://www.gitcoin.co/).
