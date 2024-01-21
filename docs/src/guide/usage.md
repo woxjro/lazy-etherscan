@@ -17,15 +17,30 @@ The basic usage is as follows:
 ## Examples
 
 ### Searching by Tickers
-`USDT`で検索する例を紹介する。
-`s`を押して、検索バーにフォーカスする。そして、`i`を押して、編集モードに移行する。`USDT`とタイプして`Enter`を押す。
-検索結果の画面にて、左側にコントラクトのソースコード、右側にコントラクトのABIが表示されており、左右の矢印キーで相互にフォーカスが可能である。`j`/`k`キーを押すことで、フォーカスされている要素をスクロールすることができる。
+
+Here is an example of searching with `USDT`.
+
+Press `s` to focus on the search bar. Then, press `i` to enter edit mode. Type `USDT` and press `Enter`.
+
+On the search results screen, the left side displays the source code of the contract, and the right side shows the contract's ABI. You can navigate between them using the left and right arrow keys. Scroll through the focused elements using the `j`/`k` keys.
 
 ![demo](../resources/screenshots/ticker.png)
-また、`<Ctrl+e>`を押すことで、サイドバーをトグルすることができ、以下の画像のようにソースコードとABIを両方同時に見ることができる。
+
+Additionally, you can toggle the sidebar by pressing `<Ctrl+e>`, allowing you to view both the source code and ABI simultaneously, as shown in the image below:
+
 ![demo](../resources/screenshots/ticker_toggled.png)
 
-
 ### Exploring a Block
+Next, let's explore how to investigate blocks.
+
+You can input the block number in the search bar or select it from the Latest Blocks pane to navigate to the Block Details screen.
+
+Use `j`/`k` to navigate between selectable items such as `Transactions`, `Withdrawals`, `Fee Recipient`, and `Parent Hash`.
+
+For example, selecting `Transactions` and pressing `Enter` will take you to a pane displaying a list of transactions in the block.
+
 ![demo](../resources/screenshots/block.png)
+
+Moreover, pressing `<Ctrl+e>` toggles the sidebar, revealing more detailed information about the transaction list.
+
 ![demo](../resources/screenshots/block_toggled.png)
