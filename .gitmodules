@@ -1,0 +1,3 @@
+[submodule "ethereum-consensus"]
+	path = ethereum-consensus
+	url = git@github.com:ralexstokes/ethereum-consensus.git
