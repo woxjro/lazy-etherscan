@@ -57,7 +57,7 @@ This software has been tested and verified to work correctly on the following op
 - `macOS Ventura 13.2`
 
 ```sh
-$ git clone https://github.com/woxjro/lazy-etherscan
+$ git clone --recursive https://github.com/woxjro/lazy-etherscan
 $ cd lazy-etherscan
 $ cargo run --
 ```
