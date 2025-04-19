@@ -20,7 +20,7 @@ use tokio::sync::Mutex;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Json-RPC URL
-    #[arg(short, long, default_value = "https://eth.public-rpc.com")]
+    #[arg(short, long, default_value = "https://eth.llamarpc.com")]
     endpoint: String,
 }
 

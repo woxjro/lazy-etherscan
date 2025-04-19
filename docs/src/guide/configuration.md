@@ -1,7 +1,7 @@
 # Configuration
 
 ## Endpoint
-The default endpoint is https://eth.public-rpc.com, and you can also set your preferred endpoint.
+The default endpoint is https://eth.llamarpc.com, and you can also set your preferred endpoint.
 You can find free endpoints from [ChainList](https://chainlist.org/chain/1).
 To set your endpoint, run with a `--endpoint` option.
 ```sh
