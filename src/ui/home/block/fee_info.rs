@@ -40,7 +40,7 @@ pub fn render<B: Backend>(
         ),
     ];
 
-    let details = vec![
+    let mut details = vec![
         Line::from(
             if app.block_detail_list_state.selected()
                 == Some(SelectableBlockDetailItem::FeeRecipient.into())
@@ -53,20 +53,16 @@ pub fn render<B: Backend>(
                 fee_recipient_spans
             },
         ),
-        //ref: https://docs.alchemy.com/docs/how-to-calculate-ethereum-miner-rewards#calculate-a-miner-reward
-        //format!("Block Reward: {} ETH", /* TODO */):
-        Line::from(
-            Span::raw(format!(
-                "{:<20}: {}",
-                "Total Difficulty",
-                block.total_difficulty.unwrap()
-            ))
-            .fg(Color::White),
-        ),
         Line::from(
             Span::raw(format!("{:<20}: {} bytes", "Size", block.size.unwrap())).fg(Color::White),
         ),
     ];
+
+    if let Some(total_difficulty) = block.total_difficulty {
+        details.push(Line::from(
+            Span::raw(format!("{:<20}: {}", "Total Difficulty", total_difficulty)).fg(Color::White),
+        ));
+    }
 
     let paragraph = Paragraph::new(details)
         .block(detail_block.to_owned())
